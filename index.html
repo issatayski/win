@@ -209,6 +209,19 @@ tbody tr.clickable:hover{background:#F5F8FB;cursor:pointer}
 .term-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px 16px;max-width:560px}
 .term-grid .cur{display:flex;align-items:center;color:var(--muted);font-size:13px}
 
+/* эскиз изделия */
+.sketch{padding:14px 12px 4px;background:linear-gradient(#FBFCFD,#F4F6F8);border-bottom:1px solid var(--line-soft)}
+.sketch svg{display:block;width:100%;height:auto}
+.namecell{display:flex;align-items:center;gap:10px}
+.thumb{
+  flex:0 0 40px;width:40px;height:40px;display:block;cursor:pointer;
+  border:1px solid var(--line);border-radius:2px;background:#fff;padding:2px;
+}
+.thumb:hover{border-color:var(--blue-lite)}
+.thumb svg{display:block;width:100%;height:100%}
+tr.sel .thumb{border-color:var(--blue);box-shadow:0 0 0 2px #D6E4F2}
+tr.sel>td:first-child{box-shadow:inset 3px 0 0 var(--blue)}
+
 /* обёртка таблиц: горизонтальная прокрутка вместо разъезжающейся страницы */
 .tw{overflow-x:auto;-webkit-overflow-scrolling:touch}
 .tw table{min-width:100%}
@@ -275,6 +288,8 @@ tbody tr.clickable:hover{background:#F5F8FB;cursor:pointer}
   .t-items .inline-in[data-edit="qty"]{width:96px}
   .t-items .btn.sm{padding:6px 10px}
   .t-items .empty{display:block}
+  .t-items td:first-child{padding-bottom:10px}
+  .sketch{padding:10px 8px 2px}
 
   .bar{height:30px}
   .seg{font-size:9.5px}
@@ -383,6 +398,7 @@ const REMNANT_MIN = 400;  // короче — отход, длиннее — д�
 const state = {
   view:'orders',
   activeOrder:'ZK-1042',
+  activeItem:1,
   whTab:'mat',
   terms:{ rama:'Рама', stvorka:'Створка', impost:'Импост', shtapik:'Штапик', remnant:'Деловой остаток' },
   orders:[
@@ -709,14 +725,107 @@ function kpi(k,v,unit,cls=''){
 }
 
 /* ---------- Карточка заказа ---------- */
+/* =========================================================================
+   Эскиз изделия. Рисуется из тех же размеров, что идут в деталировку,
+   поэтому картинка и цифры не могут разойтись.
+   ========================================================================= */
+const SK = {stroke:'#7F8A96', pvc:'#EFF1F3', alu:'#C6CED7', glass:'#DBE7F2', glassLine:'#B2C6DA'};
+
+function sketch(item, sys, opts={}){
+  const mini = !!opts.mini;
+  const VW = mini?86:540, VH = mini?86:360;
+  const pL = mini?3:40, pR = mini?3:12, pT = mini?3:12, pB = mini?3:32;
+  const aw = VW-pL-pR, ah = VH-pT-pB;
+  const k  = Math.min(aw/item.w, ah/item.h);
+  const W = item.w*k, H = item.h*k;
+  const x0 = pL+(aw-W)/2, y0 = pT+(ah-H)/2;
+  const f  = Math.max(mini?2.5:5, sys.frameW*k);
+  const prof = sys.kind==='ПВХ' ? SK.pvc : SK.alu;
+  const sw = mini?.7:1;
+  const o = [];
+
+  const panel = (x,y,w,h,t,fill)=>{
+    if(w<=0||h<=0) return;
+    o.push(`<rect x="${x}" y="${y}" width="${w}" height="${h}" fill="${fill||prof}" stroke="${SK.stroke}" stroke-width="${sw}"/>`);
+    if(w>2*t && h>2*t)
+      o.push(`<rect x="${x+t}" y="${y+t}" width="${w-2*t}" height="${h-2*t}" fill="${SK.glass}" stroke="${SK.glassLine}" stroke-width="${sw}"/>`);
+  };
+  const open = (x,y,w,h,kind)=>{
+    if(mini || w<14 || h<14) return;
+    const d = `stroke="${SK.stroke}" stroke-width="1" stroke-dasharray="4 3" fill="none" opacity=".75"`;
+    if(kind.includes('L')) o.push(`<polyline points="${x+w},${y} ${x},${y+h/2} ${x+w},${y+h}" ${d}/>`);
+    if(kind.includes('R')) o.push(`<polyline points="${x},${y} ${x+w},${y+h/2} ${x},${y+h}" ${d}/>`);
+    if(kind.includes('T')) o.push(`<polyline points="${x},${y} ${x+w/2},${y+h} ${x+w},${y}" ${d}/>`);
+  };
+  const handle = (x,y,side)=>{
+    if(mini) return;
+    o.push(`<rect x="${x-2}" y="${y-9}" width="4" height="18" rx="2" fill="#5C666F"/>`);
+  };
+
+  // рама
+  panel(x0, y0, W, H, f, prof);
+  const lx = x0+f, ly = y0+f, lw = W-2*f, lh = H-2*f;
+  o.push(`<rect x="${lx}" y="${ly}" width="${lw}" height="${lh}" fill="${SK.glass}" stroke="${SK.glassLine}" stroke-width="${sw}"/>`);
+
+  const imp = Math.max(mini?2:4, 60*k);
+
+  if(item.tpl==='pov1'){
+    panel(lx, ly, lw, lh, f, prof);
+    open(lx+f, ly+f, lw-2*f, lh-2*f, 'LT');
+    handle(lx+3, ly+lh/2);
+  }
+  if(item.tpl==='pov2'){
+    const sW = (lw-imp)/2;
+    panel(lx, ly, sW, lh, f, prof);
+    panel(lx+sW+imp, ly, sW, lh, f, prof);
+    o.push(`<rect x="${lx+sW}" y="${ly}" width="${imp}" height="${lh}" fill="${prof}" stroke="${SK.stroke}" stroke-width="${sw}"/>`);
+    open(lx+f, ly+f, sW-2*f, lh-2*f, 'LT');
+    open(lx+sW+imp+f, ly+f, sW-2*f, lh-2*f, 'R');
+    handle(lx+sW-3, ly+lh/2);
+    handle(lx+sW+imp+3, ly+lh/2);
+  }
+  if(item.tpl==='dver'){
+    panel(lx, ly, lw, lh, f, prof);
+    open(lx+f, ly+f, lw-2*f, lh-2*f, 'L');
+    handle(lx+7, ly+lh*0.55);
+    o.push(`<rect x="${x0}" y="${y0+H-f*0.7}" width="${W}" height="${f*0.7}" fill="#AEB7C0" stroke="${SK.stroke}" stroke-width="${sw}"/>`);
+  }
+  if(item.tpl==='vitr'){
+    const secW = (lw-2*imp)/3;
+    for(let i=0;i<2;i++)
+      o.push(`<rect x="${lx+secW*(i+1)+imp*i}" y="${ly}" width="${imp}" height="${lh}" fill="${prof}" stroke="${SK.stroke}" stroke-width="${sw}"/>`);
+  }
+
+  // размерные линии
+  if(!mini){
+    const yD = VH-14, xD = 16;
+    o.push(`<g stroke="${SK.stroke}" stroke-width="1" opacity=".8">
+      <line x1="${x0}" y1="${yD}" x2="${x0+W}" y2="${yD}"/>
+      <line x1="${x0}" y1="${yD-4}" x2="${x0}" y2="${yD+4}"/>
+      <line x1="${x0+W}" y1="${yD-4}" x2="${x0+W}" y2="${yD+4}"/>
+      <line x1="${xD}" y1="${y0}" x2="${xD}" y2="${y0+H}"/>
+      <line x1="${xD-4}" y1="${y0}" x2="${xD+4}" y2="${y0}"/>
+      <line x1="${xD-4}" y1="${y0+H}" x2="${xD+4}" y2="${y0+H}"/></g>`);
+    const ts = `font-family="IBM Plex Mono, monospace" font-size="11" fill="#5A646F"`;
+    o.push(`<rect x="${x0+W/2-24}" y="${yD-7}" width="48" height="14" fill="#fff"/>`);
+    o.push(`<text x="${x0+W/2}" y="${yD+4}" text-anchor="middle" ${ts}>${item.w}</text>`);
+    o.push(`<rect x="${xD-7}" y="${y0+H/2-24}" width="14" height="48" fill="#fff"/>`);
+    o.push(`<text x="${xD}" y="${y0+H/2}" text-anchor="middle" ${ts} transform="rotate(-90 ${xD} ${y0+H/2})">${item.h}</text>`);
+  }
+
+  return `<svg viewBox="0 0 ${VW} ${VH}" xmlns="http://www.w3.org/2000/svg"
+    role="img" aria-label="${TEMPLATES[item.tpl].name} ${item.w} на ${item.h} мм">${o.join('')}</svg>`;
+}
+
 function viewOrder(){
   const o = order(state.activeOrder), sys = sysOf(o);
   const {details, glassArea, minutes} = orderParts(o);
   const c = costing(o);
 
   const items = o.items.map(it=>`
-    <tr>
-      <td>${TEMPLATES[it.tpl].name}<div class="mono-s muted">${TEMPLATES[it.tpl].desc}</div></td>
+    <tr${it.id===state.activeItem?' class="sel"':''}>
+      <td><div class="namecell"><span class="thumb" data-sel="${it.id}" title="Показать эскиз">${sketch(it,sys,{mini:true})}</span>
+        <span>${TEMPLATES[it.tpl].name}<div class="mono-s muted">${TEMPLATES[it.tpl].desc}</div></span></div></td>
       <td class="num" data-l="Ширина"><input class="inline-in" type="number" inputmode="numeric" step="10" value="${it.w}" data-edit="w" data-item="${it.id}"></td>
       <td class="num" data-l="Высота"><input class="inline-in" type="number" inputmode="numeric" step="10" value="${it.h}" data-edit="h" data-item="${it.id}"></td>
       <td class="num" data-l="Количество"><input class="inline-in" style="width:56px" type="number" inputmode="numeric" min="1" value="${it.qty}" data-edit="qty" data-item="${it.id}"></td>
@@ -767,6 +876,7 @@ function viewOrder(){
       </div>
 
       <div class="stack">
+        ${sketchCard(o, sys)}
         <div class="card">
           <div class="card-h"><h2>Параметры</h2></div>
           <div class="card-b stack" style="gap:12px">
@@ -798,6 +908,33 @@ function viewOrder(){
 }
 
 /* ---------- Раскрой ---------- */
+function sketchCard(o, sys){
+  if(!o.items.length) return '';
+  const it = o.items.find(i=>i.id===state.activeItem) || o.items[0];
+  state.activeItem = it.id;
+  const {parts, glass} = partsFor(it, sys);
+  const gArea = glass.reduce((s,g)=>s+(g.w/1000)*(g.h/1000)*g.qty,0)/it.qty;
+  const gl = glass[0];
+
+  return `<div class="card">
+    <div class="card-h"><h2>Эскиз изделия</h2>
+      <div class="grow"></div>
+      <select class="btn sm" id="itemSel">
+        ${o.items.map(x=>`<option value="${x.id}" ${x.id===it.id?'selected':''}>${TEMPLATES[x.tpl].name} ${x.w}×${x.h}</option>`).join('')}
+      </select></div>
+    <div class="sketch">${sketch(it, sys)}</div>
+    <table><tbody>
+      <tr><td>Заполнение</td><td class="num">${gl?`${mm(gl.w)}×${mm(gl.h)}`:'—'} <span class="muted">${gl&&gl.qty/it.qty>1?`× ${gl.qty/it.qty}`:''}</span></td></tr>
+      <tr><td>Стекла на изделие</td><td class="num">${m2(gArea)} м²</td></tr>
+      <tr><td>Деталей профиля</td><td class="num">${parts.reduce((s,p)=>s+p.qty,0)/it.qty} шт</td></tr>
+      <tr><td>Норма времени</td><td class="num">${TEMPLATES[it.tpl].min} мин</td></tr>
+    </tbody></table>
+    <div class="card-b" style="padding-top:0">
+      <div class="mono-s muted">${sys.kind} · штриховкой показано направление открывания</div>
+    </div>
+  </div>`;
+}
+
 function viewCutting(){
   const o = order(state.activeOrder);
   const plan = state.plans[o.id];
@@ -1153,13 +1290,14 @@ function viewSettings(){
    События
    ========================================================================= */
 document.addEventListener('click', e=>{
-  const t = e.target.closest('[data-nav],[data-open],[data-cut],[data-shop],[data-wh],[data-del]');
+  const t = e.target.closest('[data-nav],[data-open],[data-cut],[data-shop],[data-wh],[data-del],[data-sel]');
   if(!t) return;
   e.preventDefault();
 
   if(t.dataset.nav)  return go(t.dataset.nav);
   if(t.dataset.open) return go('order', t.dataset.open);
   if(t.dataset.wh){ state.whTab = t.dataset.wh; return render(); }
+  if(t.dataset.sel){ state.activeItem = +t.dataset.sel; return render(); }
 
   if(t.dataset.cut){
     const o = order(t.dataset.cut);
@@ -1184,6 +1322,7 @@ document.addEventListener('change', e=>{
   const el = e.target;
 
   if(el.id==='ordSel'){ state.activeOrder = el.value; return render(); }
+  if(el.id==='itemSel'){ state.activeItem = +el.value; return render(); }
   if(el.id==='sysSel'){
     const o = order(state.activeOrder); o.system = el.value; delete state.plans[o.id]; return render();
   }
@@ -1210,6 +1349,7 @@ document.addEventListener('click', e=>{
     const tpl = $('#addTpl').value;
     const id = Math.max(0,...o.items.map(i=>i.id))+1;
     o.items.push({id, tpl, w:1200, h:1400, qty:1});
+    state.activeItem = id;
     delete state.plans[o.id];
     return render();
   }
