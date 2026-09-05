@@ -1,0 +1,1261 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Профиль — учёт для оконного цеха</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --base:#E7EAEE;
+  --surface:#FFFFFF;
+  --panel:#F3F5F7;
+  --ink:#13181D;
+  --muted:#6A7481;
+  --line:#CFD5DC;
+  --line-soft:#E2E6EB;
+  --blue:#17395F;
+  --blue-lite:#2C5C8F;
+  --gold:#9A7400;
+  --gold-bg:#F6EAC2;
+  --rust:#8E3122;
+  --rust-bg:#F3DAD5;
+  --green:#2C6247;
+  --sans:'IBM Plex Sans',system-ui,-apple-system,'Segoe UI',sans-serif;
+  --mono:'IBM Plex Mono',ui-monospace,'SF Mono',monospace;
+}
+*{box-sizing:border-box}
+html,body{margin:0;padding:0}
+body{
+  background:var(--base);
+  color:var(--ink);
+  font-family:var(--sans);
+  font-size:14px;
+  line-height:1.5;
+  -webkit-font-smoothing:antialiased;
+}
+button{font-family:inherit;font-size:inherit;cursor:pointer}
+input,select{font-family:inherit;font-size:inherit}
+a{color:var(--blue-lite)}
+
+/* ---------- shell ---------- */
+.shell{display:grid;grid-template-columns:216px 1fr;min-height:100vh}
+.side{
+  background:var(--ink);
+  color:#B9C2CC;
+  padding:18px 0 30px;
+  display:flex;flex-direction:column;
+}
+.brand{padding:0 18px 20px;display:flex;align-items:baseline;gap:8px}
+.brand b{color:#fff;font-size:17px;font-weight:600;letter-spacing:-.2px}
+.brand span{font-family:var(--mono);font-size:10px;color:#69747F}
+.nav{display:flex;flex-direction:column}
+.nav button{
+  background:none;border:0;color:#AAB4BF;text-align:left;
+  padding:8px 18px;display:flex;align-items:center;gap:9px;
+  border-left:3px solid transparent;
+}
+.nav button:hover{color:#fff;background:#1C232A}
+.nav button[aria-current="true"]{color:#fff;background:#1C232A;border-left-color:var(--gold)}
+.nav .badge{
+  margin-left:auto;font-family:var(--mono);font-size:10px;
+  background:#333D47;color:#C6CFD8;padding:1px 5px;border-radius:2px;
+}
+.nav-sep{height:1px;background:#262F37;margin:12px 18px}
+.side-foot{margin-top:auto;padding:0 18px;font-size:11px;color:#5D6874;line-height:1.6}
+
+.main{display:flex;flex-direction:column;min-width:0}
+.topbar{
+  background:var(--surface);border-bottom:1px solid var(--line);
+  padding:12px 26px;display:flex;align-items:center;gap:16px;
+}
+.topbar h1{margin:0;font-size:17px;font-weight:600;letter-spacing:-.2px}
+.topbar .sub{color:var(--muted);font-size:12.5px}
+.topbar .right{margin-left:auto;display:flex;align-items:center;gap:14px}
+.who{font-size:12.5px;color:var(--muted);text-align:right;line-height:1.35}
+.who b{display:block;color:var(--ink);font-weight:500}
+.content{padding:22px 26px 60px;flex:1;min-width:0}
+
+/* ---------- primitives ---------- */
+.card{background:var(--surface);border:1px solid var(--line);border-radius:3px}
+.card-h{padding:12px 16px;border-bottom:1px solid var(--line-soft);display:flex;align-items:center;gap:12px}
+.card-h h2{margin:0;font-size:14px;font-weight:600}
+.card-h .note{font-size:12px;color:var(--muted)}
+.card-b{padding:16px}
+.row{display:flex;gap:16px;align-items:flex-start}
+.row>*{min-width:0}
+.grow{flex:1}
+.stack{display:flex;flex-direction:column;gap:16px}
+
+.btn{
+  border:1px solid var(--line);background:var(--surface);color:var(--ink);
+  padding:6px 12px;border-radius:2px;
+}
+.btn:hover{border-color:#A9B3BE;background:#FAFBFC}
+.btn.primary{background:var(--blue);border-color:var(--blue);color:#fff}
+.btn.primary:hover{background:#1E4876}
+.btn.ghost{border-color:transparent;background:none;color:var(--blue-lite);padding:6px 6px}
+.btn.ghost:hover{background:#EDF1F6}
+.btn:disabled{opacity:.45;cursor:default}
+.btn.sm{padding:3px 8px;font-size:12.5px}
+
+table{border-collapse:collapse;width:100%;font-size:13px}
+th{
+  text-align:left;font-weight:500;color:var(--muted);font-size:12px;
+  padding:7px 10px;border-bottom:1px solid var(--line);white-space:nowrap;
+}
+td{padding:8px 10px;border-bottom:1px solid var(--line-soft);vertical-align:middle}
+tr:last-child td{border-bottom:0}
+tbody tr.clickable:hover{background:#F5F8FB;cursor:pointer}
+.num{font-family:var(--mono);text-align:right;font-variant-numeric:tabular-nums;white-space:nowrap}
+.dim{font-family:var(--mono);font-size:12.5px}
+
+.tag{display:inline-block;font-size:11.5px;padding:1px 7px;border-radius:2px;border:1px solid transparent}
+.tag.new{background:#E8EFF7;color:var(--blue);border-color:#CBDCEC}
+.tag.work{background:var(--gold-bg);color:var(--gold);border-color:#E5D08C}
+.tag.done{background:#DFEFE6;color:var(--green);border-color:#B9DBC8}
+.tag.warn{background:var(--rust-bg);color:var(--rust);border-color:#E2BBB3}
+
+.field{display:flex;flex-direction:column;gap:4px}
+.field label{font-size:12px;color:var(--muted)}
+.field input,.field select{
+  border:1px solid var(--line);border-radius:2px;padding:6px 8px;background:#fff;
+}
+.field input:focus,.field select:focus{outline:2px solid #BBD2E8;outline-offset:-1px;border-color:var(--blue-lite)}
+.inline-in{
+  width:72px;border:1px solid var(--line);border-radius:2px;padding:3px 6px;
+  font-family:var(--mono);text-align:right;
+}
+
+.kpis{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:1px;background:var(--line-soft)}
+.kpi{background:var(--surface);padding:13px 15px}
+.kpi .k{font-size:12px;color:var(--muted)}
+.kpi .v{font-family:var(--mono);font-size:21px;font-weight:500;letter-spacing:-.5px;margin-top:2px}
+.kpi .v small{font-size:12px;color:var(--muted);font-weight:400;margin-left:3px}
+.kpi.hot .v{color:var(--rust)}
+.kpi.good .v{color:var(--green)}
+
+.empty{padding:44px 20px;text-align:center;color:var(--muted)}
+.empty b{display:block;color:var(--ink);font-weight:500;margin-bottom:5px}
+
+/* ---------- cutting map (hero) ---------- */
+.artgroup{margin-bottom:22px}
+.artgroup:last-child{margin-bottom:0}
+.artgroup-h{display:flex;align-items:baseline;gap:10px;margin-bottom:8px}
+.artgroup-h b{font-size:13.5px;font-weight:600}
+.artgroup-h .art{font-family:var(--mono);font-size:12px;color:var(--muted)}
+.artgroup-h .stat{margin-left:auto;font-family:var(--mono);font-size:12px;color:var(--muted)}
+.bar{
+  display:flex;align-items:stretch;height:34px;margin-bottom:5px;
+  border:1px solid var(--line);border-radius:2px;overflow:hidden;background:#fff;
+}
+.bar-lbl{
+  flex:0 0 108px;background:var(--panel);border-right:1px solid var(--line);
+  font-family:var(--mono);font-size:11px;color:var(--muted);
+  display:flex;align-items:center;padding:0 8px;
+}
+.bar-lbl.reuse{background:var(--gold-bg);color:var(--gold);border-right-color:#E5D08C}
+.bar-track{flex:1;display:flex;position:relative}
+.seg{
+  position:relative;display:flex;align-items:center;justify-content:center;
+  font-family:var(--mono);font-size:10.5px;overflow:hidden;white-space:nowrap;
+  border-right:1px solid rgba(255,255,255,.55);
+}
+.seg.part{background:var(--blue);color:#fff}
+.seg.part:nth-child(2n){background:var(--blue-lite)}
+.seg.rem{background:var(--gold-bg);color:var(--gold)}
+.seg.scrap{
+  background:repeating-linear-gradient(45deg,var(--rust-bg),var(--rust-bg) 5px,#EAC8C1 5px,#EAC8C1 10px);
+  color:var(--rust);
+}
+.seg[title]{cursor:help}
+.legend{display:flex;gap:16px;font-size:12px;color:var(--muted);margin-top:12px;flex-wrap:wrap}
+.legend i{display:inline-block;width:11px;height:11px;border-radius:2px;margin-right:5px;vertical-align:-1px}
+
+/* ---------- misc ---------- */
+.tabs{display:flex;gap:0;border-bottom:1px solid var(--line);margin-bottom:0}
+.tabs button{
+  background:none;border:0;border-bottom:2px solid transparent;
+  padding:8px 14px;color:var(--muted);margin-bottom:-1px;
+}
+.tabs button:hover{color:var(--ink)}
+.tabs button[aria-current="true"]{color:var(--ink);border-bottom-color:var(--blue);font-weight:500}
+
+.bars-mini{height:6px;background:var(--line-soft);border-radius:3px;overflow:hidden;min-width:70px}
+.bars-mini i{display:block;height:100%;background:var(--blue-lite)}
+.bars-mini i.low{background:var(--rust)}
+
+.hint{
+  background:var(--panel);border:1px solid var(--line-soft);border-left:3px solid var(--gold);
+  padding:10px 13px;font-size:12.5px;color:#3F4A55;border-radius:2px;
+}
+.hint b{font-weight:600;color:var(--ink)}
+
+.toast{
+  position:fixed;left:50%;bottom:26px;transform:translateX(-50%) translateY(10px);
+  background:var(--ink);color:#fff;padding:9px 16px;border-radius:3px;font-size:13px;
+  opacity:0;pointer-events:none;transition:opacity .18s,transform .18s;z-index:50;
+}
+.toast.on{opacity:1;transform:translateX(-50%) translateY(0)}
+
+.split{display:grid;grid-template-columns:1fr 320px;gap:16px;align-items:start}
+.mono-s{font-family:var(--mono);font-size:12px}
+.muted{color:var(--muted)}
+.right{text-align:right}
+.total-row td{border-top:2px solid var(--line);border-bottom:0;font-weight:600;padding-top:11px}
+
+.term-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px 16px;max-width:560px}
+.term-grid .cur{display:flex;align-items:center;color:var(--muted);font-size:13px}
+
+/* обёртка таблиц: горизонтальная прокрутка вместо разъезжающейся страницы */
+.tw{overflow-x:auto;-webkit-overflow-scrolling:touch}
+.tw table{min-width:100%}
+
+@media (max-width:900px){
+  .shell{grid-template-columns:1fr}
+  .side{flex-direction:column;padding:8px 0 6px;gap:6px}
+  .brand{padding:0 12px}
+  .nav{
+    flex-direction:row;flex-wrap:nowrap;overflow-x:auto;
+    scrollbar-width:none;padding:0 6px;gap:2px;
+  }
+  .nav::-webkit-scrollbar{display:none}
+  .nav button{
+    flex:0 0 auto;border-left:0;border-bottom:2px solid transparent;
+    padding:6px 10px;font-size:13px;white-space:nowrap;border-radius:2px 2px 0 0;
+  }
+  .nav button[aria-current="true"]{border-left-color:transparent;border-bottom-color:var(--gold)}
+  .nav .badge{margin-left:6px}
+  .nav-sep,.side-foot{display:none}
+
+  .split{grid-template-columns:1fr}
+  .content{padding:14px 12px 48px}
+  .topbar{padding:10px 12px}
+  .bar-lbl{flex-basis:74px;font-size:10px}
+  .kpis{grid-template-columns:repeat(auto-fit,minmax(132px,1fr))}
+  .term-grid{grid-template-columns:1fr;gap:4px 0}
+  .term-grid .cur{padding-top:6px}
+  .artgroup-h{flex-wrap:wrap;row-gap:2px}
+  .artgroup-h .stat{margin-left:0;flex-basis:100%}
+}
+
+@media (max-width:640px){
+  .topbar .who{display:none}
+  .topbar h1{font-size:16px}
+  .card-h{padding:10px 12px;flex-wrap:wrap;row-gap:6px}
+  .card-b{padding:12px}
+  .content{padding:12px 10px 44px}
+
+  /* таблицы: плотнее и всегда прокручиваются, а не ломают верстку */
+  .tw table{min-width:540px}
+  th{padding:6px 8px;font-size:11.5px}
+  td{padding:7px 8px;font-size:12.5px}
+  .opt{display:none}
+  .tw table.t-items{min-width:0}
+
+  /* состав заказа: строка таблицы превращается в карточку */
+  .t-items thead{display:none}
+  .t-items tbody tr{
+    display:block;border:1px solid var(--line-soft);border-radius:2px;
+    padding:10px 12px;margin:10px;background:#fff;
+  }
+  .t-items td{display:flex;align-items:center;gap:10px;border:0;padding:4px 0;font-size:13px}
+  .t-items td::before{
+    content:attr(data-l);color:var(--muted);font-size:12px;flex:0 0 88px;
+  }
+  .t-items td:first-child{
+    display:block;font-weight:500;padding-bottom:8px;margin-bottom:4px;
+    border-bottom:1px solid var(--line-soft);
+  }
+  .t-items td:first-child::before{content:none}
+  .t-items td.right{justify-content:flex-start;padding-top:8px}
+  .t-items .inline-in{width:96px;padding:7px 8px;font-size:15px;text-align:left}
+  .t-items .inline-in[data-edit="qty"]{width:96px}
+  .t-items .btn.sm{padding:6px 10px}
+  .t-items .empty{display:block}
+
+  .bar{height:30px}
+  .seg{font-size:9.5px}
+  .legend{gap:8px;font-size:11.5px}
+  .field input,.field select{padding:8px}
+}
+
+@media (max-width:400px){
+  .kpis{grid-template-columns:1fr 1fr}
+  .kpi{padding:10px 12px}
+  .kpi .v{font-size:18px}
+  .bar-lbl{flex-basis:60px;font-size:9.5px;padding:0 5px}
+}
+@media (prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important}}
+:focus-visible{outline:2px solid var(--blue-lite);outline-offset:1px}
+</style>
+</head>
+<body>
+
+<div class="shell">
+  <aside class="side">
+    <div class="brand"><b>Профиль</b><span>макет</span></div>
+    <nav class="nav" id="nav"></nav>
+    <div class="side-foot">
+      Демонстрационный макет.<br>Данные живут до перезагрузки страницы.
+    </div>
+  </aside>
+
+  <div class="main">
+    <header class="topbar">
+      <div>
+        <h1 id="pageTitle">Заказы</h1>
+        <div class="sub" id="pageSub"></div>
+      </div>
+      <div class="right">
+        <div class="who"><b>ТОО «Алюм-Сервис»</b>Шымкент · цех №1</div>
+      </div>
+    </header>
+    <main class="content" id="view"></main>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+/* =========================================================================
+   Профиль — макет SaaS для сборщиков окон, дверей и витражей
+   Один файл, без сборки и без бэкенда. Состояние в памяти.
+   Правила раскроя упрощены — это макет, а не производственный расчёт.
+   ========================================================================= */
+
+const money = n => Math.round(n).toLocaleString('ru-RU');
+const mm    = n => Math.round(n);
+const m2    = n => (n).toFixed(2);
+const $     = (s,r=document) => r.querySelector(s);
+
+/* ---------- справочник профильных систем ---------- */
+const SYSTEMS = {
+  'alt-w72': {
+    name:'Alutech ALT W72', kind:'Алюминий, тёплый',
+    frameW:72, sashOverlap:10, glassBite:14, kerf:5, stock:6000,
+    profiles:{
+      rama   :{art:'W72-101', name:'Рама',    priceM:4180, kgm:1.61},
+      stvorka:{art:'W72-203', name:'Створка', priceM:4760, kgm:1.84},
+      impost :{art:'W72-305', name:'Импост',  priceM:5240, kgm:2.02},
+      shtapik:{art:'W72-411', name:'Штапик',  priceM:1120, kgm:0.31}
+    }
+  },
+  'prov-p400': {
+    name:'Provedal P400', kind:'Алюминий, холодный',
+    frameW:45, sashOverlap:8, glassBite:10, kerf:5, stock:6000,
+    profiles:{
+      rama   :{art:'P400-01', name:'Рама',    priceM:2340, kgm:0.94},
+      stvorka:{art:'P400-02', name:'Створка', priceM:2680, kgm:1.08},
+      impost :{art:'P400-04', name:'Импост',  priceM:2910, kgm:1.19},
+      shtapik:{art:'P400-07', name:'Штапик',  priceM:760,  kgm:0.22}
+    }
+  },
+  'kbe-58': {
+    name:'KBE Эталон 58', kind:'ПВХ',
+    frameW:58, sashOverlap:12, glassBite:15, kerf:5, stock:6000,
+    profiles:{
+      rama   :{art:'KBE-101', name:'Рама',    priceM:2980, kgm:1.28},
+      stvorka:{art:'KBE-202', name:'Створка', priceM:3410, kgm:1.44},
+      impost :{art:'KBE-303', name:'Импост',  priceM:3760, kgm:1.55},
+      shtapik:{art:'KBE-404', name:'Штапик',  priceM:640,  kgm:0.18}
+    }
+  }
+};
+
+/* ---------- шаблоны изделий ---------- */
+const TEMPLATES = {
+  gluh:{ name:'Глухое окно',              min:15, fitting:0,     desc:'Рама + стеклопакет' },
+  pov1:{ name:'Одностворчатое поворотно-откидное', min:38, fitting:14800, desc:'Рама, створка, фурнитура' },
+  pov2:{ name:'Двустворчатое с импостом', min:62, fitting:26400, desc:'Рама, импост, две створки' },
+  dver:{ name:'Дверь распашная',          min:74, fitting:41500, desc:'Рама, дверная створка, петли, замок' },
+  vitr:{ name:'Витраж, 3 секции',         min:88, fitting:0,     desc:'Рама, два импоста, глухие заполнения' }
+};
+
+const GLASS = { name:'Стеклопакет 4-16-4', priceM2:9800 };
+const RATE_HOUR = 2600;   // ₸/час работы цеха
+const OVERHEAD  = 18;     // % накладных на себестоимость
+const REMNANT_MIN = 400;  // короче — отход, длиннее — деловой остаток
+
+/* ---------- состояние ---------- */
+const state = {
+  view:'orders',
+  activeOrder:'ZK-1042',
+  whTab:'mat',
+  terms:{ rama:'Рама', stvorka:'Створка', impost:'Импост', shtapik:'Штапик', remnant:'Деловой остаток' },
+  orders:[
+    { id:'ZK-1042', client:'ЖК «Асыл Арман», подрядчик Ерлан Т.', date:'02.09.2026',
+      system:'alt-w72', markup:34, status:'new',
+      items:[
+        {id:1, tpl:'pov2', w:1450, h:1400, qty:12},
+        {id:2, tpl:'gluh', w:900,  h:1400, qty:8},
+        {id:3, tpl:'dver', w:900,  h:2100, qty:2}
+      ]},
+    { id:'ZK-1041', client:'Магазин «Береке», ул. Байтурсынова', date:'29.08.2026',
+      system:'prov-p400', markup:41, status:'work',
+      items:[
+        {id:1, tpl:'vitr', w:3600, h:2700, qty:2},
+        {id:2, tpl:'dver', w:1000, h:2200, qty:1}
+      ]},
+    { id:'ZK-1039', client:'Частный дом, Аймауытова 14', date:'21.08.2026',
+      system:'kbe-58', markup:38, status:'done',
+      items:[
+        {id:1, tpl:'pov1', w:900, h:1350, qty:6},
+        {id:2, tpl:'gluh', w:600, h:1350, qty:4}
+      ]}
+  ],
+  plans:{},              // orderId -> раскрой
+  sentToShop:{},         // orderId -> true
+  remnants:[             // склад деловых остатков
+    {art:'W72-101', len:2140, qty:3},
+    {art:'W72-101', len:1620, qty:2},
+    {art:'W72-203', len:1880, qty:4},
+    {art:'W72-411', len:2400, qty:6},
+    {art:'P400-01', len:1750, qty:2}
+  ],
+  bars:{                 // склад хлыстов, шт по 6 м
+    'W72-101':46,'W72-203':31,'W72-305':12,'W72-411':58,
+    'P400-01':22,'P400-02':17,'P400-04':6,'P400-07':30,
+    'KBE-101':19,'KBE-202':14,'KBE-303':4,'KBE-404':26
+  },
+  blanks:[],             // склад заготовок (нарезано)
+  products:[             // склад готовой продукции
+    {order:'ZK-1039', name:'Одностворчатое поворотно-откидное 900×1350', qty:6, place:'Пирамида 2'},
+    {order:'ZK-1039', name:'Глухое окно 600×1350', qty:4, place:'Пирамида 2'}
+  ]
+};
+
+const T = k => state.terms[k];
+const sysOf = o => SYSTEMS[o.system];
+const order = id => state.orders.find(o=>o.id===id);
+
+/* =========================================================================
+   Расчёт деталировки изделия. Упрощённые правила: 45° рез по наружному
+   размеру, вычеты на нахлёст створки и заход стекла в фальц.
+   ========================================================================= */
+function partsFor(item, sys){
+  const {w,h,qty} = item, F = sys.frameW, OV = sys.sashOverlap, GB = sys.glassBite;
+  const P = sys.profiles, out = [], glass = [];
+  const add = (p,len,n,label)=>out.push({art:p.art, name:p.name, key:p.key, len:Math.round(len), qty:n*qty, label});
+
+  const K = {rama:{...P.rama,key:'rama'}, stvorka:{...P.stvorka,key:'stvorka'},
+             impost:{...P.impost,key:'impost'}, shtapik:{...P.shtapik,key:'shtapik'}};
+
+  const lightW = w - 2*F, lightH = h - 2*F;
+
+  if(item.tpl==='gluh'){
+    add(K.rama,w,2,'по ширине'); add(K.rama,h,2,'по высоте');
+    add(K.shtapik,lightW,2,'горизонт'); add(K.shtapik,lightH,2,'вертикаль');
+    glass.push({w:lightW+2*GB, h:lightH+2*GB, qty:qty});
+  }
+  if(item.tpl==='pov1'){
+    add(K.rama,w,2,'по ширине'); add(K.rama,h,2,'по высоте');
+    const sw = lightW+2*OV, sh = lightH+2*OV;
+    add(K.stvorka,sw,2,'горизонт'); add(K.stvorka,sh,2,'вертикаль');
+    const gw = sw-2*F+2*GB, gh = sh-2*F+2*GB;
+    add(K.shtapik,gw-2*GB,2,'горизонт'); add(K.shtapik,gh-2*GB,2,'вертикаль');
+    glass.push({w:gw,h:gh,qty:qty});
+  }
+  if(item.tpl==='pov2'){
+    add(K.rama,w,2,'по ширине'); add(K.rama,h,2,'по высоте');
+    add(K.impost,lightH,1,'вертикальный');
+    const sw = (lightW - 60)/2 + 2*OV, sh = lightH + 2*OV;
+    add(K.stvorka,sw,4,'горизонт'); add(K.stvorka,sh,4,'вертикаль');
+    const gw = sw-2*F+2*GB, gh = sh-2*F+2*GB;
+    add(K.shtapik,gw-2*GB,4,'горизонт'); add(K.shtapik,gh-2*GB,4,'вертикаль');
+    glass.push({w:gw,h:gh,qty:qty*2});
+  }
+  if(item.tpl==='dver'){
+    add(K.rama,w,2,'по ширине'); add(K.rama,h,2,'по высоте');
+    const sw = lightW+2*OV, sh = lightH+2*OV;
+    add(K.stvorka,sw,2,'горизонт'); add(K.stvorka,sh,2,'вертикаль');
+    add(K.shtapik,sw-2*F,2,'горизонт'); add(K.shtapik,sh-2*F,2,'вертикаль');
+    glass.push({w:sw-2*F+2*GB, h:sh-2*F+2*GB, qty:qty});
+  }
+  if(item.tpl==='vitr'){
+    add(K.rama,w,2,'по ширине'); add(K.rama,h,2,'по высоте');
+    add(K.impost,lightH,2,'вертикальные');
+    const secW = (lightW - 2*60)/3;
+    add(K.shtapik,secW,6,'горизонт'); add(K.shtapik,lightH,6,'вертикаль');
+    glass.push({w:secW+2*GB, h:lightH+2*GB, qty:qty*3});
+  }
+  return {parts:out, glass};
+}
+
+function orderParts(o){
+  const sys = sysOf(o), map = {};
+  let glassArea = 0, minutes = 0, fitting = 0;
+  o.items.forEach(it=>{
+    const {parts,glass} = partsFor(it,sys);
+    parts.forEach(p=>{
+      const k = p.art+'|'+p.len;
+      if(!map[k]) map[k] = {...p, qty:0};
+      map[k].qty += p.qty;
+    });
+    glass.forEach(g=> glassArea += (g.w/1000)*(g.h/1000)*g.qty );
+    minutes += TEMPLATES[it.tpl].min * it.qty;
+    fitting += TEMPLATES[it.tpl].fitting * it.qty;
+  });
+  return {details:Object.values(map), glassArea, minutes, fitting};
+}
+
+/* =========================================================================
+   Раскрой: first-fit decreasing по хлыстам 6 м и деловым остаткам склада.
+   ========================================================================= */
+function buildPlan(o){
+  const sys = sysOf(o), {details} = orderParts(o);
+  const byArt = {};
+  details.forEach(d=>{
+    (byArt[d.art] = byArt[d.art] || {art:d.art, name:d.name, key:d.key, pieces:[]});
+    for(let i=0;i<d.qty;i++) byArt[d.art].pieces.push(d.len);
+  });
+
+  const stockPool = JSON.parse(JSON.stringify(state.remnants));
+  const groups = [];
+
+  Object.values(byArt).forEach(g=>{
+    g.pieces.sort((a,b)=>b-a);
+    const bars = [];
+    const avail = stockPool.filter(r=>r.art===g.art).sort((a,b)=>a.len-b.len);
+    let remIdx = 0, remLeft = avail.length ? avail[0].qty : 0;
+
+    const newBar = () => {
+      // сначала пробуем деловой остаток со склада
+      while(remIdx < avail.length){
+        if(remLeft > 0){ remLeft--; return {len:avail[remIdx].len, free:avail[remIdx].len, cuts:[], reuse:true}; }
+        remIdx++; remLeft = remIdx<avail.length ? avail[remIdx].qty : 0;
+      }
+      return {len:sys.stock, free:sys.stock, cuts:[], reuse:false};
+    };
+
+    g.pieces.forEach(len=>{
+      let bar = bars.find(b => b.free >= len + (b.cuts.length?sys.kerf:0));
+      if(!bar){ bar = newBar(); bars.push(bar); }
+      if(bar.cuts.length) bar.free -= sys.kerf;
+      bar.cuts.push(len); bar.free -= len;
+    });
+
+    let used=0, total=0, scrap=0, remn=0, newBars=0, reuseBars=0;
+    bars.forEach(b=>{
+      b.tail = b.free;
+      b.isRemnant = b.tail >= REMNANT_MIN;
+      used += b.cuts.reduce((s,x)=>s+x,0);
+      total += b.len;
+      if(b.isRemnant) remn += b.tail; else scrap += b.tail;
+      b.reuse ? reuseBars++ : newBars++;
+    });
+    groups.push({...g, bars, used, total, scrap, remn, newBars, reuseBars,
+                 eff: total ? used/total*100 : 0});
+  });
+
+  return {groups, ts:Date.now()};
+}
+
+/* ---------- себестоимость ---------- */
+function costing(o){
+  const sys = sysOf(o), {details, glassArea, minutes, fitting} = orderParts(o);
+  const plan = state.plans[o.id];
+
+  let normProfile = 0;
+  details.forEach(d=>{
+    const p = Object.values(sys.profiles).find(x=>x.art===d.art);
+    normProfile += (d.len/1000) * d.qty * p.priceM;
+  });
+
+  let factProfile = null;
+  if(plan){
+    factProfile = 0;
+    plan.groups.forEach(g=>{
+      const p = Object.values(sys.profiles).find(x=>x.art===g.art);
+      g.bars.forEach(b=>{
+        // деловой остаток возвращается на склад — в себестоимость не падает
+        const charged = b.isRemnant ? (b.len - b.tail) : b.len;
+        factProfile += (charged/1000) * p.priceM;
+      });
+    });
+  }
+
+  const glassCost = glassArea * GLASS.priceM2;
+  const labour    = minutes/60 * RATE_HOUR;
+  const base      = (factProfile ?? normProfile) + glassCost + fitting + labour;
+  const overhead  = base * OVERHEAD/100;
+  const prime     = base + overhead;
+  const price     = prime * (1 + o.markup/100);
+
+  return {normProfile, factProfile, glassCost, glassArea, fitting, labour,
+          minutes, overhead, prime, price, profit:price-prime};
+}
+
+/* =========================================================================
+   Навигация
+   ========================================================================= */
+const NAV = [
+  {id:'orders',   label:'Заказы',        badge:()=>state.orders.filter(o=>o.status!=='done').length},
+  {id:'cutting',  label:'Раскрой'},
+  {id:'costing',  label:'Себестоимость'},
+  {sep:true},
+  {id:'wh',       label:'Склад'},
+  {id:'purch',    label:'Закупки',       badge:()=>needList().filter(n=>n.buy>0).length},
+  {sep:true},
+  {id:'cat',      label:'Справочники'},
+  {id:'settings', label:'Терминология'}
+];
+
+const TITLES = {
+  orders:['Заказы','Приём, спецификация, статус'],
+  order :['Заказ','Состав, деталировка, расчёт'],
+  cutting:['Раскрой','Карты раскроя и деловые остатки'],
+  costing:['Себестоимость','По норме и по факту раскроя'],
+  wh:['Склад','Материалы, остатки, заготовки, продукция'],
+  purch:['Закупки','Потребность за вычетом склада'],
+  cat:['Справочники','Профильные системы и шаблоны изделий'],
+  settings:['Терминология','Названия под лексику вашего цеха']
+};
+
+function go(v, id){
+  state.view = v;
+  if(id) state.activeOrder = id;
+  render();
+  window.scrollTo({top:0});
+}
+
+function toast(msg){
+  const t = $('#toast'); t.textContent = msg; t.classList.add('on');
+  clearTimeout(t._t); t._t = setTimeout(()=>t.classList.remove('on'), 2200);
+}
+
+/* =========================================================================
+   Рендер
+   ========================================================================= */
+function renderNav(){
+  $('#nav').innerHTML = NAV.map(n=>{
+    if(n.sep) return '<div class="nav-sep"></div>';
+    const cur = state.view===n.id || (n.id==='orders' && state.view==='order');
+    const b = n.badge ? n.badge() : null;
+    return `<button data-nav="${n.id}" aria-current="${cur}">${n.label}
+      ${b ? `<span class="badge">${b}</span>` : ''}</button>`;
+  }).join('');
+}
+
+function render(){
+  renderNav();
+  const key = state.view;
+  const [t,s] = TITLES[key] || ['',''];
+  $('#pageTitle').textContent = key==='order' ? state.activeOrder : t;
+  $('#pageSub').textContent   = key==='order' ? order(state.activeOrder).client : s;
+  const host = $('#view');
+  host.innerHTML = ({
+    orders:viewOrders, order:viewOrder, cutting:viewCutting, costing:viewCosting,
+    wh:viewWarehouse, purch:viewPurch, cat:viewCatalog, settings:viewSettings
+  })[key]();
+
+  // на узком экране таблица шире контейнера — даём ей собственную прокрутку
+  host.querySelectorAll('table').forEach(tb=>{
+    if(tb.parentElement.classList.contains('tw')) return;
+    const w = document.createElement('div');
+    w.className = 'tw';
+    tb.parentNode.insertBefore(w, tb);
+    w.appendChild(tb);
+  });
+}
+
+/* ---------- Заказы ---------- */
+const STATUS = {new:['Новый','new'], work:['В работе','work'], done:['Отгружен','done']};
+
+function viewOrders(){
+  const rows = state.orders.map(o=>{
+    const c = costing(o), n = o.items.reduce((s,i)=>s+i.qty,0);
+    const [lbl,cls] = STATUS[o.status];
+    return `<tr class="clickable" data-open="${o.id}">
+      <td><b>${o.id}</b></td>
+      <td>${o.client}</td>
+      <td class="mono-s muted">${o.date}</td>
+      <td>${sysOf(o).name}</td>
+      <td class="num">${n}</td>
+      <td class="num">${money(c.price)} ₸</td>
+      <td><span class="tag ${cls}">${lbl}</span></td>
+      <td>${state.plans[o.id] ? '<span class="mono-s muted">раскрой готов</span>' : '<span class="mono-s" style="color:var(--gold)">не раскроен</span>'}</td>
+    </tr>`;
+  }).join('');
+
+  return `
+  <div class="stack">
+    <div class="card"><div class="kpis">
+      ${kpi('Заказов в работе', state.orders.filter(o=>o.status!=='done').length)}
+      ${kpi('Изделий к выпуску', state.orders.filter(o=>o.status!=='done')
+            .reduce((s,o)=>s+o.items.reduce((a,i)=>a+i.qty,0),0))}
+      ${kpi('Сумма портфеля', money(state.orders.filter(o=>o.status!=='done')
+            .reduce((s,o)=>s+costing(o).price,0)), '₸')}
+      ${kpi(T('remnant')+'ов на складе', state.remnants.reduce((s,r)=>s+r.qty,0), 'шт')}
+    </div></div>
+
+    <div class="card">
+      <div class="card-h"><h2>Список заказов</h2>
+        <span class="note">нажмите строку, чтобы открыть</span></div>
+      <table>
+        <thead><tr><th>Номер</th><th>Заказчик</th><th>Дата</th><th>Система</th>
+          <th class="right">Изделий</th><th class="right">Сумма</th><th>Статус</th><th>Раскрой</th></tr></thead>
+        <tbody>${rows}</tbody>
+      </table>
+    </div>
+  </div>`;
+}
+
+function kpi(k,v,unit,cls=''){
+  return `<div class="kpi ${cls}"><div class="k">${k}</div>
+    <div class="v">${v}${unit?`<small>${unit}</small>`:''}</div></div>`;
+}
+
+/* ---------- Карточка заказа ---------- */
+function viewOrder(){
+  const o = order(state.activeOrder), sys = sysOf(o);
+  const {details, glassArea, minutes} = orderParts(o);
+  const c = costing(o);
+
+  const items = o.items.map(it=>`
+    <tr>
+      <td>${TEMPLATES[it.tpl].name}<div class="mono-s muted">${TEMPLATES[it.tpl].desc}</div></td>
+      <td class="num" data-l="Ширина"><input class="inline-in" type="number" inputmode="numeric" step="10" value="${it.w}" data-edit="w" data-item="${it.id}"></td>
+      <td class="num" data-l="Высота"><input class="inline-in" type="number" inputmode="numeric" step="10" value="${it.h}" data-edit="h" data-item="${it.id}"></td>
+      <td class="num" data-l="Количество"><input class="inline-in" style="width:56px" type="number" inputmode="numeric" min="1" value="${it.qty}" data-edit="qty" data-item="${it.id}"></td>
+      <td class="num" data-l="Площадь, м²">${m2((it.w/1000)*(it.h/1000)*it.qty)}</td>
+      <td class="right"><button class="btn sm ghost" data-del="${it.id}">Убрать</button></td>
+    </tr>`).join('');
+
+  const dets = details.sort((a,b)=>a.art.localeCompare(b.art)||b.len-a.len).map(d=>`
+    <tr><td class="mono-s">${d.art}</td><td>${T(d.key)||d.name}</td>
+      <td class="dim right">${mm(d.len)}</td><td class="num">${d.qty}</td>
+      <td class="num muted opt">${((d.len*d.qty)/1000).toFixed(1)}</td></tr>`).join('');
+
+  return `
+  <div class="stack">
+    <div class="row">
+      <button class="btn" data-nav="orders">Назад к списку</button>
+      <div class="grow"></div>
+      <button class="btn primary" data-cut="${o.id}">Рассчитать раскрой</button>
+    </div>
+
+    <div class="split">
+      <div class="stack">
+        <div class="card">
+          <div class="card-h"><h2>Состав заказа</h2>
+            <span class="note">меняйте размеры — пересчёт сразу</span>
+            <div class="grow"></div>
+            <select class="btn sm" id="addTpl">
+              ${Object.entries(TEMPLATES).map(([k,v])=>`<option value="${k}">${v.name}</option>`).join('')}
+            </select>
+            <button class="btn sm" id="addItem">Добавить</button>
+          </div>
+          <table class="t-items">
+            <thead><tr><th>Изделие</th><th class="right">Ширина</th><th class="right">Высота</th>
+              <th class="right">Кол-во</th><th class="right">м²</th><th></th></tr></thead>
+            <tbody>${items || '<tr><td colspan="6" class="empty"><b>Изделий пока нет</b>Добавьте первое из шаблона выше.</td></tr>'}</tbody>
+          </table>
+        </div>
+
+        <div class="card">
+          <div class="card-h"><h2>Деталировка</h2>
+            <span class="note">${details.length} типоразмеров · сведено по всем изделиям</span></div>
+          <table>
+            <thead><tr><th>Артикул</th><th>Деталь</th><th class="right">Длина, мм</th>
+              <th class="right">Шт</th><th class="right opt">Всего, м</th></tr></thead>
+            <tbody>${dets}</tbody>
+          </table>
+        </div>
+      </div>
+
+      <div class="stack">
+        <div class="card">
+          <div class="card-h"><h2>Параметры</h2></div>
+          <div class="card-b stack" style="gap:12px">
+            <div class="field"><label>Профильная система</label>
+              <select id="sysSel">${Object.entries(SYSTEMS).map(([k,v])=>
+                `<option value="${k}" ${k===o.system?'selected':''}>${v.name}</option>`).join('')}</select></div>
+            <div class="field"><label>Наценка, %</label>
+              <input type="number" id="markup" value="${o.markup}" min="0" max="200"></div>
+            <div class="mono-s muted">${sys.kind} · рама ${sys.frameW} мм · рез ${sys.kerf} мм · хлыст ${sys.stock/1000} м</div>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="card-h"><h2>Быстрый итог</h2></div>
+          <div class="kpis" style="grid-template-columns:1fr 1fr">
+            ${kpi('Стекло', m2(glassArea), 'м²')}
+            ${kpi('Работа', (minutes/60).toFixed(1), 'ч')}
+            ${kpi('Себестоимость', money(c.prime), '₸')}
+            ${kpi('Цена', money(c.price), '₸', 'good')}
+          </div>
+        </div>
+
+        ${state.plans[o.id] ? '' : `<div class="hint">
+          Пока заказ не раскроен, себестоимость считается <b>по норме</b> — по сумме длин деталей.
+          Реальный расход профиля выше на величину отхода. Нажмите «Рассчитать раскрой».</div>`}
+      </div>
+    </div>
+  </div>`;
+}
+
+/* ---------- Раскрой ---------- */
+function viewCutting(){
+  const o = order(state.activeOrder);
+  const plan = state.plans[o.id];
+
+  const picker = `<div class="row" style="align-items:center">
+    <div class="field" style="min-width:240px"><label>Заказ</label>
+      <select id="ordSel">${state.orders.map(x=>
+        `<option value="${x.id}" ${x.id===o.id?'selected':''}>${x.id} — ${x.client}</option>`).join('')}</select></div>
+    <div class="grow"></div>
+    <button class="btn primary" data-cut="${o.id}">${plan?'Пересчитать':'Рассчитать раскрой'}</button>
+    ${plan && !state.sentToShop[o.id] ? `<button class="btn" data-shop="${o.id}">Списать в цех</button>`:''}
+  </div>`;
+
+  if(!plan) return `<div class="stack">${picker}
+    <div class="card"><div class="empty">
+      <b>Раскрой не рассчитан</b>
+      Нажмите «Рассчитать раскрой» — система разложит детали по хлыстам 6 м
+      и подставит подходящие ${T('remnant').toLowerCase()}и со склада.
+    </div></div></div>`;
+
+  const totalUsed = plan.groups.reduce((s,g)=>s+g.used,0);
+  const totalLen  = plan.groups.reduce((s,g)=>s+g.total,0);
+  const totalScrap= plan.groups.reduce((s,g)=>s+g.scrap,0);
+  const totalRemn = plan.groups.reduce((s,g)=>s+g.remn,0);
+  const reuse     = plan.groups.reduce((s,g)=>s+g.reuseBars,0);
+  const sys = sysOf(o);
+  let scrapMoney = 0;
+  plan.groups.forEach(g=>{
+    const p = Object.values(sys.profiles).find(x=>x.art===g.art);
+    scrapMoney += g.scrap/1000*p.priceM;
+  });
+
+  const maps = plan.groups.map(g=>{
+    const bars = g.bars.map((b,i)=>{
+      const segs = b.cuts.map((len,j)=>{
+        const pct = len/b.len*100;
+        return `<div class="seg part" style="flex:0 0 ${pct}%" title="${T(g.key)||g.name} ${mm(len)} мм">
+          ${pct>7?mm(len):''}</div>`;
+      }).join('');
+      const tailPct = b.tail/b.len*100;
+      const tail = b.tail>0 ? `<div class="seg ${b.isRemnant?'rem':'scrap'}" style="flex:0 0 ${tailPct}%"
+          title="${b.isRemnant?T('remnant'):'Отход'} ${mm(b.tail)} мм">${tailPct>7?mm(b.tail):''}</div>` : '';
+      return `<div class="bar">
+        <div class="bar-lbl ${b.reuse?'reuse':''}">${b.reuse?'ост. '+b.len:'хлыст '+i0(i+1)}</div>
+        <div class="bar-track">${segs}${tail}</div>
+      </div>`;
+    }).join('');
+    return `<div class="artgroup">
+      <div class="artgroup-h">
+        <b>${T(g.key)||g.name}</b><span class="art">${g.art}</span>
+        <span class="stat">${g.bars.length} шт · использовано ${g.eff.toFixed(1)}%${g.reuseBars?` · из них ${g.reuseBars} со склада остатков`:''}</span>
+      </div>${bars}</div>`;
+  }).join('');
+
+  return `<div class="stack">
+    ${picker}
+    <div class="card"><div class="kpis">
+      ${kpi('Использовано профиля', (totalUsed/totalLen*100).toFixed(1), '%', totalUsed/totalLen>0.85?'good':'')}
+      ${kpi('Ушло в отход', (totalScrap/1000).toFixed(1), 'м', 'hot')}
+      ${kpi('Отход в деньгах', money(scrapMoney), '₸', 'hot')}
+      ${kpi('Новых '+T('remnant').toLowerCase()+'ов', (totalRemn/1000).toFixed(1), 'м')}
+      ${kpi('Взято со склада остатков', reuse, 'шт', reuse?'good':'')}
+    </div></div>
+
+    <div class="card">
+      <div class="card-h"><h2>Карты раскроя · ${o.id}</h2>
+        <span class="note">${sysOf(o).name} · рез ${sysOf(o).kerf} мм · ${T('remnant').toLowerCase()} от ${REMNANT_MIN} мм</span></div>
+      <div class="card-b">
+        ${maps}
+        <div class="legend">
+          <span><i style="background:var(--blue)"></i>деталь изделия</span>
+          <span><i style="background:var(--gold-bg);border:1px solid #E5D08C"></i>${T('remnant').toLowerCase()} — вернётся на склад</span>
+          <span><i style="background:var(--rust-bg);border:1px solid #E2BBB3"></i>отход</span>
+          <span><i style="background:var(--gold-bg);border:1px solid #E5D08C"></i>жёлтая метка слева — хлыст взят из остатков</span>
+        </div>
+      </div>
+    </div>
+
+    ${state.sentToShop[o.id]
+      ? `<div class="hint"><b>Списано в цех.</b> Хлысты сняты со склада материалов,
+         обрезки длиннее ${REMNANT_MIN} мм оприходованы как ${T('remnant').toLowerCase()}и,
+         нарезанные детали лежат на складе заготовок.</div>`
+      : `<div class="hint">Нажмите <b>«Списать в цех»</b> — и посмотрите, что произойдёт
+         в разделе «Склад»: четыре склада поменяются одновременно.</div>`}
+  </div>`;
+}
+const i0 = n => String(n).padStart(2,'0');
+
+/* ---------- Себестоимость ---------- */
+function viewCosting(){
+  const o = order(state.activeOrder), c = costing(o);
+  const hasPlan = !!state.plans[o.id];
+  const diff = hasPlan ? c.factProfile - c.normProfile : 0;
+
+  const line = (k,v,note='') => `<tr><td>${k}${note?`<div class="mono-s muted">${note}</div>`:''}</td>
+    <td class="num">${money(v)}</td><td class="num muted">${(v/c.price*100).toFixed(1)}%</td></tr>`;
+
+  return `<div class="stack">
+    <div class="row" style="align-items:center">
+      <div class="field" style="min-width:240px"><label>Заказ</label>
+        <select id="ordSel">${state.orders.map(x=>
+          `<option value="${x.id}" ${x.id===o.id?'selected':''}>${x.id} — ${x.client}</option>`).join('')}</select></div>
+      <div class="field" style="width:130px"><label>Наценка, %</label>
+        <input type="number" id="markup" value="${o.markup}" min="0" max="200"></div>
+      <div class="grow"></div>
+      ${hasPlan?'':`<button class="btn primary" data-cut="${o.id}">Рассчитать раскрой</button>`}
+    </div>
+
+    <div class="card"><div class="kpis">
+      ${kpi('Профиль по норме', money(c.normProfile), '₸')}
+      ${kpi('Профиль по факту', hasPlan?money(c.factProfile):'—', hasPlan?'₸':'', hasPlan?'hot':'')}
+      ${kpi('Разница', hasPlan?('+'+money(diff)):'—', hasPlan?'₸':'', hasPlan?'hot':'')}
+      ${kpi('Себестоимость', money(c.prime), '₸')}
+      ${kpi('Прибыль', money(c.profit), '₸', 'good')}
+    </div></div>
+
+    <div class="split">
+      <div class="card">
+        <div class="card-h"><h2>Калькуляция заказа</h2>
+          <span class="note">${hasPlan?'профиль — по факту раскроя':'профиль — по норме, раскрой не считан'}</span></div>
+        <table>
+          <thead><tr><th>Статья</th><th class="right">Сумма, ₸</th><th class="right">Доля</th></tr></thead>
+          <tbody>
+            ${line('Профиль', hasPlan?c.factProfile:c.normProfile,
+                   hasPlan?'списано хлыстов минус возвращённые остатки':'сумма длин деталей')}
+            ${line('Стекло', c.glassCost, `${GLASS.name} · ${m2(c.glassArea)} м² × ${money(GLASS.priceM2)} ₸`)}
+            ${line('Фурнитура и комплектующие', c.fitting)}
+            ${line('Работа цеха', c.labour, `${(c.minutes/60).toFixed(1)} ч × ${money(RATE_HOUR)} ₸/ч`)}
+            ${line('Накладные', c.overhead, `${OVERHEAD}% на прямые затраты`)}
+            <tr class="total-row"><td>Себестоимость</td><td class="num">${money(c.prime)}</td><td></td></tr>
+            <tr><td>Наценка ${o.markup}%</td><td class="num">${money(c.profit)}</td>
+              <td class="num muted">${(c.profit/c.price*100).toFixed(1)}%</td></tr>
+            <tr class="total-row"><td>Цена для заказчика</td><td class="num">${money(c.price)}</td><td></td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="stack">
+        ${hasPlan ? `<div class="hint">
+          <b>Отход стоит ${money(diff)} ₸</b> на этом заказе — это разница между тем,
+          что ушло со склада, и тем, что вошло в изделия. По норме её не видно,
+          поэтому цех годами считает себестоимость ниже реальной.</div>` : `<div class="hint">
+          Сейчас показана себестоимость <b>по норме</b>. Посчитайте раскрой,
+          и в калькуляцию встанет фактический расход хлыстов.</div>`}
+        <div class="card">
+          <div class="card-h"><h2>На одно изделие</h2></div>
+          <table><tbody>
+            ${o.items.map(it=>{
+              const share = it.qty*(it.w/1000)*(it.h/1000);
+              const all = o.items.reduce((s,i)=>s+i.qty*(i.w/1000)*(i.h/1000),0);
+              return `<tr><td>${TEMPLATES[it.tpl].name}
+                <div class="mono-s muted">${it.w}×${it.h} · ${it.qty} шт</div></td>
+                <td class="num">${money(c.price*share/all/it.qty)} ₸</td></tr>`;
+            }).join('')}
+          </tbody></table>
+        </div>
+      </div>
+    </div>
+  </div>`;
+}
+
+/* ---------- Склад ---------- */
+const WH_TABS = [
+  ['mat','Материалы','хлысты и комплектующие'],
+  ['rem','Остатки','деловые обрезки'],
+  ['bln','Заготовки','нарезано под заказ'],
+  ['prd','Продукция','готовые изделия']
+];
+
+function viewWarehouse(){
+  const tabs = WH_TABS.map(([k,l])=>
+    `<button data-wh="${k}" aria-current="${state.whTab===k}">${k==='rem'?T('remnant')+'ы':l}</button>`).join('');
+
+  let body='';
+  if(state.whTab==='mat'){
+    const rows = Object.entries(state.bars).map(([art,qty])=>{
+      const info = findProfile(art);
+      const low = qty < 10;
+      return `<tr><td class="mono-s">${art}</td><td>${info.sys} · ${T(info.key)||info.name}</td>
+        <td class="num ${low?'':''}" style="${low?'color:var(--rust)':''}">${qty}</td>
+        <td class="num muted opt">${(qty*6).toFixed(0)}</td>
+        <td class="num">${money(qty*6*info.priceM)}</td>
+        <td class="opt" style="width:110px"><div class="bars-mini"><i class="${low?'low':''}" style="width:${Math.min(100,qty/60*100)}%"></i></div></td></tr>`;
+    }).join('');
+    body = `<table><thead><tr><th>Артикул</th><th>Профиль</th><th class="right">Хлыстов</th>
+      <th class="right opt">м.п.</th><th class="right">Сумма, ₸</th><th class="opt">Запас</th></tr></thead><tbody>${rows}</tbody></table>`;
+  }
+  if(state.whTab==='rem'){
+    const sorted = [...state.remnants].sort((a,b)=>a.art.localeCompare(b.art)||b.len-a.len);
+    const rows = sorted.map(r=>{
+      const info = findProfile(r.art);
+      return `<tr><td class="mono-s">${r.art}</td><td>${T(info.key)||info.name}</td>
+        <td class="dim right">${r.len}</td><td class="num">${r.qty}</td>
+        <td class="num muted">${(r.len*r.qty/1000).toFixed(2)}</td>
+        <td class="num">${money(r.len*r.qty/1000*info.priceM)}</td></tr>`;
+    }).join('');
+    const total = sorted.reduce((s,r)=>s+r.len*r.qty/1000*findProfile(r.art).priceM,0);
+    body = `<table><thead><tr><th>Артикул</th><th>Профиль</th><th class="right">Длина, мм</th>
+      <th class="right">Шт</th><th class="right">Всего, м</th><th class="right">Стоимость, ₸</th></tr></thead>
+      <tbody>${rows||'<tr><td colspan="6" class="empty"><b>Остатков нет</b>Появятся после раскроя.</td></tr>'}</tbody></table>
+      <div class="card-b"><div class="hint">На складе лежит ${T('remnant').toLowerCase()}ов
+      на <b>${money(total)} ₸</b>. При следующем раскрое система подставит их первыми.</div></div>`;
+  }
+  if(state.whTab==='bln'){
+    const rows = state.blanks.map(b=>`<tr><td class="mono-s">${b.art}</td><td>${T(b.key)||b.name}</td>
+      <td class="dim right">${b.len}</td><td class="num">${b.qty}</td><td>${b.order}</td></tr>`).join('');
+    body = rows
+      ? `<table><thead><tr><th>Артикул</th><th>Деталь</th><th class="right">Длина, мм</th>
+         <th class="right">Шт</th><th>Заказ</th></tr></thead><tbody>${rows}</tbody></table>`
+      : `<div class="empty"><b>Заготовок нет</b>Рассчитайте раскрой и нажмите «Списать в цех».</div>`;
+  }
+  if(state.whTab==='prd'){
+    const rows = state.products.map(p=>`<tr><td>${p.name}</td><td>${p.order}</td>
+      <td class="num">${p.qty}</td><td class="muted">${p.place}</td></tr>`).join('');
+    body = `<table><thead><tr><th>Изделие</th><th>Заказ</th><th class="right">Шт</th><th>Место</th></tr></thead>
+      <tbody>${rows}</tbody></table>`;
+  }
+
+  const cur = WH_TABS.find(t=>t[0]===state.whTab);
+  return `<div class="stack">
+    <div class="hint">Склад один только на словах. Хлыст 6 м, обрезок 1,8 м и нарезанная
+    деталь под заказ — три разных состояния одной номенклатуры, и живут они по разным правилам.
+    Поэтому здесь четыре склада, а не один.</div>
+    <div class="card">
+      <div class="card-h" style="padding-bottom:0;border-bottom:0">
+        <div class="tabs grow">${tabs}</div>
+      </div>
+      <div class="card-h"><h2>${cur[0]==='rem'?T('remnant')+'ы':cur[1]}</h2><span class="note">${cur[2]}</span></div>
+      ${body}
+    </div>
+  </div>`;
+}
+
+function findProfile(art){
+  for(const [sk,s] of Object.entries(SYSTEMS))
+    for(const [k,p] of Object.entries(s.profiles))
+      if(p.art===art) return {...p, key:k, sys:s.name};
+  return {name:art, key:'', sys:'', priceM:0};
+}
+
+/* ---------- Закупки ---------- */
+function needList(){
+  const need = {};
+  state.orders.filter(o=>o.status!=='done').forEach(o=>{
+    const {details} = orderParts(o);
+    details.forEach(d=>{
+      need[d.art] = need[d.art] || {art:d.art, key:d.key, name:d.name, m:0};
+      need[d.art].m += d.len*d.qty/1000;
+    });
+  });
+  return Object.values(need).map(n=>{
+    const stockM = (state.bars[n.art]||0)*6;
+    const remM = state.remnants.filter(r=>r.art===n.art).reduce((s,r)=>s+r.len*r.qty/1000,0);
+    const buy = Math.max(0, Math.ceil((n.m - stockM - remM)/6));
+    return {...n, stockM, remM, buy, price:findProfile(n.art).priceM};
+  }).sort((a,b)=>b.buy-a.buy);
+}
+
+function viewPurch(){
+  const list = needList();
+  const rows = list.map(n=>`<tr>
+    <td class="mono-s">${n.art}</td><td>${T(n.key)||n.name}</td>
+    <td class="num">${n.m.toFixed(1)}</td>
+    <td class="num muted opt">${n.stockM.toFixed(0)}</td>
+    <td class="num" style="color:var(--gold)">${n.remM.toFixed(1)}</td>
+    <td class="num"><b>${n.buy||'—'}</b></td>
+    <td class="num">${n.buy?money(n.buy*6*n.price):'—'}</td></tr>`).join('');
+  const sum = list.reduce((s,n)=>s+n.buy*6*n.price,0);
+
+  return `<div class="stack">
+    <div class="card"><div class="kpis">
+      ${kpi('Позиций к закупу', list.filter(n=>n.buy>0).length)}
+      ${kpi('Хлыстов купить', list.reduce((s,n)=>s+n.buy,0), 'шт')}
+      ${kpi('Сумма закупа', money(sum), '₸')}
+      ${kpi('Закрыто остатками', list.reduce((s,n)=>s+n.remM,0).toFixed(0), 'м', 'good')}
+    </div></div>
+    <div class="card">
+      <div class="card-h"><h2>Потребность по открытым заказам</h2>
+        <span class="note">нужно минус склад минус ${T('remnant').toLowerCase()}и</span></div>
+      <table><thead><tr><th>Артикул</th><th>Профиль</th><th class="right">Нужно, м</th>
+        <th class="right opt">На складе, м</th><th class="right">В остатках, м</th>
+        <th class="right">Купить, хлыстов</th><th class="right">Сумма, ₸</th></tr></thead>
+        <tbody>${rows}</tbody></table>
+    </div>
+    <div class="hint">Заявка поставщику собирается из потребности, а не из ощущений снабженца.
+    Столбец «в остатках» — то, что уже лежит в цехе и обычно покупается второй раз.</div>
+  </div>`;
+}
+
+/* ---------- Справочники ---------- */
+function viewCatalog(){
+  const sys = Object.entries(SYSTEMS).map(([k,s])=>`
+    <div class="card">
+      <div class="card-h"><h2>${s.name}</h2><span class="note">${s.kind}</span>
+        <div class="grow"></div>
+        <span class="mono-s muted">рама ${s.frameW} мм · рез ${s.kerf} мм · хлыст ${s.stock/1000} м</span></div>
+      <table><thead><tr><th>Артикул</th><th>Деталь</th><th class="right">₸/м.п.</th>
+        <th class="right opt">кг/м</th><th class="right">Хлыстов на складе</th></tr></thead>
+        <tbody>${Object.entries(s.profiles).map(([pk,p])=>`<tr>
+          <td class="mono-s">${p.art}</td><td>${T(pk)||p.name}</td>
+          <td class="num">${money(p.priceM)}</td><td class="num muted opt">${p.kgm.toFixed(2)}</td>
+          <td class="num">${state.bars[p.art]||0}</td></tr>`).join('')}</tbody></table>
+    </div>`).join('');
+
+  const tpl = `<div class="card">
+    <div class="card-h"><h2>Шаблоны изделий</h2><span class="note">80% заказов мелкого цеха — типовые</span></div>
+    <table><thead><tr><th>Шаблон</th><th>Состав</th><th class="right">Норма, мин</th>
+      <th class="right">Фурнитура, ₸</th></tr></thead>
+      <tbody>${Object.entries(TEMPLATES).map(([k,t])=>`<tr><td>${t.name}</td>
+        <td class="muted">${t.desc}</td><td class="num">${t.min}</td>
+        <td class="num">${t.fitting?money(t.fitting):'—'}</td></tr>`).join('')}</tbody></table>
+  </div>`;
+
+  return `<div class="stack">${tpl}${sys}</div>`;
+}
+
+/* ---------- Терминология ---------- */
+const TERM_DEFAULTS = {rama:'Рама', stvorka:'Створка', impost:'Импост', shtapik:'Штапик', remnant:'Деловой остаток'};
+const TERM_ALT = {rama:'Коробка', stvorka:'Қанат', impost:'Средник', shtapik:'Бортик', remnant:'Обрезок'};
+
+function viewSettings(){
+  return `<div class="stack">
+    <div class="hint">В каждом цехе своя лексика: створка или қанат, импост или средник,
+    штапик или бортик. Переименование справочников снимает половину сопротивления
+    при внедрении — люди видят <b>свою</b> программу, а не чужую.</div>
+    <div class="card">
+      <div class="card-h"><h2>Названия деталей</h2>
+        <span class="note">меняйте — интерфейс обновится сразу</span>
+        <div class="grow"></div>
+        <button class="btn sm" id="termAlt">Подставить пример</button>
+        <button class="btn sm" id="termReset">Вернуть по умолчанию</button></div>
+      <div class="card-b">
+        <div class="term-grid">
+          ${Object.keys(TERM_DEFAULTS).map(k=>`
+            <div class="cur">${TERM_DEFAULTS[k]}</div>
+            <input class="field" data-term="${k}" value="${state.terms[k]}"
+              style="border:1px solid var(--line);border-radius:2px;padding:6px 8px">`).join('')}
+        </div>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-h"><h2>Проверьте результат</h2></div>
+      <div class="card-b">
+        <p style="margin:0 0 8px">Откройте <a href="#" data-nav="cutting">Раскрой</a> или
+        <a href="#" data-nav="wh">Склад</a> — названия в таблицах, легенде и заголовках уже другие.</p>
+        <div class="mono-s muted">${Object.values(state.terms).join(' · ')}</div>
+      </div>
+    </div>
+  </div>`;
+}
+
+/* =========================================================================
+   События
+   ========================================================================= */
+document.addEventListener('click', e=>{
+  const t = e.target.closest('[data-nav],[data-open],[data-cut],[data-shop],[data-wh],[data-del]');
+  if(!t) return;
+  e.preventDefault();
+
+  if(t.dataset.nav)  return go(t.dataset.nav);
+  if(t.dataset.open) return go('order', t.dataset.open);
+  if(t.dataset.wh){ state.whTab = t.dataset.wh; return render(); }
+
+  if(t.dataset.cut){
+    const o = order(t.dataset.cut);
+    state.plans[o.id] = buildPlan(o);
+    state.activeOrder = o.id;
+    state.view = 'cutting';
+    toast('Раскрой рассчитан: ' + state.plans[o.id].groups.length + ' артикулов');
+    return render();
+  }
+
+  if(t.dataset.shop) return sendToShop(t.dataset.shop);
+
+  if(t.dataset.del){
+    const o = order(state.activeOrder);
+    o.items = o.items.filter(i=>i.id != t.dataset.del);
+    delete state.plans[o.id];
+    return render();
+  }
+});
+
+document.addEventListener('change', e=>{
+  const el = e.target;
+
+  if(el.id==='ordSel'){ state.activeOrder = el.value; return render(); }
+  if(el.id==='sysSel'){
+    const o = order(state.activeOrder); o.system = el.value; delete state.plans[o.id]; return render();
+  }
+  if(el.id==='markup'){
+    const o = order(state.activeOrder); o.markup = Math.max(0, +el.value||0); return render();
+  }
+  if(el.dataset.edit){
+    const o = order(state.activeOrder);
+    const it = o.items.find(i=>i.id == el.dataset.item);
+    const v = Math.max(el.dataset.edit==='qty'?1:200, +el.value||0);
+    it[el.dataset.edit] = v;
+    delete state.plans[o.id];
+    return render();
+  }
+  if(el.dataset.term){
+    state.terms[el.dataset.term] = el.value.trim() || TERM_DEFAULTS[el.dataset.term];
+    return render();
+  }
+});
+
+document.addEventListener('click', e=>{
+  if(e.target.id==='addItem'){
+    const o = order(state.activeOrder);
+    const tpl = $('#addTpl').value;
+    const id = Math.max(0,...o.items.map(i=>i.id))+1;
+    o.items.push({id, tpl, w:1200, h:1400, qty:1});
+    delete state.plans[o.id];
+    return render();
+  }
+  if(e.target.id==='termAlt'){ state.terms = {...TERM_ALT}; toast('Термины заменены'); return render(); }
+  if(e.target.id==='termReset'){ state.terms = {...TERM_DEFAULTS}; return render(); }
+});
+
+/* ---------- списание в цех: меняет все четыре склада ---------- */
+function sendToShop(orderId){
+  const o = order(orderId), plan = state.plans[o.id];
+  if(!plan) return;
+
+  plan.groups.forEach(g=>{
+    let usedRemnants = 0;
+    g.bars.forEach(b=>{
+      if(b.reuse){
+        // снять использованный остаток со склада
+        const r = state.remnants.find(x=>x.art===g.art && x.len===b.len && x.qty>0);
+        if(r){ r.qty--; usedRemnants++; }
+      } else {
+        state.bars[g.art] = Math.max(0,(state.bars[g.art]||0)-1);
+      }
+      if(b.isRemnant){
+        const ex = state.remnants.find(x=>x.art===g.art && x.len===Math.round(b.tail));
+        if(ex) ex.qty++; else state.remnants.push({art:g.art, len:Math.round(b.tail), qty:1});
+      }
+      // заготовки
+      b.cuts.forEach(len=>{
+        const ex = state.blanks.find(x=>x.art===g.art && x.len===Math.round(len) && x.order===o.id);
+        if(ex) ex.qty++;
+        else state.blanks.push({art:g.art, name:g.name, key:g.key, len:Math.round(len), qty:1, order:o.id});
+      });
+    });
+  });
+
+  state.remnants = state.remnants.filter(r=>r.qty>0);
+  state.sentToShop[o.id] = true;
+  o.status = 'work';
+  state.whTab = 'rem';
+  state.view = 'wh';
+  toast('Списано в цех. Склады обновлены');
+  render();
+}
+
+/* ---------- старт ---------- */
+render();
+</script>
+</body>
+</html>
