@@ -1,0 +1,1011 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#00696B">
+<title>WinHub — прототип</title>
+<style>*{margin:0;padding:0;box-sizing:border-box}</style>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Golos+Text:wght@400;500;600;700;800&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<style>
+:root{
+  --ground:#EEF3F4; --surface:#FFFFFF; --surface-2:#F6FAFA;
+  --ink:#0D1418; --ink-2:#42555C; --ink-3:#7B8F96;
+  --line:#D5DFE1; --line-2:#E7EEEF;
+  --accent:#00696B; --accent-soft:#DBEEED; --accent-ink:#004C4E;
+  --money:#9A5B0C; --money-soft:#FBEEDC; --crit:#B4372C; --crit-soft:#FBE7E4;
+  --ok:#2A7A52; --ok-soft:#DDF0E5;
+  --pvc:#E3E9EA; --pvc-2:#CBD6D8; --glass:#BFDDE0; --metal:#B9C3C6;
+  --on-accent:#FFFFFF;
+  --shadow:0 1px 2px rgba(13,20,24,.06), 0 10px 26px -14px rgba(13,20,24,.22);
+  --navshadow:0 -1px 0 var(--line), 0 -8px 24px -16px rgba(13,20,24,.4);
+  --r:12px;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --ground:#0A1114; --surface:#131E22; --surface-2:#18262B;
+    --ink:#E8EFF0; --ink-2:#A6BABF; --ink-3:#71888E;
+    --line:#25373D; --line-2:#1E2E33;
+    --accent:#4FBCB8; --accent-soft:#123230; --accent-ink:#8FDCD7;
+    --money:#D79B4C; --money-soft:#2E2415; --crit:#E0736A; --crit-soft:#2E1A18;
+    --ok:#63BE8C; --ok-soft:#12291D;
+    --pvc:#31424A; --pvc-2:#22333A; --glass:#3E6870; --metal:#5C6D72;
+    --on-accent:#062120;
+    --shadow:0 1px 2px rgba(0,0,0,.4), 0 10px 26px -14px rgba(0,0,0,.7);
+    --navshadow:0 -1px 0 var(--line), 0 -8px 24px -16px rgba(0,0,0,.8);
+  }
+}
+:root[data-theme="dark"]{
+  --ground:#0A1114; --surface:#131E22; --surface-2:#18262B;
+  --ink:#E8EFF0; --ink-2:#A6BABF; --ink-3:#71888E;
+  --line:#25373D; --line-2:#1E2E33;
+  --accent:#4FBCB8; --accent-soft:#123230; --accent-ink:#8FDCD7;
+  --money:#D79B4C; --money-soft:#2E2415; --crit:#E0736A; --crit-soft:#2E1A18;
+  --ok:#63BE8C; --ok-soft:#12291D;
+  --pvc:#31424A; --pvc-2:#22333A; --glass:#3E6870; --metal:#5C6D72;
+  --on-accent:#062120;
+  --shadow:0 1px 2px rgba(0,0,0,.4), 0 10px 26px -14px rgba(0,0,0,.7);
+  --navshadow:0 -1px 0 var(--line), 0 -8px 24px -16px rgba(0,0,0,.8);
+}
+html{-webkit-text-size-adjust:100%}
+body{background:var(--ground); color:var(--ink);
+  font:400 15px/1.5 "Golos Text",system-ui,-apple-system,"Segoe UI",Roboto,sans-serif}
+.mono,code{font-family:"IBM Plex Mono",ui-monospace,Menlo,Consolas,monospace}
+h1,h2,h3{line-height:1.25; letter-spacing:-.01em}
+
+.shell{display:flex; min-height:100vh}
+.rail{display:none; width:230px; flex:0 0 230px; position:sticky; top:0; height:100vh;
+  border-right:1px solid var(--line); background:var(--surface); padding:20px 14px; flex-direction:column; gap:3px}
+.brand{display:flex; align-items:baseline; gap:7px; padding:0 10px 16px}
+.brand b{font-size:18px; font-weight:800; letter-spacing:-.02em}
+.brand span{font-size:10px; color:var(--ink-3); font-weight:700; text-transform:uppercase; letter-spacing:.09em}
+.rail button{display:flex; align-items:center; gap:9px; width:100%; text-align:left; background:none;
+  border:0; cursor:pointer; color:var(--ink-2); font:600 14px/1 "Golos Text",sans-serif; padding:10px; border-radius:9px}
+.rail button:hover{background:var(--surface-2); color:var(--ink)}
+.rail button[aria-current="true"]{background:var(--accent-soft); color:var(--accent-ink)}
+.rail svg,.tabbar svg{width:19px;height:19px;stroke:currentColor;fill:none;stroke-width:1.7;stroke-linecap:round;stroke-linejoin:round;flex:0 0 auto}
+.rail .foot{margin-top:auto; padding-top:12px; border-top:1px solid var(--line-2); color:var(--ink-3); font-size:11px; padding-left:10px}
+.main{flex:1 1 auto; min-width:0; padding-bottom:92px}
+.wrap{max-width:1000px; margin:0 auto; padding:0 14px}
+
+.top{position:sticky; top:0; z-index:20; background:var(--ground); border-bottom:1px solid var(--line);
+  padding:13px 0 11px; margin-bottom:16px}
+.top .wrap{display:flex; align-items:center; justify-content:space-between; gap:10px}
+.top h1{font-size:17px; font-weight:800}
+.top .sub{font-size:12px; color:var(--ink-3); font-weight:600}
+.theme{background:var(--surface); border:1px solid var(--line); color:var(--ink-2); border-radius:99px;
+  padding:7px 12px; font:600 12px "Golos Text",sans-serif; cursor:pointer}
+
+section[hidden]{display:none}
+.eyebrow{font:700 11px/1 "Golos Text",sans-serif; letter-spacing:.1em; text-transform:uppercase;
+  color:var(--ink-3); margin:22px 0 10px}
+.card{background:var(--surface); border:1px solid var(--line); border-radius:var(--r);
+  box-shadow:var(--shadow); margin-bottom:12px; overflow:hidden}
+.card>header{display:flex; align-items:baseline; justify-content:space-between; gap:10px;
+  padding:14px 15px 0}
+.card>header h2,.card>header h3{font-size:15px; font-weight:700}
+.card .hint{font-size:11.5px; color:var(--ink-3); font-weight:600}
+.card .body{padding:13px 15px 15px}
+.grid{display:grid; gap:12px}
+@media(min-width:820px){ .grid.g2{grid-template-columns:1fr 1fr} .grid.g32{grid-template-columns:1.25fr 1fr} }
+
+label{display:block; font:600 11px/1 "Golos Text",sans-serif; letter-spacing:.05em;
+  text-transform:uppercase; color:var(--ink-3); margin-bottom:6px}
+input[type=number],input[type=text],select{width:100%; background:var(--surface-2); color:var(--ink);
+  border:1px solid var(--line); border-radius:9px; padding:10px 11px;
+  font:500 15px "Golos Text",sans-serif; -webkit-appearance:none; appearance:none}
+select{background-image:linear-gradient(45deg,transparent 50%,var(--ink-3) 50%),linear-gradient(135deg,var(--ink-3) 50%,transparent 50%);
+  background-position:calc(100% - 16px) 19px, calc(100% - 11px) 19px; background-size:5px 5px,5px 5px; background-repeat:no-repeat; padding-right:32px}
+input:focus,select:focus{outline:2px solid var(--accent); outline-offset:1px}
+.field{margin-bottom:11px}
+.row{display:flex; gap:10px}
+.row>*{flex:1 1 0; min-width:0}
+.seg{display:flex; gap:6px; flex-wrap:wrap}
+.seg button{flex:1 1 auto; background:var(--surface-2); border:1px solid var(--line); color:var(--ink-2);
+  border-radius:9px; padding:10px 8px; font:600 13px "Golos Text",sans-serif; cursor:pointer}
+.seg button[aria-pressed="true"]{background:var(--accent); border-color:var(--accent); color:var(--on-accent)}
+.btn{background:var(--accent); border:1px solid var(--accent); color:var(--on-accent); border-radius:10px;
+  padding:12px 16px; font:700 14px "Golos Text",sans-serif; cursor:pointer; width:100%}
+.btn.ghost{background:var(--surface); border-color:var(--line); color:var(--ink-2)}
+.btn.mini{width:auto; padding:8px 12px; font-size:13px}
+.btnrow{display:flex; gap:9px; margin-top:4px}
+
+.facts{display:grid; grid-template-columns:repeat(auto-fit,minmax(104px,1fr)); gap:8px}
+.fact{background:var(--surface-2); border:1px solid var(--line-2); border-radius:10px; padding:10px 11px}
+.fact .k{font-size:11px; color:var(--ink-3); font-weight:600}
+.fact .v{font:700 17px/1.2 "Golos Text",sans-serif; margin-top:3px; letter-spacing:-.01em}
+.fact .v.money{color:var(--money)}
+.fact .v.ok{color:var(--ok)}
+
+.tablewrap{overflow-x:auto}
+table{width:100%; border-collapse:collapse; font-size:13.5px; min-width:460px}
+th,td{text-align:left; padding:9px 12px; border-bottom:1px solid var(--line-2); vertical-align:top; white-space:nowrap}
+th{font:700 10.5px/1 "Golos Text",sans-serif; text-transform:uppercase; letter-spacing:.07em; color:var(--ink-3)}
+td.r,th.r{text-align:right}
+td.num{font-family:"IBM Plex Mono",monospace; font-size:12.5px}
+tbody tr:last-child td{border-bottom:0}
+tr.sum td{font-weight:700; background:var(--surface-2)}
+tr.grp td{background:var(--surface-2); font:700 11px/1 "Golos Text",sans-serif; text-transform:uppercase;
+  letter-spacing:.07em; color:var(--ink-3); padding:8px 12px}
+
+.pill{display:inline-block; border-radius:99px; padding:3px 9px; font:600 11px "Golos Text",sans-serif; white-space:nowrap}
+.pill.st{background:var(--accent-soft); color:var(--accent-ink)}
+.pill.et{background:var(--money-soft); color:var(--money)}
+.pill.ok{background:var(--ok-soft); color:var(--ok)}
+.pill.crit{background:var(--crit-soft); color:var(--crit)}
+
+.note{border-radius:10px; padding:11px 13px; font-size:13.5px; margin-top:10px; border:1px solid}
+.note.warn{background:var(--money-soft); border-color:var(--money); color:var(--money)}
+.note.crit{background:var(--crit-soft); border-color:var(--crit); color:var(--crit)}
+.note.info{background:var(--surface-2); border-color:var(--line); color:var(--ink-2)}
+
+.olist{display:grid; gap:9px}
+.oitem{display:flex; gap:11px; align-items:center; background:var(--surface); border:1px solid var(--line);
+  border-radius:11px; padding:12px 13px; cursor:pointer; box-shadow:var(--shadow); width:100%; text-align:left; font:inherit; color:inherit}
+.oitem:hover{border-color:var(--accent)}
+.oitem .no{font:600 12px "IBM Plex Mono",monospace; color:var(--accent); flex:0 0 auto}
+.oitem .mid{flex:1 1 auto; min-width:0}
+.oitem .nm{font-weight:600; font-size:14px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap}
+.oitem .meta{font-size:12px; color:var(--ink-3); margin-top:2px; display:flex; gap:6px; flex-wrap:wrap}
+.oitem .amt{flex:0 0 auto; font:700 14px "Golos Text",sans-serif; text-align:right}
+
+svg.draw{display:block; width:100%; height:auto; background:var(--surface-2); border-radius:10px; border:1px solid var(--line-2)}
+.cutmap{margin-bottom:12px}
+.cutbar{display:flex; height:30px; border-radius:6px; overflow:hidden; border:1px solid var(--line);
+  background:repeating-linear-gradient(45deg,var(--line-2),var(--line-2) 5px,transparent 5px,transparent 10px)}
+.cutbar div{border-right:1px solid var(--surface); font:600 10px/30px "IBM Plex Mono",monospace;
+  text-align:center; color:var(--on-accent); background:var(--accent); overflow:hidden}
+.cutbar div.rest{background:var(--ok); }
+.cutbar div.scrap{background:transparent; color:var(--ink-3)}
+.cuthead{display:flex; justify-content:space-between; font-size:12px; color:var(--ink-3); margin-bottom:5px; gap:8px}
+
+.bar{height:7px; border-radius:4px; background:var(--line-2); overflow:hidden; margin-top:6px}
+.bar i{display:block; height:100%; background:var(--accent)}
+.bar i.over{background:var(--crit)}
+
+.tabbar{position:fixed; left:0; right:0; bottom:0; z-index:30; display:flex; background:var(--surface);
+  border-top:1px solid var(--line); box-shadow:var(--navshadow); padding-bottom:env(safe-area-inset-bottom)}
+.tabbar button{flex:1 1 0; min-width:0; background:none; border:0; cursor:pointer; color:var(--ink-3);
+  display:flex; flex-direction:column; align-items:center; gap:3px; padding:8px 2px 7px; font:600 10px/1 "Golos Text",sans-serif}
+.tabbar button[aria-current="true"]{color:var(--accent)}
+.tabbar span{max-width:100%; overflow:hidden; text-overflow:ellipsis; white-space:nowrap}
+
+.toast{position:fixed; left:50%; transform:translateX(-50%); bottom:78px; z-index:60; background:var(--ink);
+  color:var(--ground); padding:11px 16px; border-radius:99px; font:600 13px "Golos Text",sans-serif;
+  opacity:0; pointer-events:none; transition:opacity .18s}
+.toast.on{opacity:1}
+
+@media(min-width:900px){
+  .rail{display:flex}
+  .tabbar{display:none}
+  .main{padding-bottom:36px}
+  .toast{bottom:26px}
+}
+</style>
+</head>
+<body>
+
+<div class="shell">
+<nav class="rail" aria-label="Разделы">
+  <div class="brand"><b>WinHub</b><span>прототип</span></div>
+  <button data-go="p1" aria-current="true"><svg viewBox="0 0 24 24"><path d="M5 4h11l3 3v13a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1V5a1 1 0 0 1 1-1z"/><path d="M8 12h8M8 16h5"/></svg>Заказы</button>
+  <button data-go="p2"><svg viewBox="0 0 24 24"><rect x="3.5" y="3.5" width="17" height="17" rx="1.5"/><path d="M12 3.5v17M3.5 8h17"/></svg>Конструктор</button>
+  <button data-go="p3"><svg viewBox="0 0 24 24"><path d="M4 5h16M4 10h16M4 15h10M4 20h7"/></svg>Спецификация</button>
+  <button data-go="p4"><svg viewBox="0 0 24 24"><path d="M3 8h18v8H3z"/><path d="M8 8v8M14 8v8"/></svg>Раскрой</button>
+  <button data-go="p5"><svg viewBox="0 0 24 24"><path d="M4 19V9M9 19V5M14 19v-7M19 19v-4"/></svg>Смена</button>
+  <div class="foot">Демо-данные.<br>Расчёт по §8.3, §9.4–§9.7</div>
+</nav>
+
+<main class="main">
+  <div class="top"><div class="wrap">
+    <div><h1 id="ttl">Заказы</h1><div class="sub" id="sub">Две оси: состояние и этап</div></div>
+    <button class="theme" id="theme" type="button">Тема</button>
+  </div></div>
+
+  <!-- ================= 1. ЗАКАЗЫ ================= -->
+  <section id="p1" class="wrap">
+    <div class="facts" id="ordFacts"></div>
+    <div class="eyebrow">Заказы в работе</div>
+    <div class="olist" id="ordList"></div>
+    <div class="btnrow" style="margin-top:12px">
+      <button class="btn ghost" id="newOrder">Новый заказ</button>
+    </div>
+
+    <div class="card" style="margin-top:16px">
+      <header><h3 id="curTitle">Заказ</h3><span class="hint">позиции</span></header>
+      <div class="body">
+        <div class="row" style="margin-bottom:11px">
+          <div class="field" style="margin:0"><label>Клиент</label><input type="text" id="oClient"></div>
+          <div class="field" style="margin:0"><label>Срок</label><input type="text" id="oDue" readonly></div>
+        </div>
+        <div class="note info" id="dueNote">Срок берётся из загрузки линий — см. экран «Смена», а не вводится текстом (§9.11).</div>
+        <div class="tablewrap" style="margin-top:12px"><table id="posTbl"></table></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ================= 2. КОНСТРУКТОР ================= -->
+  <section id="p2" class="wrap" hidden>
+    <div class="grid g32">
+      <div class="card">
+        <header><h2>Изделие</h2><span class="hint" id="cfgChip">—</span></header>
+        <div class="body">
+          <svg class="draw" id="draw" viewBox="0 0 400 320" role="img" aria-label="Схема изделия"></svg>
+          <div class="facts" id="geoFacts" style="margin-top:12px"></div>
+          <div id="ruleNotes"></div>
+        </div>
+      </div>
+
+      <div class="card">
+        <header><h2>Параметры</h2><span class="hint">расчёт живой</span></header>
+        <div class="body">
+          <div class="field"><label>Тип конструкции</label>
+            <div class="seg" id="segType">
+              <button data-t="deaf" aria-pressed="true">Глухое</button>
+              <button data-t="turn">Поворотное</button>
+              <button data-t="tilt">Пов.-откидное</button>
+              <button data-t="two">Двустворчатое</button>
+            </div>
+          </div>
+          <div class="row">
+            <div class="field"><label>Ширина, мм</label><input type="number" id="W" value="900" min="300" max="3000" step="10"></div>
+            <div class="field"><label>Высота, мм</label><input type="number" id="H" value="1500" min="300" max="2600" step="10"></div>
+          </div>
+          <div class="field"><label>Профильная система</label><select id="sys"></select></div>
+          <div class="row">
+            <div class="field"><label>Цвет</label><select id="color"></select></div>
+            <div class="field"><label>Количество</label><input type="number" id="qty" value="1" min="1" max="99"></div>
+          </div>
+          <div class="field"><label>Стеклопакет</label><select id="glass"></select></div>
+          <div class="btnrow">
+            <button class="btn" id="addPos">Добавить в заказ</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ================= 3. СПЕЦИФИКАЦИЯ ================= -->
+  <section id="p3" class="wrap" hidden>
+    <div class="facts" id="specFacts"></div>
+    <div class="card" style="margin-top:12px">
+      <header><h2>Состав изделия</h2><span class="hint" id="specFor">—</span></header>
+      <div class="body"><div class="tablewrap"><table id="bomTbl"></table></div></div>
+    </div>
+    <div class="card">
+      <header><h2>Трудоёмкость по участкам</h2><span class="hint">норматив вычисляется, а не хранится</span></header>
+      <div class="body"><div class="tablewrap"><table id="laborTbl"></table></div>
+      <div class="note info">Участок определён тем, какое значение калькуляции он потребляет (§6.7). Та же величина идёт в цену и в загрузку линии.</div></div>
+    </div>
+    <div class="card">
+      <header><h2>Цена</h2><span class="hint">три уровня: элемент → позиция → заказ</span></header>
+      <div class="body"><div class="tablewrap"><table id="priceTbl"></table></div></div>
+    </div>
+  </section>
+
+  <!-- ================= 4. РАСКРОЙ ================= -->
+  <section id="p4" class="wrap" hidden>
+    <div class="card">
+      <header><h2>Параметры</h2><span class="hint">станок отдельно от политики</span></header>
+      <div class="body">
+        <div class="row">
+          <div class="field"><label>Целевая функция</label><select id="cutGoal">
+            <option value="waste">Минимум отхода</option>
+            <option value="bars">Минимум числа хлыстов</option>
+          </select></div>
+          <div class="field"><label>Хлыст, мм</label><select id="cutBar">
+            <option value="6000">6000</option><option value="6500">6500</option>
+          </select></div>
+        </div>
+        <div class="facts" id="cutParams"></div>
+        <div class="note info" id="goalNote"></div>
+      </div>
+    </div>
+    <div class="facts" id="cutFacts" style="margin-bottom:12px"></div>
+    <div id="cutOut"></div>
+  </section>
+
+  <!-- ================= 5. СМЕНА ================= -->
+  <section id="p5" class="wrap" hidden>
+    <div class="card">
+      <header><h2>Загрузка участков</h2><span class="hint">все заказы · линия «Основная», рабочий день</span></header>
+      <div class="body" id="loadOut"></div>
+    </div>
+    <div class="card">
+      <header><h2>Сменные задания</h2><span class="hint" id="packHint">—</span></header>
+      <div class="body" id="packOut"></div>
+    </div>
+  </section>
+</main>
+</div>
+
+<nav class="tabbar" aria-label="Разделы">
+  <button data-go="p1" aria-current="true"><svg viewBox="0 0 24 24"><path d="M5 4h11l3 3v13a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1V5a1 1 0 0 1 1-1z"/><path d="M8 12h8M8 16h5"/></svg><span>Заказы</span></button>
+  <button data-go="p2"><svg viewBox="0 0 24 24"><rect x="3.5" y="3.5" width="17" height="17" rx="1.5"/><path d="M12 3.5v17M3.5 8h17"/></svg><span>Изделие</span></button>
+  <button data-go="p3"><svg viewBox="0 0 24 24"><path d="M4 5h16M4 10h16M4 15h10M4 20h7"/></svg><span>Состав</span></button>
+  <button data-go="p4"><svg viewBox="0 0 24 24"><path d="M3 8h18v8H3z"/><path d="M8 8v8M14 8v8"/></svg><span>Раскрой</span></button>
+  <button data-go="p5"><svg viewBox="0 0 24 24"><path d="M4 19V9M9 19V5M14 19v-7M19 19v-4"/></svg><span>Смена</span></button>
+</nav>
+<div class="toast" id="toast"></div>
+
+<script>
+/* =====================================================================
+   Справочники. Все числа — свойства записей, а не константы в формулах.
+   ===================================================================== */
+var SYS = [
+  {id:"s58", n:"Эконом 58", geo:"G1", frame:58, sash:78, mull:58, ovl:11, gin:15, weld:3,
+    pM:1180, armM:520, beadM:210, sealM:95, arm:true, maxSashW:900, maxSashH:1700, maxGlassKg:65},
+  {id:"s70", n:"Стандарт 70", geo:"G2", frame:70, sash:84, mull:78, ovl:12, gin:17, weld:3,
+    pM:1640, armM:610, beadM:240, sealM:110, arm:true, maxSashW:1000, maxSashH:2000, maxGlassKg:85},
+  {id:"s76", n:"Премиум 76", geo:"G3", frame:76, sash:88, mull:84, ovl:12, gin:18, weld:3,
+    pM:2180, armM:690, beadM:265, sealM:120, arm:true, maxSashW:1100, maxSashH:2200, maxGlassKg:100}
+];
+var COLORS = [
+  {id:"white", n:"Белый", k:1.00, lam:false},
+  {id:"oak",   n:"Golden Oak", k:1.42, lam:true},
+  {id:"anthr", n:"Антрацит RAL 7016", k:1.55, lam:true}
+];
+var GLASSES = [
+  {id:"g24", n:"24 мм · 4-16-4и", t:24, kg:20.0, m2:9200},
+  {id:"g32", n:"32 мм · 4-10-4-10-4и", t:32, kg:30.0, m2:14100},
+  {id:"g40", n:"40 мм · 4и-14-4-14-4и", t:40, kg:30.0, m2:17600}
+];
+/* Фурнитура — размерными группами по фальцу створки (§8.4). */
+var HW = [
+  {id:"h1", n:"Комплект пов.-откидной 601–1100 × 1001–1600", w:[601,1100],  h:[1001,1600], kind:"tilt", p:24800},
+  {id:"h2", n:"Комплект пов.-откидной 601–1100 × 1601–2100", w:[601,1100],  h:[1601,2100], kind:"tilt", p:27400},
+  {id:"h3", n:"Комплект поворотный 401–1100 × 601–2100",     w:[401,1100],  h:[601,2100],  kind:"turn", p:14900}
+];
+/* Участки: каждый определён формулой от счётчиков конструкции (§6.7). */
+var AREAS = [
+  {id:"cut",   n:"Порезка профиля",     f:function(c){ return c.bars*0.9 + c.barM*0.35; }},
+  {id:"arm",   n:"Нарезка армирования", f:function(c){ return c.armBars*0.6 + c.armM*0.25; }},
+  {id:"weld",  n:"Сварка",              f:function(c){ return c.joints*0.65; }},
+  {id:"clean", n:"Зачистка",            f:function(c){ return c.joints*0.95; }},
+  {id:"hw",    n:"Фурнитура",           f:function(c){ return c.sashes*6.5 + c.imp*3.2; }},
+  {id:"glaze", n:"Остекление",          f:function(c){ return c.fills*2.6 + c.glassM*0.45; }},
+  {id:"pack",  n:"Упаковка",            f:function(c){ return 1.6 + c.glassM2*0.4; }}
+];
+/* Мощность — свойство пары «участок × линия», по типам дня (§6.7). */
+var CAP = {cut:960, arm:420, weld:900, clean:900, hw:600, glaze:720, pack:300};
+var SHIFT_MAX = 240;      /* предельная трудоёмкость одного сменного задания */
+/* Матрица переналадки между цветами, мин (§6.7). */
+var SETUP = {white:{white:0,oak:35,anthr:35}, oak:{white:40,oak:0,anthr:25}, anthr:{white:40,oak:25,anthr:0}};
+
+/* Возможности станка отдельно от политики предприятия (§9.4). */
+var CUTTER = {kerf:5, headBar:15, headRest:5, clamp:30};       /* свойства пилы */
+var GRADE  = {minRest:500, trimRest:20, maxWaste:400};          /* политика предприятия */
+
+var RATE = 62;       /* ₸ за нормо-минуту */
+var MARGIN = 28;     /* % наценки */
+var VAT = 12;        /* % НДС */
+
+/* =====================================================================
+   Состояние
+   ===================================================================== */
+var S = {
+  page:"p1",
+  orders:[],
+  cur:null,
+  cfg:{type:"tilt", W:900, H:1500, sys:"s70", color:"white", glass:"g32", qty:1},
+  cutGoal:"waste", cutBar:6000
+};
+function sysOf(id){ for(var i=0;i<SYS.length;i++) if(SYS[i].id===id) return SYS[i]; return SYS[0]; }
+function colorOf(id){ for(var i=0;i<COLORS.length;i++) if(COLORS[i].id===id) return COLORS[i]; return COLORS[0]; }
+function glassOf(id){ for(var i=0;i<GLASSES.length;i++) if(GLASSES[i].id===id) return GLASSES[i]; return GLASSES[0]; }
+
+function $(s,r){ return (r||document).querySelector(s); }
+function $$(s,r){ return Array.prototype.slice.call((r||document).querySelectorAll(s)); }
+function el(t,c,txt){ var e=document.createElement(t); if(c) e.className=c; if(txt!=null) e.textContent=txt; return e; }
+function fmt(v,d){ return (Math.round(v*Math.pow(10,d||0))/Math.pow(10,d||0)).toLocaleString("ru-RU"); }
+function money(v){ return fmt(Math.round(v)) + " ₸"; }
+var toastT;
+function toast(t){ var b=$("#toast"); b.textContent=t; b.classList.add("on");
+  clearTimeout(toastT); toastT=setTimeout(function(){ b.classList.remove("on"); },1900); }
+
+/* =====================================================================
+   Ядро: геометрия изделия → детали
+   Балка — запись с артикулом, ролью, длиной и признаком армирования.
+   ===================================================================== */
+function build(cfg){
+  var sy = sysOf(cfg.sys), W = cfg.W, H = cfg.H, t = cfg.type;
+  var parts = [], fills = [], sashes = [], imp = 0;
+
+  /* Рама: 4 балки, сварка на 45°, припуск на уварку с каждой стороны. */
+  parts.push(bar("frame", W + 2*sy.weld), bar("frame", W + 2*sy.weld));
+  parts.push(bar("frame", H + 2*sy.weld), bar("frame", H + 2*sy.weld));
+
+  var lightW = W - 2*sy.frame, lightH = H - 2*sy.frame;   /* световой проём рамы */
+
+  if(t === "deaf"){
+    fills.push(fill(lightW + 2*sy.gin, lightH + 2*sy.gin, "глухое"));
+  } else if(t === "two"){
+    imp = 1;
+    parts.push(bar("mull", lightH + 2*sy.weld));
+    var halfLight = (lightW - sy.mull) / 2;
+    for(var k=0;k<2;k++){
+      var sw = halfLight + 2*sy.ovl, sh = lightH + 2*sy.ovl;
+      sashes.push({w:sw, h:sh, kind:k===0 ? "turn" : "deaf"});
+      parts.push(bar("sash", sw + 2*sy.weld), bar("sash", sw + 2*sy.weld));
+      parts.push(bar("sash", sh + 2*sy.weld), bar("sash", sh + 2*sy.weld));
+      fills.push(fill(sw - 2*sy.sash + 2*sy.gin, sh - 2*sy.sash + 2*sy.gin, k===0 ? "створка" : "створка глухая"));
+    }
+  } else {
+    var sw2 = lightW + 2*sy.ovl, sh2 = lightH + 2*sy.ovl;
+    sashes.push({w:sw2, h:sh2, kind:t});
+    parts.push(bar("sash", sw2 + 2*sy.weld), bar("sash", sw2 + 2*sy.weld));
+    parts.push(bar("sash", sh2 + 2*sy.weld), bar("sash", sh2 + 2*sy.weld));
+    fills.push(fill(sw2 - 2*sy.sash + 2*sy.gin, sh2 - 2*sy.sash + 2*sy.gin, "створка"));
+  }
+
+  function bar(role, L){ return {role:role, L:Math.round(L)}; }
+  function fill(w, h, note){ return {w:Math.round(w), h:Math.round(h), note:note}; }
+
+  /* Штапик — по контуру каждого заполнения. Армирование — короче балки на запас. */
+  var beadM = 0, armM = 0, armBars = 0, sealM = 0, glassM = 0, glassM2 = 0;
+  fills.forEach(function(f){
+    beadM += 2*(f.w + f.h)/1000;
+    sealM += 2*2*(f.w + f.h)/1000;
+    glassM += 2*(f.w + f.h)/1000;
+    glassM2 += f.w*f.h/1e6;
+  });
+  var barM = 0;
+  parts.forEach(function(p){
+    barM += p.L/1000;
+    if(sy.arm && p.L >= 700){ armBars++; armM += (p.L - 40)/1000; p.arm = true; }
+  });
+
+  var joints = 4 + sashes.length*4;   /* сварные углы */
+  var counters = {bars:parts.length, barM:barM, armBars:armBars, armM:armM, joints:joints,
+    sashes:sashes.filter(function(s){ return s.kind!=="deaf"; }).length,
+    imp:imp, fills:fills.length, glassM:glassM, glassM2:glassM2};
+
+  return {sy:sy, W:W, H:H, type:t, parts:parts, fills:fills, sashes:sashes,
+    lightW:lightW, lightH:lightH, c:counters};
+}
+
+/* Подбор фурнитуры: запись справочника или отказ (§8.4, §9.1). */
+function pickHW(b){
+  var out = [], miss = [];
+  b.sashes.forEach(function(s){
+    if(s.kind === "deaf") return;
+    var found = null;
+    HW.forEach(function(h){
+      if(h.kind !== s.kind) return;
+      if(s.w < h.w[0] || s.w > h.w[1]) return;
+      if(s.h < h.h[0] || s.h > h.h[1]) return;
+      if(!found) found = h;
+    });
+    if(found) out.push(found); else miss.push(Math.round(s.w) + "×" + Math.round(s.h));
+  });
+  return {list:out, miss:miss};
+}
+
+/* Правила технолога — проверяются до раскроя (§9.3). */
+function rules(b, g){
+  var out = [];
+  b.sashes.forEach(function(s){
+    if(s.kind === "deaf") return;
+    if(s.w > b.sy.maxSashW) out.push({lvl:"crit", t:"Ширина створки " + Math.round(s.w) + " мм больше предела системы " + b.sy.maxSashW + " мм"});
+    if(s.h > b.sy.maxSashH) out.push({lvl:"crit", t:"Высота створки " + Math.round(s.h) + " мм больше предела системы " + b.sy.maxSashH + " мм"});
+    var kg = (s.w*s.h/1e6) * g.kg;
+    if(kg > b.sy.maxGlassKg) out.push({lvl:"warn", t:"Вес заполнения створки " + fmt(kg,1) + " кг при пределе " + b.sy.maxGlassKg + " кг"});
+  });
+  var hw = pickHW(b);
+  hw.miss.forEach(function(m){ out.push({lvl:"crit", t:"Фурнитура на створку " + m + " мм не подобрана — записи в справочнике нет"}); });
+  return out;
+}
+
+/* =====================================================================
+   Состав, трудоёмкость, цена
+   ===================================================================== */
+function bom(cfg){
+  var b = build(cfg), sy = b.sy, col = colorOf(cfg.color), g = glassOf(cfg.glass);
+  var rows = [], kPrice = col.k;
+
+  var byRole = {frame:{m:0,n:0}, sash:{m:0,n:0}, mull:{m:0,n:0}};
+  b.parts.forEach(function(p){ byRole[p.role].m += p.L/1000; byRole[p.role].n++; });
+  var RN = {frame:"Профиль рамы", sash:"Профиль створки", mull:"Профиль импоста"};
+  ["frame","sash","mull"].forEach(function(r){
+    if(!byRole[r].n) return;
+    rows.push({g:"Профиль", n:RN[r] + " " + sy.n + " · " + col.n, q:byRole[r].m, u:"м",
+      p:sy.pM*kPrice, note:byRole[r].n + " балок"});
+  });
+  if(b.c.armM > 0) rows.push({g:"Профиль", n:"Армирование", q:b.c.armM, u:"м", p:sy.armM, note:b.c.armBars + " балок"});
+  rows.push({g:"Профиль", n:"Штапик", q:0, u:"м", p:sy.beadM*kPrice, note:""});
+  rows[rows.length-1].q = 0;
+
+  var beadM = 0, sealM = 0;
+  b.fills.forEach(function(f){ beadM += 2*(f.w+f.h)/1000; sealM += 4*(f.w+f.h)/1000; });
+  rows[rows.length-1].q = beadM;
+  rows.push({g:"Профиль", n:"Уплотнитель", q:sealM, u:"м", p:sy.sealM, note:"два контура"});
+
+  b.fills.forEach(function(f){
+    rows.push({g:"Заполнение", n:g.n + " · " + f.w + "×" + f.h, q:f.w*f.h/1e6, u:"м²", p:g.m2, note:f.note});
+  });
+
+  var hw = pickHW(b);
+  hw.list.forEach(function(h){ rows.push({g:"Фурнитура", n:h.n, q:1, u:"компл", p:h.p, note:""}); });
+  rows.push({g:"Фурнитура", n:"Крепёж и подставочный профиль", q:1, u:"компл", p:3400, note:""});
+
+  var labor = AREAS.map(function(a){ var m = a.f(b.c); return {id:a.id, n:a.n, min:m, sum:m*RATE}; });
+  var laborMin = 0, laborSum = 0;
+  labor.forEach(function(l){ laborMin += l.min; laborSum += l.sum; });
+
+  var mat = 0;
+  rows.forEach(function(r){ r.sum = r.q*r.p; mat += r.sum; });
+
+  return {b:b, rows:rows, labor:labor, laborMin:laborMin, laborSum:laborSum,
+    mat:mat, cost:mat + laborSum, miss:hw.miss, rules:rules(b, g), col:col, g:g};
+}
+
+/* Цена по трём уровням: элемент → позиция → заказ (§8.3, §9.7). */
+function price(cfg){
+  var r = bom(cfg);
+  var unit = r.cost * (1 + MARGIN/100);
+  var pos = unit * cfg.qty;
+  return {r:r, unit:unit, pos:pos};
+}
+
+/* =====================================================================
+   Раскрой 1D: политика отдельно от станка, торцовка до фильтра (§9.4)
+   ===================================================================== */
+function cutPlan(){
+  var groups = {};
+  allPositions().forEach(function(p){
+    var b = build(p.cfg), sy = b.sy, col = colorOf(p.cfg.color);
+    b.parts.forEach(function(part){
+      var key = sy.id + "|" + part.role + "|" + col.id;
+      if(!groups[key]) groups[key] = {sys:sy, role:part.role, col:col, items:[]};
+      for(var i=0;i<p.cfg.qty;i++) groups[key].items.push(part.L);
+    });
+  });
+
+  var bar = S.cutBar, out = [], tot = {used:0, need:0, scrap:0, rest:0, bars:0};
+  Object.keys(groups).forEach(function(k){
+    var G = groups[k];
+    var usable = bar - CUTTER.headBar - CUTTER.clamp;
+    var items = G.items.slice().sort(function(a,b){ return b - a; });
+    /* Целевая функция «минимум хлыстов» отключает пороги остатка (§9.4). */
+    var bars = [];
+    items.forEach(function(L){
+      var need = L + CUTTER.kerf, placed = false;
+      for(var i=0;i<bars.length;i++){
+        if(bars[i].free >= need){ bars[i].cuts.push(L); bars[i].free -= need; placed = true; break; }
+      }
+      if(!placed) bars.push({cuts:[L], free:usable - need});
+    });
+    var gRest = 0, gScrap = 0, gNeed = 0;
+    bars.forEach(function(bb){
+      bb.cuts.forEach(function(c){ gNeed += c; });
+      var keep = 0;
+      if(S.cutGoal === "waste"){
+        var saved = bb.free - GRADE.trimRest;         /* сначала торцовка, потом фильтр */
+        if(saved >= GRADE.minRest) keep = saved;
+      }
+      bb.rest = keep; bb.scrap = bb.free - keep;
+      gRest += keep; gScrap += bb.scrap;
+    });
+    tot.bars += bars.length; tot.used += bars.length*bar; tot.need += gNeed;
+    tot.scrap += gScrap + bars.length*(CUTTER.headBar + CUTTER.clamp); tot.rest += gRest;
+    out.push({key:k, g:G, bars:bars, usable:usable, need:gNeed, rest:gRest, scrap:gScrap});
+  });
+  return {groups:out, tot:tot, bar:bar};
+}
+
+/* =====================================================================
+   Пакетирование и загрузка (§9.11)
+   ===================================================================== */
+function shiftPlan(){
+  var groups = {};
+  allPositions().forEach(function(p){
+    var r = bom(p.cfg), col = colorOf(p.cfg.color), sy = sysOf(p.cfg.sys);
+    var key = sy.id + "|" + col.id;                 /* критерии пакетирования */
+    if(!groups[key]) groups[key] = {sys:sy, col:col, min:0, n:0, pos:[]};
+    groups[key].min += r.laborMin * p.cfg.qty;
+    groups[key].n += p.cfg.qty;
+    groups[key].pos.push(p);
+  });
+  var tasks = [];
+  Object.keys(groups).forEach(function(k){
+    var G = groups[k], left = G.min, i = 1, per = G.n ? G.min/G.n : 0;
+    while(left > 0.001){
+      var take = Math.min(SHIFT_MAX, left);
+      tasks.push({sys:G.sys, col:G.col, min:take, n:Math.max(1, Math.round(take/(per||1))), i:i++});
+      left -= take;
+    }
+  });
+  /* Порядок заданий минимизирует суммарную переналадку (жадно, §9.11). */
+  var order = [], pool = tasks.slice(), cur = null;
+  while(pool.length){
+    var bi = 0, best = 1e9;
+    for(var i=0;i<pool.length;i++){
+      var c = cur ? SETUP[cur][pool[i].col.id] : 0;
+      if(c < best){ best = c; bi = i; }
+    }
+    var t = pool.splice(bi,1)[0]; t.setup = cur ? SETUP[cur][t.col.id] : 0;
+    cur = t.col.id; order.push(t);
+  }
+  var setupTotal = 0; order.forEach(function(t){ setupTotal += t.setup; });
+
+  var load = {};
+  AREAS.forEach(function(a){ load[a.id] = 0; });
+  allPositions().forEach(function(p){
+    var r = bom(p.cfg);
+    r.labor.forEach(function(l){ load[l.id] += l.min * p.cfg.qty; });
+  });
+  return {tasks:order, setup:setupTotal, load:load};
+}
+
+/* =====================================================================
+   Заказы
+   ===================================================================== */
+var SEQ = 1;
+function positions(){ var o = curOrder(); return o ? o.pos : []; }
+/* Цех планирует по всем заказам смены, а не по одному (§9.5, §9.11). */
+function allPositions(){
+  var out = [];
+  S.orders.forEach(function(o){ o.pos.forEach(function(p){ out.push(p); }); });
+  return out;
+}
+function curOrder(){ for(var i=0;i<S.orders.length;i++) if(S.orders[i].id === S.cur) return S.orders[i]; return null; }
+function newOrder(client){
+  var n = S.orders.length + 1;
+  var o = {id:"o"+(SEQ++), no:"ЗК-" + (1000 + n), client:client || "Новый клиент",
+    state:"Оформление", stage:"Замер", pos:[]};
+  S.orders.unshift(o); S.cur = o.id; return o;
+}
+function orderSum(o){
+  var s = 0; o.pos.forEach(function(p){ s += price(p.cfg).pos; }); return s;
+}
+function orderMin(o){
+  var s = 0; o.pos.forEach(function(p){ s += bom(p.cfg).laborMin * p.cfg.qty; }); return s;
+}
+/* Срок — из картины загрузки, а не текстом (§9.11). */
+function orderDue(o){
+  var min = orderMin(o);
+  var bottleneck = 0;
+  AREAS.forEach(function(a){
+    var share = 0;
+    o.pos.forEach(function(p){ share += a.f(build(p.cfg).c) * p.cfg.qty; });
+    var days = share / CAP[a.id];
+    if(days > bottleneck) bottleneck = days;
+  });
+  var d = Math.ceil(bottleneck) + 3;               /* + подготовка и упаковка */
+  var dt = new Date(2026, 8, 7); var added = 0;
+  while(added < d){ dt.setDate(dt.getDate()+1); if(dt.getDay()!==0) added++; }
+  return {days:d, date:dt.toLocaleDateString("ru-RU"), min:min};
+}
+
+/* =====================================================================
+   Отрисовка
+   ===================================================================== */
+function drawUnit(){
+  var b = build(S.cfg), sy = b.sy, g = glassOf(S.cfg.glass);
+  var VB = 400, VH = 320, pad = 26;
+  var sc = Math.min((VB - pad*2)/b.W, (VH - pad*2)/b.H);
+  var w = b.W*sc, h = b.H*sc, x0 = (VB - w)/2, y0 = (VH - h)/2;
+  var f = sy.frame*sc, s = sy.sash*sc, m = sy.mull*sc;
+  var css = getComputedStyle(document.documentElement);
+  var pvc = css.getPropertyValue("--pvc"), pvc2 = css.getPropertyValue("--pvc-2");
+  var gl = css.getPropertyValue("--glass"), ink3 = css.getPropertyValue("--ink-3");
+  var o = "";
+  function rect(x,y,ww,hh,fill,st){ o += '<rect x="'+x.toFixed(1)+'" y="'+y.toFixed(1)+'" width="'+Math.max(0,ww).toFixed(1)+
+    '" height="'+Math.max(0,hh).toFixed(1)+'" fill="'+fill+'" stroke="'+(st||pvc2)+'" stroke-width="1"/>'; }
+  rect(x0, y0, w, h, pvc);
+  var ix = x0+f, iy = y0+f, iw = w-2*f, ih = h-2*f;
+  if(S.cfg.type === "deaf"){
+    rect(ix, iy, iw, ih, gl);
+  } else if(S.cfg.type === "two"){
+    var half = (iw - m)/2;
+    [0,1].forEach(function(k){
+      var sx = ix + k*(half + m);
+      rect(sx, iy, half, ih, pvc);
+      rect(sx+s, iy+s, half-2*s, ih-2*s, gl);
+    });
+    rect(ix + half, iy, m, ih, pvc);
+  } else {
+    rect(ix, iy, iw, ih, pvc);
+    rect(ix+s, iy+s, iw-2*s, ih-2*s, gl);
+  }
+  /* Обозначение открывания: штриховые линии к петлевой стороне. */
+  if(S.cfg.type === "turn" || S.cfg.type === "tilt"){
+    o += '<path d="M'+(x0+w-f-2)+' '+(y0+f+2)+' L'+(x0+f+2)+' '+(y0+h/2)+' L'+(x0+w-f-2)+' '+(y0+h-f-2)+
+         '" fill="none" stroke="'+ink3+'" stroke-width="1" stroke-dasharray="4 3"/>';
+  }
+  if(S.cfg.type === "tilt"){
+    o += '<path d="M'+(x0+f+2)+' '+(y0+h-f-2)+' L'+(x0+w/2)+' '+(y0+f+2)+' L'+(x0+w-f-2)+' '+(y0+h-f-2)+
+         '" fill="none" stroke="'+ink3+'" stroke-width="1" stroke-dasharray="4 3"/>';
+  }
+  if(S.cfg.type === "two"){
+    var hx = x0+f, hw2 = (w-2*f-m)/2;
+    o += '<path d="M'+(hx+hw2-2)+' '+(y0+f+2)+' L'+(hx+2)+' '+(y0+h/2)+' L'+(hx+hw2-2)+' '+(y0+h-f-2)+
+         '" fill="none" stroke="'+ink3+'" stroke-width="1" stroke-dasharray="4 3"/>';
+  }
+  /* Размерные линии */
+  o += '<text x="'+(x0+w/2)+'" y="'+(y0-9)+'" text-anchor="middle" font-size="11" font-family="IBM Plex Mono" fill="'+ink3+'">'+b.W+'</text>';
+  o += '<text x="'+(x0-9)+'" y="'+(y0+h/2)+'" text-anchor="middle" font-size="11" font-family="IBM Plex Mono" fill="'+ink3+
+       '" transform="rotate(-90 '+(x0-9)+' '+(y0+h/2)+')">'+b.H+'</text>';
+  $("#draw").innerHTML = o;
+
+  var r = bom(S.cfg);
+  $("#cfgChip").textContent = b.W + "×" + b.H + " · " + sy.n;
+  $("#geoFacts").innerHTML =
+    fact("Заполнений", b.fills.length + " шт") +
+    fact("Балок", b.c.bars + " шт · " + fmt(b.c.barM,2) + " м") +
+    fact("Сварных углов", b.c.joints + "") +
+    fact("Трудоёмкость", fmt(r.laborMin,1) + " мин") +
+    fact("Себестоимость", money(r.cost), "money") +
+    fact("Цена", money(price(S.cfg).unit), "ok");
+
+  var notes = "";
+  r.rules.forEach(function(x){ notes += '<div class="note '+(x.lvl==="crit"?"crit":"warn")+'">'+x.t+'</div>'; });
+  if(!r.rules.length) notes = '<div class="note info">Правила технолога пройдены: створка в габаритах системы, фурнитура подобрана, вес заполнения в пределе.</div>';
+  $("#ruleNotes").innerHTML = notes;
+}
+function fact(k,v,cls){
+  return '<div class="fact"><div class="k">'+k+'</div><div class="v '+(cls||"")+'">'+v+'</div></div>';
+}
+
+function renderOrders(){
+  var tot = 0, minTot = 0, cnt = 0;
+  S.orders.forEach(function(o){ tot += orderSum(o); minTot += orderMin(o); o.pos.forEach(function(p){ cnt += p.cfg.qty; }); });
+  $("#ordFacts").innerHTML =
+    fact("Заказов", S.orders.length + "") +
+    fact("Изделий", cnt + "") +
+    fact("Трудоёмкость", fmt(minTot/60,1) + " ч") +
+    fact("Сумма", money(tot), "money");
+
+  var L = $("#ordList"); L.innerHTML = "";
+  S.orders.forEach(function(o){
+    var b = el("button","oitem");
+    var due = orderDue(o);
+    b.innerHTML = '<span class="no">'+o.no+'</span>' +
+      '<span class="mid"><span class="nm">'+o.client+'</span>' +
+      '<span class="meta"><span class="pill st">'+o.state+'</span><span class="pill et">'+o.stage+'</span>' +
+      '<span>'+o.pos.length+' поз. · срок '+due.date+'</span></span></span>' +
+      '<span class="amt">'+money(orderSum(o))+'</span>';
+    if(o.id === S.cur) b.style.borderColor = "var(--accent)";
+    b.addEventListener("click", function(){ S.cur = o.id; renderOrders(); renderSpec(); });
+    L.appendChild(b);
+  });
+
+  var o = curOrder();
+  $("#curTitle").textContent = o ? o.no + " · позиции" : "Заказ";
+  $("#oClient").value = o ? o.client : "";
+  var d = o ? orderDue(o) : null;
+  $("#oDue").value = d ? d.date + "  (" + d.days + " раб. дн.)" : "";
+  $("#dueNote").textContent = d
+    ? "Узкое место — участок с наибольшей загрузкой; срок " + d.days + " рабочих дней получен из мощности линии, а не из обещания менеджера (§9.11)."
+    : "Срок берётся из загрузки линий, а не вводится текстом (§9.11).";
+
+  var T = $("#posTbl");
+  if(!o || !o.pos.length){
+    T.innerHTML = '<tbody><tr><td style="color:var(--ink-3);white-space:normal">Позиций нет. Соберите изделие в конструкторе и добавьте в заказ.</td></tr></tbody>';
+    return;
+  }
+  var html = '<thead><tr><th>Изделие</th><th>Система</th><th class="r">Кол-во</th><th class="r">Цена</th><th class="r">Сумма</th><th></th></tr></thead><tbody>';
+  o.pos.forEach(function(p,i){
+    var pr = price(p.cfg), sy = sysOf(p.cfg.sys);
+    html += '<tr><td>'+p.name+'</td><td>'+sy.n+' · '+colorOf(p.cfg.color).n+'</td>' +
+      '<td class="r num">'+p.cfg.qty+'</td><td class="r num">'+money(pr.unit)+'</td>' +
+      '<td class="r num">'+money(pr.pos)+'</td>' +
+      '<td class="r"><button class="btn ghost mini" data-del="'+i+'">Убрать</button></td></tr>';
+  });
+  var sum = orderSum(o);
+  html += '<tr class="sum"><td colspan="4">Итого по заказу</td><td class="r num">'+money(sum)+'</td><td></td></tr>';
+  html += '<tr><td colspan="4" style="color:var(--ink-3)">НДС '+VAT+'%</td><td class="r num">'+money(sum*VAT/100)+'</td><td></td></tr>';
+  html += '<tr class="sum"><td colspan="4">К оплате</td><td class="r num">'+money(sum*(1+VAT/100))+'</td><td></td></tr>';
+  T.innerHTML = html + '</tbody>';
+  $$("[data-del]", T).forEach(function(bt){
+    bt.addEventListener("click", function(){
+      o.pos.splice(+bt.dataset.del, 1); renderAll(); toast("Позиция убрана");
+    });
+  });
+}
+
+function renderSpec(){
+  var o = curOrder();
+  var cfg = (o && o.pos.length) ? o.pos[o.pos.length-1].cfg : S.cfg;
+  var r = bom(cfg), pr = price(cfg);
+  $("#specFor").textContent = cfg.W + "×" + cfg.H + " · " + sysOf(cfg.sys).n + " · " + cfg.qty + " шт";
+  $("#specFacts").innerHTML =
+    fact("Материалы", money(r.mat)) +
+    fact("Работа", fmt(r.laborMin,1) + " мин") +
+    fact("Себестоимость", money(r.cost)) +
+    fact("Цена за шт", money(pr.unit), "money") +
+    fact("Сумма позиции", money(pr.pos), "ok");
+
+  var html = '<thead><tr><th>Наименование</th><th class="r">Кол-во</th><th class="r">Цена</th><th class="r">Сумма</th></tr></thead><tbody>';
+  var lastG = null;
+  r.rows.forEach(function(x){
+    if(x.g !== lastG){ html += '<tr class="grp"><td colspan="4">'+x.g+'</td></tr>'; lastG = x.g; }
+    html += '<tr><td style="white-space:normal">'+x.n + (x.note ? ' <span style="color:var(--ink-3)">· '+x.note+'</span>' : '') +
+      '</td><td class="r num">'+fmt(x.q,3)+' '+x.u+'</td><td class="r num">'+fmt(x.p)+'</td>' +
+      '<td class="r num">'+money(x.sum)+'</td></tr>';
+  });
+  html += '<tr class="sum"><td colspan="3">Материалы на изделие</td><td class="r num">'+money(r.mat)+'</td></tr>';
+  $("#bomTbl").innerHTML = html + '</tbody>';
+
+  var lh = '<thead><tr><th>Участок</th><th class="r">Норматив</th><th class="r">Стоимость</th></tr></thead><tbody>';
+  r.labor.forEach(function(l){
+    lh += '<tr><td>'+l.n+'</td><td class="r num">'+fmt(l.min,1)+' мин</td><td class="r num">'+money(l.sum)+'</td></tr>';
+  });
+  lh += '<tr class="sum"><td>Итого</td><td class="r num">'+fmt(r.laborMin,1)+' мин</td><td class="r num">'+money(r.laborSum)+'</td></tr>';
+  $("#laborTbl").innerHTML = lh + '</tbody>';
+
+  var ph = '<thead><tr><th>Уровень</th><th>Шаг</th><th class="r">Сумма</th></tr></thead><tbody>';
+  ph += '<tr><td>элемент</td><td>Материалы по строкам состава</td><td class="r num">'+money(r.mat)+'</td></tr>';
+  ph += '<tr><td>элемент</td><td>Работа: '+fmt(r.laborMin,1)+' мин × '+RATE+' ₸</td><td class="r num">'+money(r.laborSum)+'</td></tr>';
+  ph += '<tr class="sum"><td>элемент</td><td>Себестоимость изделия</td><td class="r num">'+money(r.cost)+'</td></tr>';
+  ph += '<tr><td>позиция</td><td>Наценка '+MARGIN+'%</td><td class="r num">'+money(r.cost*MARGIN/100)+'</td></tr>';
+  ph += '<tr class="sum"><td>позиция</td><td>Цена за штуку</td><td class="r num">'+money(pr.unit)+'</td></tr>';
+  ph += '<tr><td>позиция</td><td>Умножение на количество ('+cfg.qty+') — операция модели, а не формулы</td><td class="r num">'+money(pr.pos)+'</td></tr>';
+  if(o){
+    var s = orderSum(o);
+    ph += '<tr><td>заказ</td><td>Сумма по всем позициям</td><td class="r num">'+money(s)+'</td></tr>';
+    ph += '<tr class="sum"><td>заказ</td><td>К оплате с НДС '+VAT+'%</td><td class="r num">'+money(s*(1+VAT/100))+'</td></tr>';
+  }
+  $("#priceTbl").innerHTML = ph + '</tbody>';
+}
+
+function renderCut(){
+  $("#cutParams").innerHTML =
+    fact("Пропил", CUTTER.kerf + " мм") +
+    fact("Торцовка хлыста", CUTTER.headBar + " мм") +
+    fact("Зона зажима", CUTTER.clamp + " мм") +
+    fact("Порог остатка", GRADE.minRest + " мм") +
+    fact("Торцовка остатка", GRADE.trimRest + " мм");
+  $("#goalNote").textContent = S.cutGoal === "waste"
+    ? "Пропил, торцовка и зажим — свойства пилы; порог делового остатка — политика предприятия (§9.4). Сохраняемая длина считается после торцовки, и порог применяется к ней."
+    : "В режиме «минимум хлыстов» пороги отхода и делового остатка не применяются — параметр принадлежит режиму, поэтому здесь он выключен, а не молча игнорируется (§9.4).";
+
+  var plan = cutPlan(), out = $("#cutOut");
+  if(!plan.groups.length){
+    out.innerHTML = '<div class="note info">Позиций нет — резать нечего.</div>';
+    $("#cutFacts").innerHTML = "";
+    return;
+  }
+  var t = plan.tot;
+  $("#cutFacts").innerHTML =
+    fact("Хлыстов", t.bars + " шт") +
+    fact("В деталях", fmt(t.need/1000,2) + " м") +
+    fact("Деловой остаток", fmt(t.rest/1000,2) + " м", "ok") +
+    fact("Отход", fmt(100*t.scrap/t.used,1) + " %", t.scrap/t.used > 0.12 ? "money" : "ok");
+
+  var RN = {frame:"рама", sash:"створка", mull:"импост"};
+  var html = "";
+  plan.groups.forEach(function(G){
+    html += '<div class="card"><header><h3>' + G.g.sys.n + " · " + RN[G.g.role] + " · " + G.g.col.n +
+      '</h3><span class="hint">' + G.bars.length + ' хлыстов по ' + plan.bar + ' мм</span></header><div class="body">';
+    G.bars.forEach(function(bb, i){
+      var used = 0; bb.cuts.forEach(function(c){ used += c + CUTTER.kerf; });
+      html += '<div class="cutmap"><div class="cuthead"><span>Хлыст ' + (i+1) + ' · ' + bb.cuts.length + ' дет.</span>' +
+        '<span>' + (bb.rest > 0 ? 'остаток ' + Math.round(bb.rest) + ' мм в реестр' : 'отход ' + Math.round(bb.scrap) + ' мм') + '</span></div><div class="cutbar">';
+      bb.cuts.forEach(function(c){
+        html += '<div style="flex:0 0 ' + (100*(c + CUTTER.kerf)/plan.bar).toFixed(2) + '%">' + c + '</div>';
+      });
+      if(bb.rest > 0) html += '<div class="rest" style="flex:0 0 ' + (100*bb.rest/plan.bar).toFixed(2) + '%">' + Math.round(bb.rest) + '</div>';
+      if(bb.scrap > 0) html += '<div class="scrap" style="flex:1 1 auto">' + Math.round(bb.scrap) + '</div>';
+      html += '</div></div>';
+    });
+    html += '</div></div>';
+  });
+  out.innerHTML = html;
+}
+
+function renderShift(){
+  var plan = shiftPlan();
+  var L = "";
+  AREAS.forEach(function(a){
+    var m = plan.load[a.id], cap = CAP[a.id], pct = 100*m/cap;
+    L += '<div style="margin-bottom:12px"><div style="display:flex;justify-content:space-between;font-size:13px">' +
+      '<span>' + a.n + '</span><span class="num" style="color:var(--ink-3)">' + fmt(m,0) + ' / ' + cap + ' мин</span></div>' +
+      '<div class="bar"><i class="' + (pct > 100 ? "over" : "") + '" style="width:' + Math.min(100, pct).toFixed(1) + '%"></i></div></div>';
+  });
+  var over = AREAS.filter(function(a){ return plan.load[a.id] > CAP[a.id]; });
+  if(over.length) L += '<div class="note warn">Дневная мощность превышена: ' + over.map(function(a){ return a.n; }).join(", ") +
+    '. Срок заказа считается по этому участку — он и есть узкое место.</div>';
+  else L += '<div class="note info">Мощность — свойство пары «участок × линия» и задана по типам дня (§6.7). Дневная мощность и предел одного задания — разные ограничения.</div>';
+  $("#loadOut").innerHTML = L || '<div class="note info">Нет позиций.</div>';
+
+  var P = "", t = plan.tasks;
+  $("#packHint").textContent = t.length ? t.length + " заданий · переналадка " + plan.setup + " мин" : "нет позиций";
+  if(!t.length){ $("#packOut").innerHTML = '<div class="note info">В заказе нет позиций.</div>'; return; }
+  P += '<div class="tablewrap"><table><thead><tr><th>№</th><th>Критерии группировки</th><th class="r">Изделий</th><th class="r">Трудоёмкость</th><th class="r">Переналадка</th></tr></thead><tbody>';
+  t.forEach(function(x, i){
+    P += '<tr><td class="num">' + (i+1) + '</td><td style="white-space:normal">' + x.sys.n + ' · ' + x.col.n + '</td>' +
+      '<td class="r num">' + x.n + '</td><td class="r num">' + fmt(x.min,0) + ' мин</td>' +
+      '<td class="r num">' + (x.setup ? x.setup + ' мин' : '—') + '</td></tr>';
+  });
+  P += '<tr class="sum"><td colspan="4">Суммарное время переналадок</td><td class="r num">' + plan.setup + ' мин</td></tr>';
+  P += '</tbody></table></div>';
+  P += '<div class="note info">Изделия попадают в одно задание, если совпали все критерии. Порядок заданий внутри смены — тоже оптимизируемая величина: он выбран так, чтобы сумма переналадок по матрице была наименьшей (§9.11).</div>';
+  P += '<div class="note info">Предел одного задания — ' + SHIFT_MAX + ' мин: столько влезает в один прогон, независимо от дневной мощности.</div>';
+  $("#packOut").innerHTML = P;
+}
+
+function renderAll(){ drawUnit(); renderOrders(); renderSpec(); renderCut(); renderShift(); }
+
+/* =====================================================================
+   Навигация и события
+   ===================================================================== */
+var TITLES = {
+  p1:["Заказы","Две оси: состояние и этап"],
+  p2:["Конструктор","Геометрия → детали → расчёт"],
+  p3:["Спецификация","Состав, трудоёмкость, цена"],
+  p4:["Раскрой","1D по хлыстам"],
+  p5:["Смена","Загрузка и сменные задания"]
+};
+function go(id){
+  S.page = id;
+  $$("section[id^=p]").forEach(function(s){ s.hidden = (s.id !== id); });
+  $$("[data-go]").forEach(function(b){ b.setAttribute("aria-current", b.dataset.go === id ? "true" : "false"); });
+  $("#ttl").textContent = TITLES[id][0];
+  $("#sub").textContent = TITLES[id][1];
+  window.scrollTo(0,0);
+  renderAll();
+}
+$$("[data-go]").forEach(function(b){ b.addEventListener("click", function(){ go(b.dataset.go); }); });
+
+$("#theme").addEventListener("click", function(){
+  var cur = document.documentElement.getAttribute("data-theme");
+  var dark = cur ? cur === "dark" : window.matchMedia("(prefers-color-scheme: dark)").matches;
+  document.documentElement.setAttribute("data-theme", dark ? "light" : "dark");
+  drawUnit();
+});
+
+SYS.forEach(function(x){ $("#sys").appendChild(el("option", null, x.n)).value = x.id; });
+COLORS.forEach(function(x){ $("#color").appendChild(el("option", null, x.n)).value = x.id; });
+GLASSES.forEach(function(x){ $("#glass").appendChild(el("option", null, x.n)).value = x.id; });
+$("#sys").value = S.cfg.sys; $("#color").value = S.cfg.color; $("#glass").value = S.cfg.glass;
+
+$$("#segType button").forEach(function(b){
+  b.setAttribute("aria-pressed", b.dataset.t === S.cfg.type ? "true" : "false");
+  b.addEventListener("click", function(){
+    S.cfg.type = b.dataset.t;
+    $$("#segType button").forEach(function(x){ x.setAttribute("aria-pressed", x === b ? "true" : "false"); });
+    drawUnit();
+  });
+});
+["W","H","qty"].forEach(function(id){
+  $("#"+id).addEventListener("input", function(e){ S.cfg[id] = +e.target.value || 0; drawUnit(); });
+});
+["sys","color","glass"].forEach(function(id){
+  $("#"+id).addEventListener("change", function(e){ S.cfg[id] = e.target.value; drawUnit(); });
+});
+
+$("#addPos").addEventListener("click", function(){
+  var r = bom(S.cfg);
+  var crit = r.rules.filter(function(x){ return x.lvl === "crit"; });
+  if(crit.length){ toast("Правило технолога не пройдено — позиция не добавлена"); return; }
+  if(S.cfg.W < 300 || S.cfg.H < 300){ toast("Проверьте габариты"); return; }
+  var o = curOrder() || newOrder();
+  var TN = {deaf:"Глухое", turn:"Поворотное", tilt:"Пов.-откидное", two:"Двустворчатое"};
+  o.pos.push({name: TN[S.cfg.type] + " " + S.cfg.W + "×" + S.cfg.H,
+    cfg: JSON.parse(JSON.stringify(S.cfg))});
+  toast("Добавлено в " + o.no);
+  go("p1");
+});
+$("#newOrder").addEventListener("click", function(){ newOrder(); renderAll(); toast("Заказ создан"); });
+$("#oClient").addEventListener("input", function(e){ var o = curOrder(); if(o){ o.client = e.target.value; renderOrders(); } });
+$("#cutGoal").addEventListener("change", function(e){ S.cutGoal = e.target.value; renderCut(); });
+$("#cutBar").addEventListener("change", function(e){ S.cutBar = +e.target.value; renderCut(); });
+
+/* ---------- демо-данные ---------- */
+(function seed(){
+  var a = newOrder("ТОО «Алма Строй»");
+  a.state = "В производстве"; a.stage = "Сварка";
+  a.pos.push({name:"Пов.-откидное 900×1500", cfg:{type:"tilt", W:900, H:1500, sys:"s70", color:"white", glass:"g32", qty:6}});
+  a.pos.push({name:"Глухое 800×1500",        cfg:{type:"deaf", W:800,  H:1500, sys:"s70", color:"white", glass:"g32", qty:4}});
+  var b = newOrder("ИП Сериков");
+  b.state = "Согласование"; b.stage = "Замер";
+  b.pos.push({name:"Двустворчатое 1800×1600", cfg:{type:"two", W:1800, H:1600, sys:"s76", color:"anthr", glass:"g40", qty:3}});
+  S.cur = a.id;
+})();
+go("p1");
+</script>
+</body>
+</html>
