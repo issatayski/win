@@ -199,6 +199,26 @@ svg.draw .sec{cursor:pointer}
 .tabbar button[aria-current="true"]{color:var(--accent)}
 .tabbar span{max-width:100%; overflow:hidden; text-overflow:ellipsis; white-space:nowrap}
 
+/* Нижнее меню держит пять слотов: четыре раздела и «Ещё». */
+.tabbar button[data-more]{display:none}
+.backdrop{position:fixed; inset:0; z-index:35; background:rgba(13,20,24,.38);
+  opacity:0; pointer-events:none; transition:opacity .2s}
+.backdrop.on{opacity:1; pointer-events:auto}
+.sheet{position:fixed; left:0; right:0; bottom:calc(57px + env(safe-area-inset-bottom)); z-index:40;
+  background:var(--surface); border-top:1px solid var(--line); box-shadow:var(--navshadow);
+  border-radius:14px 14px 0 0; padding:8px 0 10px;
+  transform:translateY(14px); opacity:0; pointer-events:none; transition:transform .2s ease, opacity .2s ease}
+.sheet.on{transform:translateY(0); opacity:1; pointer-events:auto}
+.sheet .grab{width:38px; height:4px; border-radius:2px; background:var(--line); margin:2px auto 8px}
+.sheet .cap{font:700 10.5px/1 "Golos Text",sans-serif; letter-spacing:.09em; text-transform:uppercase;
+  color:var(--ink-3); padding:4px 18px 8px}
+.sheet .row{display:flex; align-items:center; gap:12px; width:100%; background:none; border:0; cursor:pointer;
+  color:var(--ink-2); font:600 15px "Golos Text",sans-serif; padding:13px 18px; text-align:left}
+.sheet .row:hover{background:var(--surface-2)}
+.sheet .row[aria-current="true"]{color:var(--accent); background:var(--accent-soft)}
+.sheet svg{width:20px; height:20px; stroke:currentColor; fill:none; stroke-width:1.7;
+  stroke-linecap:round; stroke-linejoin:round; flex:0 0 auto}
+@media(min-width:900px){ .sheet,.backdrop{display:none} }
 .toast{position:fixed; left:50%; transform:translateX(-50%); bottom:78px; z-index:60; background:var(--ink);
   color:var(--ground); padding:11px 16px; border-radius:99px; font:600 13px "Golos Text",sans-serif;
   opacity:0; pointer-events:none; transition:opacity .18s; max-width:90vw; text-align:center}
@@ -401,9 +421,16 @@ svg.draw .sec{cursor:pointer}
   <button data-go="p2"><svg viewBox="0 0 24 24"><rect x="3.5" y="3.5" width="17" height="17" rx="1.5"/><path d="M12 3.5v17M3.5 8h17"/></svg><span>Изделие</span></button>
   <button data-go="p3"><svg viewBox="0 0 24 24"><path d="M4 5h16M4 10h16M4 15h10M4 20h7"/></svg><span>Состав</span></button>
   <button data-go="p4"><svg viewBox="0 0 24 24"><path d="M3 8h18v8H3z"/><path d="M8 8v8M14 8v8"/></svg><span>Раскрой</span></button>
-  <button data-go="p5"><svg viewBox="0 0 24 24"><path d="M4 19V9M9 19V5M14 19v-7M19 19v-4"/></svg><span>Смена</span></button>
-  <button data-go="p6"><svg viewBox="0 0 24 24"><path d="M4 6h16M4 12h16M4 18h16"/><circle cx="8" cy="6" r="1.6"/><circle cx="15" cy="12" r="1.6"/><circle cx="11" cy="18" r="1.6"/></svg><span>Каталог</span></button>
+  <button data-go="p5" data-more="1"><svg viewBox="0 0 24 24"><path d="M4 19V9M9 19V5M14 19v-7M19 19v-4"/></svg><span>Смена</span></button>
+  <button data-go="p6" data-more="1"><svg viewBox="0 0 24 24"><path d="M4 6h16M4 12h16M4 18h16"/><circle cx="8" cy="6" r="1.6"/><circle cx="15" cy="12" r="1.6"/><circle cx="11" cy="18" r="1.6"/></svg><span>Каталог</span></button>
+  <button id="moreBtn" type="button" aria-expanded="false"><svg viewBox="0 0 24 24"><circle cx="5" cy="12" r="1.7"/><circle cx="12" cy="12" r="1.7"/><circle cx="19" cy="12" r="1.7"/></svg><span>Ещё</span></button>
 </nav>
+<div class="backdrop" id="backdrop"></div>
+<div class="sheet" id="sheet" role="dialog" aria-label="Ещё разделы">
+  <div class="grab"></div>
+  <div class="cap">Ещё разделы</div>
+  <div id="sheetRows"></div>
+</div>
 <div class="toast" id="toast"></div>
 
 <script>
@@ -1461,10 +1488,41 @@ var TITLES = {
   p5:["Смена","Загрузка, задания, закупка"],
   p6:["Каталог","Справочники: правка, добавление, удаление"]
 };
+/* ---------- «Ещё»: разделы, не влезшие в пять слотов ---------- */
+(function(){
+  var more = $$(".tabbar button[data-more]");
+  var rows = $("#sheetRows");
+  more.forEach(function(b){
+    var r = el("button","row");
+    r.innerHTML = b.innerHTML.replace("<span>","<span style=\"font:inherit\">");
+    r.setAttribute("data-go-more", b.getAttribute("data-go"));
+    r.addEventListener("click", function(){ closeSheet(); go(b.getAttribute("data-go")); });
+    rows.appendChild(r);
+  });
+  function openSheet(){ $("#sheet").classList.add("on"); $("#backdrop").classList.add("on");
+    $("#moreBtn").setAttribute("aria-expanded","true"); }
+  window.closeSheet = function(){ $("#sheet").classList.remove("on"); $("#backdrop").classList.remove("on");
+    $("#moreBtn").setAttribute("aria-expanded","false"); };
+  $("#moreBtn").addEventListener("click", function(){
+    if($("#sheet").classList.contains("on")) closeSheet(); else openSheet();
+  });
+  $("#backdrop").addEventListener("click", closeSheet);
+  document.addEventListener("keydown", function(e){ if(e.key === "Escape") closeSheet(); });
+})();
+function syncMore(id){
+  var inMore = false;
+  $$(".tabbar button[data-more]").forEach(function(b){ if(b.getAttribute("data-go") === id) inMore = true; });
+  $("#moreBtn").setAttribute("aria-current", inMore ? "true" : "false");
+  $$("#sheetRows .row").forEach(function(r){
+    r.setAttribute("aria-current", r.getAttribute("data-go-more") === id ? "true" : "false");
+  });
+  if(window.closeSheet) closeSheet();
+}
 function go(id){
   S.page = id;
   $$("section[id^=p]").forEach(function(s){ s.hidden = (s.id !== id); });
   $$("[data-go]").forEach(function(b){ b.setAttribute("aria-current", b.getAttribute("data-go") === id ? "true" : "false"); });
+  syncMore(id);
   $("#ttl").textContent = TITLES[id][0]; $("#sub").textContent = TITLES[id][1];
   window.scrollTo(0,0); renderAll();
 }
