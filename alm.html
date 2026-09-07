@@ -1,0 +1,833 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#00696B">
+<title>Алюминиевый контур</title>
+<style>*{margin:0;padding:0;box-sizing:border-box}</style>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Golos+Text:wght@400;500;600;700;800&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<style>
+:root{
+  --ground:#EEF3F4; --surface:#FFFFFF; --surface-2:#F6FAFA;
+  --ink:#0D1418; --ink-2:#42555C; --ink-3:#7B8F96;
+  --line:#D5DFE1; --line-2:#E7EEEF;
+  --accent:#00696B; --accent-soft:#DBEEED; --accent-ink:#004C4E;
+  --money:#9A5B0C; --money-soft:#FBEEDC; --crit:#B4372C; --crit-soft:#FBE7E4;
+  --ok:#2A7A52; --ok-soft:#DDF0E5;
+  --alu:#B9C3C6; --alu-2:#93A2A7; --glass:#BFDDE0; --opaque:#9FAEB3; --steel:#5E6E74;
+  --dim:#3E6F9E;
+  --on-accent:#FFFFFF;
+  --shadow:0 1px 2px rgba(13,20,24,.06), 0 10px 26px -14px rgba(13,20,24,.22);
+  --r:12px;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --ground:#0A1114; --surface:#131E22; --surface-2:#18262B;
+    --ink:#E8EFF0; --ink-2:#A6BABF; --ink-3:#71888E;
+    --line:#25373D; --line-2:#1E2E33;
+    --accent:#4FBCB8; --accent-soft:#123230; --accent-ink:#8FDCD7;
+    --money:#D79B4C; --money-soft:#2E2415; --crit:#E0736A; --crit-soft:#2E1A18;
+    --ok:#63BE8C; --ok-soft:#12291D;
+    --alu:#4A5A61; --alu-2:#6B7C83; --glass:#3E6870; --opaque:#3A4850; --steel:#9FB2B8;
+    --dim:#7FA9D4;
+    --on-accent:#062120;
+    --shadow:0 1px 2px rgba(0,0,0,.4), 0 10px 26px -14px rgba(0,0,0,.7);
+  }
+}
+:root[data-theme="dark"]{
+  --ground:#0A1114; --surface:#131E22; --surface-2:#18262B;
+  --ink:#E8EFF0; --ink-2:#A6BABF; --ink-3:#71888E;
+  --line:#25373D; --line-2:#1E2E33;
+  --accent:#4FBCB8; --accent-soft:#123230; --accent-ink:#8FDCD7;
+  --money:#D79B4C; --money-soft:#2E2415; --crit:#E0736A; --crit-soft:#2E1A18;
+  --ok:#63BE8C; --ok-soft:#12291D;
+  --alu:#4A5A61; --alu-2:#6B7C83; --glass:#3E6870; --opaque:#3A4850; --steel:#9FB2B8;
+  --dim:#7FA9D4;
+  --on-accent:#062120;
+  --shadow:0 1px 2px rgba(0,0,0,.4), 0 10px 26px -14px rgba(0,0,0,.7);
+}
+html{-webkit-text-size-adjust:100%}
+body{background:var(--ground); color:var(--ink);
+  font:400 15px/1.5 "Golos Text",system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;
+  padding-bottom:calc(94px + env(safe-area-inset-bottom))}
+h1,h2,h3{line-height:1.25; letter-spacing:-.01em}
+.wrap{max-width:1080px; margin:0 auto; padding:0 14px}
+
+.head{background:var(--surface); border-bottom:1px solid var(--line); padding:18px 0}
+.head .wrap{display:flex; align-items:center; justify-content:space-between; gap:12px; flex-wrap:wrap}
+.head h1{font-size:22px; font-weight:800}
+.head .sub{font-size:13px; color:var(--ink-3); margin-top:3px}
+.theme{background:var(--surface-2); border:1px solid var(--line); color:var(--ink-2); border-radius:99px;
+  padding:8px 13px; font:600 12px "Golos Text",sans-serif; cursor:pointer}
+
+.card{background:var(--surface); border:1px solid var(--line); border-radius:var(--r);
+  box-shadow:var(--shadow); margin-top:14px; overflow:hidden}
+.card>header{display:flex; align-items:baseline; justify-content:space-between; gap:10px; padding:14px 16px 0}
+.card>header h2{font-size:15px; font-weight:700}
+.card .hint{font-size:11.5px; color:var(--ink-3); font-weight:600}
+.card .body{padding:13px 16px 16px}
+
+.tabs{display:flex; gap:4px; border-bottom:1px solid var(--line); padding:0 16px; overflow-x:auto}
+.tabs button{background:none; border:0; border-bottom:2px solid transparent; cursor:pointer;
+  color:var(--ink-3); font:600 14px "Golos Text",sans-serif; padding:13px 12px; white-space:nowrap}
+.tabs button[aria-selected="true"]{color:var(--accent); border-bottom-color:var(--accent)}
+
+.split{display:grid; gap:14px}
+@media(min-width:900px){ .split{grid-template-columns:1.2fr 1fr; align-items:start} .split>*{min-width:0} }
+.split>.card{margin-top:14px}
+section[hidden]{display:none}
+
+svg.draw{display:block; width:100%; height:auto; background:var(--surface-2);
+  border:1px solid var(--line-2); border-radius:10px}
+svg.draw .cell{cursor:pointer}
+
+label{display:block; font:600 11px/1 "Golos Text",sans-serif; letter-spacing:.05em;
+  text-transform:uppercase; color:var(--ink-3); margin-bottom:6px}
+input[type=number],input[type=text],select{width:100%; background:var(--surface-2); color:var(--ink);
+  border:1px solid var(--line); border-radius:9px; padding:10px 11px;
+  font:500 15px "Golos Text",sans-serif; -webkit-appearance:none; appearance:none}
+select{background-image:linear-gradient(45deg,transparent 50%,var(--ink-3) 50%),linear-gradient(135deg,var(--ink-3) 50%,transparent 50%);
+  background-position:calc(100% - 16px) 19px, calc(100% - 11px) 19px; background-size:5px 5px,5px 5px;
+  background-repeat:no-repeat; padding-right:32px}
+input:focus,select:focus{outline:2px solid var(--accent); outline-offset:1px}
+.field{margin-bottom:11px}
+.row{display:flex; gap:10px}
+.row>*{flex:1 1 0; min-width:0}
+.rng{width:100%; accent-color:var(--accent); margin-top:7px}
+
+.seg{display:flex; gap:6px; flex-wrap:wrap; margin-bottom:9px}
+.seg button{background:var(--surface-2); border:1px solid var(--line); color:var(--ink-2);
+  border-radius:8px; padding:8px 11px; font:600 12.5px "Golos Text",sans-serif; cursor:pointer}
+.seg button[aria-pressed="true"]{background:var(--accent); border-color:var(--accent); color:var(--on-accent)}
+
+.btn{background:var(--accent); border:1px solid var(--accent); color:var(--on-accent); border-radius:10px;
+  padding:12px 16px; font:700 14px "Golos Text",sans-serif; cursor:pointer; width:100%}
+.btn.ghost{background:var(--surface); border-color:var(--line); color:var(--ink-2)}
+
+.facts{display:grid; grid-template-columns:repeat(auto-fit,minmax(148px,1fr)); gap:8px}
+@media(min-width:560px){ .facts{grid-template-columns:repeat(auto-fit,minmax(120px,1fr))} }
+.fact{background:var(--surface-2); border:1px solid var(--line-2); border-radius:10px; padding:10px 11px}
+.fact .k{font-size:11px; color:var(--ink-3); font-weight:600}
+.fact .v{font:700 17px/1.2 "Golos Text",sans-serif; margin-top:3px; letter-spacing:-.01em; overflow-wrap:anywhere}
+.fact .v.money{color:var(--money)}
+.fact .v.ok{color:var(--ok)}
+.fact .v.crit{color:var(--crit)}
+
+.tablewrap{overflow-x:auto; max-width:100%}
+table{width:100%; border-collapse:collapse; font-size:13.5px}
+th,td{text-align:left; padding:8px 10px; border-bottom:1px solid var(--line-2); vertical-align:top}
+th{font:700 10.5px/1 "Golos Text",sans-serif; text-transform:uppercase; letter-spacing:.07em; color:var(--ink-3)}
+td.r,th.r{text-align:right}
+td.num{font-family:"IBM Plex Mono",monospace; font-size:12.5px; white-space:nowrap}
+tbody tr:last-child td{border-bottom:0}
+tr.sum td{font-weight:700; background:var(--surface-2)}
+tr.grp td{background:var(--surface-2); font:700 11px/1 "Golos Text",sans-serif; text-transform:uppercase;
+  letter-spacing:.07em; color:var(--ink-3); padding:8px 10px}
+
+.note{border-radius:10px; padding:11px 13px; font-size:13.5px; margin-top:10px; border:1px solid}
+.note.info{background:var(--surface-2); border-color:var(--line); color:var(--ink-2)}
+.note.ok{background:var(--ok-soft); border-color:var(--ok); color:var(--ok)}
+.note.warn{background:var(--money-soft); border-color:var(--money); color:var(--money)}
+.note.crit{background:var(--crit-soft); border-color:var(--crit); color:var(--crit)}
+
+.legend{display:flex; gap:12px; flex-wrap:wrap; margin-top:9px; font-size:12px; color:var(--ink-3)}
+.legend span{display:flex; align-items:center; gap:5px}
+.legend i{width:10px; height:10px; border-radius:2px; display:inline-block}
+
+.bottom{position:fixed; left:0; right:0; bottom:0; z-index:30; background:var(--surface);
+  border-top:1px solid var(--line); box-shadow:0 -8px 24px -16px rgba(13,20,24,.4);
+  padding:10px 0 calc(10px + env(safe-area-inset-bottom))}
+.bottom .wrap{display:flex; align-items:center; gap:12px}
+.bottom .p{flex:1 1 auto; min-width:0}
+.bottom .p .k{font-size:11px; color:var(--ink-3); font-weight:600}
+.bottom .p .v{font:800 20px/1.15 "Golos Text",sans-serif; letter-spacing:-.02em}
+.bottom .btn{width:auto; flex:0 0 auto}
+.toast{position:fixed; left:50%; transform:translateX(-50%); bottom:96px; z-index:60; background:var(--ink);
+  color:var(--ground); padding:11px 16px; border-radius:99px; font:600 13px "Golos Text",sans-serif;
+  opacity:0; pointer-events:none; transition:opacity .18s; max-width:90vw; text-align:center}
+.toast.on{opacity:1}
+</style>
+</head>
+<body>
+
+<div class="head"><div class="wrap">
+  <div>
+    <h1>Алюминиевый контур</h1>
+    <div class="sub">Окна и двери из алюминия и стоечно-ригельный фасад. Расчёт живой.</div>
+  </div>
+  <button class="theme" id="theme" type="button">Тема</button>
+</div></div>
+
+<div class="wrap">
+  <div class="card"><div class="tabs" id="tabs" role="tablist">
+    <button role="tab" data-t="win" aria-selected="true">Окна и двери</button>
+    <button role="tab" data-t="fac" aria-selected="false">Стоечно-ригельный фасад</button>
+  </div></div>
+
+  <!-- ================= ОКНА И ДВЕРИ ================= -->
+  <section id="win">
+    <div class="split">
+      <div class="card">
+        <header><h2>Конструкция</h2><span class="hint" id="wChip">—</span></header>
+        <div class="body">
+          <svg class="draw" id="wDraw" viewBox="0 0 440 340" role="img" aria-label="Схема изделия"></svg>
+          <div class="legend">
+            <span><i style="background:var(--alu)"></i>алюминий</span>
+            <span><i style="background:var(--glass)"></i>заполнение</span>
+            <span><i style="background:var(--steel)"></i>соединитель, петли</span>
+          </div>
+          <div class="facts" id="wFacts" style="margin-top:11px"></div>
+          <div id="wWarn"></div>
+        </div>
+      </div>
+      <div>
+        <div class="card">
+          <header><h2>Параметры</h2><span class="hint">алюминий</span></header>
+          <div class="body">
+            <div class="row">
+              <div class="field"><label>Ширина, мм</label><input type="number" id="wW" min="400" max="3600" step="10"></div>
+              <div class="field"><label>Высота, мм</label><input type="number" id="wH" min="400" max="2600" step="10"></div>
+            </div>
+            <div class="field"><label>Тип изделия</label>
+              <div class="seg" id="wType">
+                <button data-v="win" aria-pressed="true">Окно</button>
+                <button data-v="door">Дверь</button>
+              </div>
+            </div>
+            <div class="field"><label>Профильная система</label><select id="wSys"></select></div>
+            <div class="field"><label>Секции</label>
+              <div class="seg" id="wSecs"></div>
+              <select id="wSecType"></select>
+            </div>
+            <div class="field"><label>Заполнение</label><select id="wFill"></select></div>
+            <div class="field" style="margin:0"><label>Отделка</label><select id="wFin"></select></div>
+          </div>
+        </div>
+        <div class="card">
+          <header><h2>Состав и цена</h2><span class="hint" id="wSysHint">—</span></header>
+          <div class="body">
+            <div class="tablewrap"><table id="wBom"></table></div>
+            <div class="note info" id="wNote"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ================= ФАСАД ================= -->
+  <section id="fac" hidden>
+    <div class="split">
+      <div class="card">
+        <header><h2>Сетка фасада</h2><span class="hint" id="fChip">—</span></header>
+        <div class="body">
+          <svg class="draw" id="fDraw" viewBox="0 0 460 400" role="img" aria-label="Схема фасада"></svg>
+          <div class="legend">
+            <span><i style="background:var(--alu)"></i>стойка, ригель</span>
+            <span><i style="background:var(--glass)"></i>стеклопакет</span>
+            <span><i style="background:var(--opaque)"></i>непрозрачная</span>
+            <span>клик по ячейке меняет заполнение</span>
+          </div>
+          <div class="facts" id="fFacts" style="margin-top:11px"></div>
+          <div id="fWarn"></div>
+        </div>
+      </div>
+      <div>
+        <div class="card">
+          <header><h2>Габариты и сетка</h2><span class="hint">шаг считается сам</span></header>
+          <div class="body">
+            <div class="row">
+              <div class="field"><label>Ширина, мм</label><input type="number" id="fW" min="1000" max="24000" step="100">
+                <input class="rng" type="range" id="fWr" min="1000" max="24000" step="100"></div>
+              <div class="field"><label>Высота, мм</label><input type="number" id="fH" min="2000" max="30000" step="100">
+                <input class="rng" type="range" id="fHr" min="2000" max="30000" step="100"></div>
+            </div>
+            <div class="row">
+              <div class="field"><label>Пролётов по ширине</label><input type="number" id="fCols" min="1" max="12"></div>
+              <div class="field"><label>Рядов по высоте</label><input type="number" id="fRows" min="1" max="12"></div>
+            </div>
+            <div class="field"><label>Профильная система</label><select id="fSys"></select></div>
+            <div class="field" style="margin:0"><label>Соединение стойки и ригеля</label><select id="fJoint"></select></div>
+          </div>
+        </div>
+
+        <div class="card">
+          <header><h2>Подбор стойки</h2><span class="hint">по моменту инерции</span></header>
+          <div class="body">
+            <div class="row">
+              <div class="field"><label>Ветровой район</label><select id="fWind"></select></div>
+              <div class="field"><label>Высота над землёй</label><select id="fLvl"></select></div>
+            </div>
+            <div class="facts" id="fPost"></div>
+            <div id="fPostNote"></div>
+          </div>
+        </div>
+
+        <div class="card">
+          <header><h2>Заполнение ячеек</h2><span class="hint" id="fCellHint">—</span></header>
+          <div class="body">
+            <div class="field"><label>Тип выбранной ячейки</label><select id="fCellType"></select></div>
+            <div class="row">
+              <div class="field" style="margin:0"><label>Стеклопакет</label><select id="fGlass"></select></div>
+              <div class="field" style="margin:0"><label>Отделка</label><select id="fFin"></select></div>
+            </div>
+          </div>
+        </div>
+
+        <div class="card">
+          <header><h2>Состав и цена</h2><span class="hint" id="fArea">—</span></header>
+          <div class="body"><div class="tablewrap"><table id="fBom"></table></div></div>
+        </div>
+      </div>
+    </div>
+  </section>
+</div>
+
+<div class="bottom"><div class="wrap">
+  <div class="p"><div class="k" id="botK">Стоимость</div><div class="v" id="botV">—</div></div>
+  <button class="btn" id="botBtn">Спецификация</button>
+</div></div>
+<div class="toast" id="toast"></div>
+
+<script>
+/* =====================================================================
+   Алюминий отличается от ПВХ по существу: армирования нет, сварки нет,
+   углы собираются на соединителе, а тип системы — закрытый перечень,
+   от которого зависят и набор полей, и ветка расчёта.
+   ===================================================================== */
+var E_ALU = 70000;           /* модуль упругости алюминия, Н/мм² */
+var STIFF = {alu:0.7, steel:2.1, pvc:0.025, wood:0.1};   /* коэффициенты жёсткости по материалам */
+
+/* ---------- оконно-дверные системы ---------- */
+var WSYS = [
+  {id:"c48", n:"ALT C48 — холодная", warm:false, frame:48, sash:52, mull:48, ovl:9,  gin:12,
+   pM:3450, beadM:520, sealM:180, corner:1450, uf:5.6, maxSashW:900,  maxSashH:2100, maxKg:70,  fillMax:24},
+  {id:"w62", n:"ALT W62 — тёплая", warm:true,  frame:62, sash:70, mull:62, ovl:10, gin:14,
+   pM:5900, beadM:680, sealM:210, corner:1850, uf:1.9, maxSashW:1000, maxSashH:2300, maxKg:90,  fillMax:38},
+  {id:"w72", n:"ALT W72 — тёплая, терморазрыв 34 мм", warm:true, frame:72, sash:78, mull:72, ovl:10, gin:14,
+   pM:7400, beadM:790, sealM:230, corner:2200, uf:1.4, maxSashW:1100, maxSashH:2400, maxKg:110, fillMax:48}
+];
+var WFILL = [
+  {id:"g4",  n:"Стекло 4 мм", t:4,  kg:10, m2:4200, warmOnly:false},
+  {id:"g24", n:"Стеклопакет 24 мм · 4-16-4", t:24, kg:20, m2:9200, warmOnly:false},
+  {id:"g32", n:"Стеклопакет 32 мм · энергосбережение", t:32, kg:30, m2:14100, warmOnly:true},
+  {id:"g44", n:"Стеклопакет 44 мм · два контура", t:44, kg:40, m2:19800, warmOnly:true}
+];
+var FIN = [
+  {id:"mill", n:"Без покрытия (мельхиор)", k:1.00},
+  {id:"anod", n:"Анодирование", k:1.18},
+  {id:"ral",  n:"Порошковая окраска RAL", k:1.26},
+  {id:"wood", n:"Декор «под дерево»", k:1.44}
+];
+var WSEC = {
+  deaf:  {n:"Глухая", sash:false},
+  turnL: {n:"Поворотная, левая", sash:true, hinge:"l"},
+  turnR: {n:"Поворотная, правая", sash:true, hinge:"r"}
+};
+var WSEC_ORDER = ["deaf","turnR","turnL"];
+
+/* ---------- фасадные системы ---------- */
+var FSYS = [
+  {id:"f50", n:"ALT F50 — классическая", face:50, warm:true, fillMin:4, fillMax:38,
+   postM:9800, railM:8600, clampM:2100, capM:1900, sealM:260, uf:1.8, maxKg:250, Imax:380},
+  {id:"f50tt", n:"ALT F50 TT — с терморазрывом", face:50, warm:true, fillMin:4, fillMax:62,
+   postM:12600, railM:10900, clampM:2400, capM:2200, sealM:290, uf:0.9, maxKg:320, Imax:504.16},
+  {id:"f38", n:"ALT F38 — полуструктурная", face:38, warm:true, fillMin:24, fillMax:48,
+   postM:14200, railM:12100, clampM:2600, capM:2900, sealM:300, uf:1.2, maxKg:280, Imax:330}
+];
+/* Линейка стоек: глубина с шагом 10 мм, момент инерции растёт как куб глубины.
+   Верхняя точка совпадает с паспортом ALT F50 TT — 504,16 см⁴ при 150 мм. */
+var POSTS = (function(){
+  var out = [];
+  for(var d=50; d<=150; d+=10) out.push({d:d, I:Math.round(1.4933e-4*d*d*d*100)/100});
+  return out;
+})();
+var FGLASS = [
+  {id:"s6",  n:"Стекло 6 мм закалённое", t:6,  kg:15, m2:6400},
+  {id:"g32", n:"Стеклопакет 32 мм", t:32, kg:30, m2:14100},
+  {id:"g44", n:"Стеклопакет 44 мм · два контура", t:44, kg:40, m2:19800},
+  {id:"g52", n:"Стеклопакет 52 мм · тепло и шум", t:52, kg:48, m2:24600}
+];
+var FCELL = {
+  glass: {n:"Стеклопакет", opaque:false},
+  panel: {n:"Непрозрачная — сэндвич и утеплитель", opaque:true},
+  sash:  {n:"Скрытая створка, наружное открывание", opaque:false, sash:true}
+};
+var WIND = [
+  {id:"1", n:"I район · 0,17 кПа", q:0.17}, {id:"2", n:"II район · 0,23 кПа", q:0.23},
+  {id:"3", n:"III район · 0,30 кПа", q:0.30}, {id:"4", n:"IV район · 0,38 кПа", q:0.38},
+  {id:"5", n:"V район · 0,48 кПа", q:0.48}
+];
+var LVL = [
+  {id:"a", n:"до 10 м", k:1.00}, {id:"b", n:"10–20 м", k:1.25},
+  {id:"c", n:"20–40 м", k:1.50}, {id:"d", n:"40–60 м", k:1.70}
+];
+var JOINT = [
+  {id:"butt", n:"Встык, на сухарном элементе", ded:1.0, mill:false, note:"без фрезеровки профилей"},
+  {id:"lap6", n:"Внахлёст 6 мм, без выборки паза", ded:1.0, lap:6, mill:false, note:"нахлёст 6 мм"},
+  {id:"lap12", n:"Внахлёст 12 мм с фрезеровкой", ded:1.0, lap:12, mill:true, note:"выборка паза в стойке"}
+];
+var CORNER_ANGLE = 45;
+var PANEL_M2 = 8600, ANCHOR = 4200, SADDLE = 780, CAPPLUG = 320, DRAIN = 640;
+var RATE_ASSEMBLY = 62;
+
+/* =====================================================================
+   Состояние
+   ===================================================================== */
+var S = {
+  tab:"win",
+  w:{W:1400, H:1500, type:"win", sys:"w62", secs:["turnR","deaf"], sel:0, fill:"g32", fin:"ral"},
+  f:{W:7200, H:9000, cols:4, rows:3, sys:"f50tt", joint:"lap6", wind:"3", lvl:"b",
+     glass:"g44", fin:"ral", sel:0, cells:null}
+};
+function pick(a,id){ for(var i=0;i<a.length;i++) if(a[i].id===id) return a[i]; return a[0]; }
+function $(s,r){ return (r||document).querySelector(s); }
+function $$(s,r){ return Array.prototype.slice.call((r||document).querySelectorAll(s)); }
+function el(t,c,x){ var e=document.createElement(t); if(c) e.className=c; if(x!=null) e.textContent=x; return e; }
+function esc(s){ return String(s).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;"); }
+function fmt(v,d){ return (Math.round(v*Math.pow(10,d||0))/Math.pow(10,d||0)).toLocaleString("ru-RU"); }
+function money(v){ return fmt(Math.round(v)) + " ₸"; }
+function cssv(v){ return getComputedStyle(document.documentElement).getPropertyValue(v).trim(); }
+var tt;
+function toast(t){ var b=$("#toast"); b.textContent=t; b.classList.add("on");
+  clearTimeout(tt); tt=setTimeout(function(){ b.classList.remove("on"); },2400); }
+function fill(sel, arr){ sel.innerHTML=""; arr.forEach(function(x){ var o=el("option",null,x.n); o.value=x.id; sel.appendChild(o); }); }
+
+/* =====================================================================
+   ОКНА И ДВЕРИ: у алюминия нет армирования и нет сварки
+   ===================================================================== */
+function wBuild(){
+  var c = S.w, sy = pick(WSYS, c.sys), n = c.secs.length;
+  var lightW = c.W - 2*sy.frame, lightH = c.H - 2*sy.frame;
+  var secW = (lightW - (n-1)*sy.mull)/n;
+  var parts = [], fills = [], sashes = [];
+  /* Рез 45°, сборка на угловом соединителе: припуска на уварку нет. */
+  parts.push({role:"frame", L:c.W}, {role:"frame", L:c.W}, {role:"frame", L:c.H}, {role:"frame", L:c.H});
+  for(var i=0;i<n-1;i++) parts.push({role:"mull", L:lightH});
+  c.secs.forEach(function(code){
+    var t = WSEC[code] || WSEC.deaf;
+    if(t.sash){
+      var sw = secW + 2*sy.ovl, sh = lightH + 2*sy.ovl;
+      sashes.push({w:sw, h:sh, hinge:t.hinge});
+      parts.push({role:"sash", L:sw}, {role:"sash", L:sw}, {role:"sash", L:sh}, {role:"sash", L:sh});
+      fills.push({w:sw - 2*sy.sash + 2*sy.gin, h:sh - 2*sy.sash + 2*sy.gin});
+    } else {
+      fills.push({w:secW + 2*sy.gin, h:lightH + 2*sy.gin});
+    }
+  });
+  var barM = 0; parts.forEach(function(p){ barM += p.L/1000; });
+  var beadM = 0, glassM2 = 0, sealM = 0;
+  fills.forEach(function(f){ beadM += 2*(f.w+f.h)/1000; sealM += 4*(f.w+f.h)/1000; glassM2 += f.w*f.h/1e6; });
+  /* Угловые соединители: четыре на раму и четыре на каждую створку. */
+  var corners = 4 + sashes.length*4;
+  return {sy:sy, n:n, secW:secW, lightW:lightW, lightH:lightH, parts:parts, fills:fills,
+    sashes:sashes, barM:barM, beadM:beadM, sealM:sealM, glassM2:glassM2, corners:corners,
+    area:c.W*c.H/1e6};
+}
+function wBom(){
+  var c = S.w, b = wBuild(), sy = b.sy, gl = pick(WFILL, c.fill), fin = pick(FIN, c.fin);
+  var rows = [], byRole = {frame:0, sash:0, mull:0}, cnt = {frame:0, sash:0, mull:0};
+  b.parts.forEach(function(p){ byRole[p.role] += p.L/1000; cnt[p.role]++; });
+  var RN = {frame:"Профиль рамы", sash:"Профиль створки", mull:"Профиль импоста"};
+  ["frame","sash","mull"].forEach(function(r){
+    if(!cnt[r]) return;
+    rows.push({g:"Профиль", n:RN[r] + " " + sy.n.split(" —")[0], q:byRole[r], u:"м",
+      p:sy.pM*fin.k, note:cnt[r] + " балок, рез 45°"});
+  });
+  rows.push({g:"Профиль", n:"Штапик", q:b.beadM, u:"м", p:sy.beadM*fin.k, note:""});
+  rows.push({g:"Профиль", n:"Уплотнитель EPDM", q:b.sealM, u:"м", p:sy.sealM, note:"два контура"});
+  rows.push({g:"Комплектующие", n:"Угловой соединитель с обжимом", q:b.corners, u:"шт", p:sy.corner,
+    note:"вместо сварки"});
+  b.fills.forEach(function(f, i){
+    rows.push({g:"Заполнение", n:gl.n + " · " + Math.round(f.w) + "×" + Math.round(f.h),
+      q:f.w*f.h/1e6, u:"м²", p:gl.m2, note:"секция " + (i+1)});
+  });
+  if(b.sashes.length){
+    rows.push({g:"Комплектующие", n:"Петли и запор на створку", q:b.sashes.length, u:"компл",
+      p:c.type === "door" ? 34800 : 18600, note:c.type === "door" ? "дверные" : "оконные"});
+  }
+  if(c.type === "door") rows.push({g:"Комплектующие", n:"Порог алюминиевый", q:c.W/1000, u:"м", p:5400, note:"не армируется"});
+  var labor = (b.corners*3.2 + b.parts.length*1.1 + b.fills.length*2.4);
+  var mat = 0; rows.forEach(function(r){ r.sum = r.q*r.p; mat += r.sum; });
+  var total = mat + labor*RATE_ASSEMBLY;
+  return {b:b, rows:rows, mat:mat, labor:labor, total:total, gl:gl, fin:fin};
+}
+function wRules(){
+  var b = wBuild(), gl = pick(WFILL, S.w.fill), sy = b.sy, out = [];
+  if(gl.t > sy.fillMax) out.push({l:"crit", t:"Заполнение " + gl.t + " мм не входит в фальц системы — предел " + sy.fillMax + " мм"});
+  if(gl.warmOnly && !sy.warm) out.push({l:"crit", t:"Холодная система без терморазрыва: энергосберегающий пакет в ней бессмыслен"});
+  b.sashes.forEach(function(s){
+    if(s.w > sy.maxSashW) out.push({l:"crit", t:"Створка " + Math.round(s.w) + " мм шире предела системы " + sy.maxSashW + " мм"});
+    if(s.h > sy.maxSashH) out.push({l:"crit", t:"Створка " + Math.round(s.h) + " мм выше предела " + sy.maxSashH + " мм"});
+    var kg = s.w*s.h/1e6*gl.kg + 2*(s.w+s.h)/1000*2.1;
+    if(kg > sy.maxKg) out.push({l:"warn", t:"Створка весит " + fmt(kg,1) + " кг при пределе " + sy.maxKg + " кг"});
+  });
+  return out;
+}
+function wDraw(){
+  var c = S.w, b = wBuild(), sy = b.sy;
+  var VB = 440, padL = 34, padT = 24, padB = 16, boxW = VB - padL - 16, boxH = 340 - padT - padB;
+  var k = Math.min(boxW/c.W, boxH/c.H), w = c.W*k, h = c.H*k;
+  var x0 = padL + (boxW - w)/2, y0 = padT;
+  var fr = Math.max(5, sy.frame*k), mu = Math.max(4, sy.mull*k), sa = Math.max(4, sy.sash*k);
+  var alu = cssv("--alu"), alu2 = cssv("--alu-2"), gl = cssv("--glass"), ink3 = cssv("--ink-3"),
+      acc = cssv("--accent"), steel = cssv("--steel"), dim = cssv("--dim");
+  var s = "";
+  s += '<rect x="'+x0+'" y="'+y0+'" width="'+w+'" height="'+h+'" fill="'+alu+'" stroke="'+alu2+'" stroke-width="1.3"/>';
+  /* Диагонали в углах — рез 45° и соединитель, а не сварной шов. */
+  [[x0,y0,1,1],[x0+w,y0,-1,1],[x0,y0+h,1,-1],[x0+w,y0+h,-1,-1]].forEach(function(p){
+    s += '<line x1="'+p[0]+'" y1="'+p[1]+'" x2="'+(p[0]+p[2]*fr)+'" y2="'+(p[1]+p[3]*fr)+'" stroke="'+steel+'" stroke-width="1"/>';
+  });
+  var n = b.n, secW = (w - 2*fr - (n-1)*mu)/n;
+  for(var i=0;i<n;i++){
+    var sx = x0 + fr + i*(secW + mu), sy0 = y0 + fr, sh0 = h - 2*fr;
+    if(i > 0) s += '<rect x="'+(sx-mu)+'" y="'+sy0+'" width="'+mu+'" height="'+sh0+'" fill="'+alu+'" stroke="'+alu2+'" stroke-width="0.7"/>';
+    var t = WSEC[c.secs[i]] || WSEC.deaf, on = (i === c.sel);
+    if(t.sash){
+      s += '<rect x="'+(sx+1)+'" y="'+(sy0+1)+'" width="'+(secW-2)+'" height="'+(sh0-2)+'" fill="'+alu+'" stroke="'+alu2+'" stroke-width="0.8"/>';
+      var ix = sx+sa, iy = sy0+sa, iw = Math.max(0,secW-2*sa), ih = Math.max(0,sh0-2*sa);
+      s += '<rect x="'+ix+'" y="'+iy+'" width="'+iw+'" height="'+ih+'" fill="'+gl+'" fill-opacity="0.6" stroke="'+alu2+'" stroke-width="0.5"/>';
+      var right = t.hinge === "r";
+      var d = right ? "M "+ix+" "+iy+" L "+(ix+iw)+" "+(iy+ih/2)+" L "+ix+" "+(iy+ih)
+                    : "M "+(ix+iw)+" "+iy+" L "+ix+" "+(iy+ih/2)+" L "+(ix+iw)+" "+(iy+ih);
+      s += '<path d="'+d+'" fill="none" stroke="'+ink3+'" stroke-width="1" stroke-dasharray="4,3"/>';
+      var hx = right ? sx+secW-4 : sx+1;
+      [0.2,0.8].forEach(function(p){ s += '<rect x="'+hx+'" y="'+(sy0+sh0*p-5)+'" width="3.5" height="10" rx="1.5" fill="'+steel+'"/>'; });
+    } else {
+      s += '<rect x="'+sx+'" y="'+sy0+'" width="'+secW+'" height="'+sh0+'" fill="'+gl+'" fill-opacity="0.5" stroke="'+alu2+'" stroke-width="0.6"/>';
+      if(secW > 50) s += '<text x="'+(sx+secW/2)+'" y="'+(sy0+sh0/2+4)+'" fill="'+ink3+'" font-size="10" text-anchor="middle">глухая</text>';
+    }
+    if(on) s += '<rect x="'+sx+'" y="'+sy0+'" width="'+secW+'" height="'+sh0+'" fill="none" stroke="'+acc+'" stroke-width="2"/>';
+  }
+  s += '<text x="'+(x0+w/2)+'" y="'+(y0-8)+'" fill="'+dim+'" font-size="11" font-family="IBM Plex Mono,monospace" text-anchor="middle">'+c.W+'</text>';
+  s += '<text x="'+(x0-14)+'" y="'+(y0+h/2)+'" fill="'+dim+'" font-size="11" font-family="IBM Plex Mono,monospace" text-anchor="middle" transform="rotate(-90 '+(x0-14)+' '+(y0+h/2)+')">'+c.H+'</text>';
+  var svg = $("#wDraw");
+  svg.setAttribute("viewBox", "0 0 " + VB + " " + Math.round(y0+h+padB));
+  svg.innerHTML = s;
+}
+function wRender(){
+  var c = S.w, r = wBom(), b = r.b, sy = b.sy;
+  wDraw();
+  $("#wChip").textContent = c.W + "×" + c.H + " · " + sy.n.split(" —")[0] + " · " + b.n + " секц.";
+  $("#wSysHint").textContent = (sy.warm ? "тёплая" : "холодная") + " · Uf " + sy.uf + " Вт/(м²·К)";
+  $("#wFacts").innerHTML =
+    fact("Балок", b.parts.length + " шт · " + fmt(b.barM,2) + " м") +
+    fact("Соединителей", b.corners + " шт") +
+    fact("Армирование", "не требуется", "ok") +
+    fact("Площадь", fmt(b.area,2) + " м²") +
+    fact("Сборка", fmt(r.labor,1) + " мин") +
+    fact("Цена", money(r.total), "money");
+  var rl = wRules(), warn = "";
+  rl.forEach(function(x){ warn += '<div class="note '+(x.l==="crit"?"crit":"warn")+'">'+esc(x.t)+'</div>'; });
+  if(!rl.length) warn = '<div class="note ok">Проверки пройдены: заполнение входит в фальц, створки в габаритах, вес в пределе.</div>';
+  $("#wWarn").innerHTML = warn;
+
+  var h = '<thead><tr><th>Позиция</th><th class="r">Кол-во</th><th class="r">Сумма</th></tr></thead><tbody>';
+  var lastG = null;
+  r.rows.forEach(function(x){
+    if(x.g !== lastG){ h += '<tr class="grp"><td colspan="3">'+x.g+'</td></tr>'; lastG = x.g; }
+    h += '<tr><td>'+esc(x.n)+(x.note?' <span style="color:var(--ink-3)">· '+esc(x.note)+'</span>':'')+
+      '</td><td class="r num">'+fmt(x.q,2)+' '+x.u+'</td><td class="r num">'+money(x.sum)+'</td></tr>';
+  });
+  h += '<tr><td>Сборка · '+fmt(r.labor,1)+' мин</td><td class="r num">—</td><td class="r num">'+money(r.labor*RATE_ASSEMBLY)+'</td></tr>';
+  h += '<tr class="sum"><td colspan="2">Итого</td><td class="r num">'+money(r.total)+'</td></tr></tbody>';
+  $("#wBom").innerHTML = h;
+  $("#wNote").textContent = "Ни армирования, ни сварки: углы режутся под 45° и стягиваются соединителем с обжимом, " +
+    "поэтому в составе есть строка соединителей и нет строки армирования. Коэффициент жёсткости алюминия " +
+    STIFF.alu + " против " + STIFF.pvc + " у ПВХ — профиль несёт сам.";
+  renderBottom();
+}
+function fact(k,v,cls){ return '<div class="fact"><div class="k">'+k+'</div><div class="v '+(cls||"")+'">'+v+'</div></div>'; }
+
+/* =====================================================================
+   ФАСАД: сетка стоек и ригелей
+   ===================================================================== */
+function fCells(){
+  var f = S.f, need = f.cols*f.rows;
+  if(!f.cells || f.cells.length !== need){
+    var old = f.cells || [];
+    f.cells = [];
+    for(var i=0;i<need;i++) f.cells.push(old[i] || "glass");
+    /* Нижний ряд по умолчанию непрозрачный — зона перекрытия, режим «тепло-холод». */
+    if(!old.length) for(var c2=0;c2<f.cols;c2++) f.cells[(f.rows-1)*f.cols + c2] = "panel";
+    if(f.sel >= need) f.sel = 0;
+  }
+  return f.cells;
+}
+/* Требуемый момент инерции стойки при равномерной ветровой нагрузке и прогибе L/200. */
+function postNeed(){
+  var f = S.f, wind = pick(WIND, f.wind), lvl = pick(LVL, f.lvl);
+  var q = wind.q * lvl.k * 0.8;                 /* кПа с аэродинамическим коэффициентом */
+  var b = f.W / f.cols;                          /* грузовая ширина стойки, мм */
+  var L = f.H / f.rows;                          /* пролёт между креплениями, мм */
+  var w = q * 0.001 * b;                         /* Н/мм */
+  var I = 1000 * w * Math.pow(L,3) / (384 * E_ALU);   /* мм⁴ */
+  return {q:q, b:b, L:L, I:I/1e4};               /* см⁴ */
+}
+function postPick(){
+  var need = postNeed(), sys = pick(FSYS, S.f.sys), found = null;
+  POSTS.forEach(function(p){
+    if(found) return;
+    if(p.I >= need.I && p.I <= sys.Imax) found = p;
+  });
+  return {need:need, post:found, sys:sys};
+}
+function fBuild(){
+  var f = S.f, sy = pick(FSYS, f.sys), j = pick(JOINT, f.joint), cells = fCells();
+  var step = f.W / f.cols, rowH = f.H / f.rows;
+  var postsN = f.cols + 1, postL = f.H;
+  var railLines = f.rows + 1;
+  var railL = step - sy.face + (j.lap || 0);
+  var railsN = railLines * f.cols;
+  var cellW = step - sy.face, cellH = rowH - sy.face;
+  var glassM2 = 0, panelM2 = 0, sashN = 0;
+  cells.forEach(function(t){
+    var a = cellW*cellH/1e6;
+    if(t === "panel") panelM2 += a; else glassM2 += a;
+    if(t === "sash") sashN++;
+  });
+  var postM = postsN*postL/1000, railM = railsN*railL/1000;
+  /* Прижимная планка и декоративная крышка идут по всему видимому контуру. */
+  var clampM = postM + railM, capM = clampM;
+  var sealM = 2*(postM + railM);
+  var nodes = railsN*2;                           /* два сухаря на узел примыкания */
+  var floors = Math.max(1, Math.round(f.H/3000));
+  var anchors = postsN*floors;
+  return {sy:sy, j:j, step:step, rowH:rowH, cellW:cellW, cellH:cellH, cells:cells,
+    postsN:postsN, postL:postL, postM:postM, railsN:railsN, railL:railL, railM:railM,
+    clampM:clampM, capM:capM, sealM:sealM, nodes:nodes, anchors:anchors,
+    glassM2:glassM2, panelM2:panelM2, sashN:sashN, area:f.W*f.H/1e6};
+}
+function fBom(){
+  var f = S.f, b = fBuild(), sy = b.sy, gl = pick(FGLASS, f.glass), fin = pick(FIN, f.fin), pp = postPick();
+  var rows = [];
+  var depth = pp.post ? pp.post.d : POSTS[POSTS.length-1].d;
+  rows.push({g:"Каркас", n:"Стойка " + sy.n.split(" —")[0] + " · глубина " + depth + " мм",
+    q:b.postM, u:"м", p:sy.postM*fin.k, note:b.postsN + " шт по " + fmt(b.postL/1000,2) + " м"});
+  rows.push({g:"Каркас", n:"Ригель · " + b.j.n.split(",")[0].toLowerCase(),
+    q:b.railM, u:"м", p:sy.railM*fin.k, note:b.railsN + " шт по " + Math.round(b.railL) + " мм"});
+  rows.push({g:"Каркас", n:"Прижимная планка", q:b.clampM, u:"м", p:sy.clampM, note:"по видимому контуру"});
+  rows.push({g:"Каркас", n:"Декоративная крышка", q:b.capM, u:"м", p:sy.capM*fin.k, note:""});
+  rows.push({g:"Каркас", n:"Уплотнители EPDM", q:b.sealM, u:"м", p:sy.sealM, note:"два контура"});
+  if(b.glassM2 > 0) rows.push({g:"Заполнение", n:gl.n, q:b.glassM2, u:"м²", p:gl.m2, note:"прозрачные ячейки"});
+  if(b.panelM2 > 0) rows.push({g:"Заполнение", n:"Сэндвич-панель с утеплителем", q:b.panelM2, u:"м²", p:PANEL_M2,
+    note:"зоны перекрытий, режим «тепло-холод»"});
+  if(b.sashN > 0) rows.push({g:"Заполнение", n:"Скрытая створка, наружное открывание", q:b.sashN, u:"шт", p:96000,
+    note:"вставная позиция"});
+  rows.push({g:"Узлы", n:"Сухарный элемент", q:b.nodes, u:"шт", p:SADDLE, note:"два на узел"});
+  rows.push({g:"Узлы", n:"Кронштейн анкерный к перекрытию", q:b.anchors, u:"шт", p:ANCHOR, note:"по этажам"});
+  rows.push({g:"Узлы", n:"Заглушки и декоративные накладки", q:b.nodes, u:"шт", p:CAPPLUG, note:""});
+  rows.push({g:"Узлы", n:"Элементы дренажа фальца", q:b.railsN, u:"шт", p:DRAIN, note:"по ригелям"});
+  var labor = b.nodes*4.5 + b.postsN*22 + b.cells.length*16 + b.anchors*12;
+  var mat = 0; rows.forEach(function(r){ r.sum = r.q*r.p; mat += r.sum; });
+  return {b:b, rows:rows, mat:mat, labor:labor, total:mat + labor*RATE_ASSEMBLY, pp:pp};
+}
+function fDraw(){
+  var f = S.f, b = fBuild(), sy = b.sy;
+  var VB = 460, padL = 40, padT = 26, padB = 40, boxW = VB - padL - 18, boxH = 400 - padT - padB;
+  var k = Math.min(boxW/f.W, boxH/f.H), w = f.W*k, h = f.H*k;
+  var x0 = padL + (boxW - w)/2, y0 = padT;
+  var fw = Math.max(3, sy.face*k);
+  var alu = cssv("--alu"), alu2 = cssv("--alu-2"), gl = cssv("--glass"), op = cssv("--opaque"),
+      ink3 = cssv("--ink-3"), acc = cssv("--accent"), steel = cssv("--steel"), dim = cssv("--dim");
+  var s = "";
+  s += '<rect x="'+x0+'" y="'+y0+'" width="'+w+'" height="'+h+'" fill="'+alu+'" stroke="'+alu2+'" stroke-width="1"/>';
+  var stepPx = (w - fw)/f.cols, rowPx = (h - fw)/f.rows;
+  for(var r2=0;r2<f.rows;r2++){
+    for(var c2=0;c2<f.cols;c2++){
+      var cx = x0 + fw + c2*stepPx, cy = y0 + fw + r2*rowPx;
+      var cw = stepPx - fw, ch = rowPx - fw, idx = r2*f.cols + c2;
+      var t = b.cells[idx], f2 = (t === "panel") ? op : gl;
+      s += '<rect x="'+cx.toFixed(1)+'" y="'+cy.toFixed(1)+'" width="'+Math.max(0,cw).toFixed(1)+
+        '" height="'+Math.max(0,ch).toFixed(1)+'" fill="'+f2+'" fill-opacity="'+(t==="panel"?"0.85":"0.55")+
+        '" stroke="'+alu2+'" stroke-width="0.5"/>';
+      if(t === "sash" && cw > 24 && ch > 20){
+        s += '<rect x="'+(cx+3)+'" y="'+(cy+3)+'" width="'+(cw-6)+'" height="'+(ch-6)+
+          '" fill="none" stroke="'+steel+'" stroke-width="1.2"/>';
+        s += '<path d="M '+(cx+5)+' '+(cy+5)+' L '+(cx+cw-5)+' '+(cy+ch/2)+' L '+(cx+5)+' '+(cy+ch-5)+
+          '" fill="none" stroke="'+ink3+'" stroke-width="0.9" stroke-dasharray="3,2"/>';
+      }
+      s += '<rect class="cell" data-i="'+idx+'" x="'+cx.toFixed(1)+'" y="'+cy.toFixed(1)+'" width="'+Math.max(0,cw).toFixed(1)+
+        '" height="'+Math.max(0,ch).toFixed(1)+'" fill="none" stroke="'+(f.sel===idx?acc:"transparent")+'" stroke-width="2"/>';
+    }
+  }
+  function dimH(x1,x2,y,txt){
+    s += '<line x1="'+x1+'" y1="'+y+'" x2="'+x2+'" y2="'+y+'" stroke="'+dim+'" stroke-width="1"/>';
+    s += '<text x="'+((x1+x2)/2)+'" y="'+(y-5)+'" fill="'+dim+'" font-size="10.5" font-family="IBM Plex Mono,monospace" text-anchor="middle">'+txt+'</text>';
+  }
+  dimH(x0, x0 + stepPx, y0 + h + 16, "шаг " + Math.round(b.step));
+  dimH(x0, x0 + w, y0 + h + 34, "a=" + f.W);
+  s += '<text x="'+(x0-16)+'" y="'+(y0+h/2)+'" fill="'+dim+'" font-size="10.5" font-family="IBM Plex Mono,monospace" text-anchor="middle" transform="rotate(-90 '+(x0-16)+' '+(y0+h/2)+')">b='+f.H+'</text>';
+  var svg = $("#fDraw");
+  svg.setAttribute("viewBox", "0 0 " + VB + " " + Math.round(y0+h+44));
+  svg.innerHTML = s;
+  $$(".cell", svg).forEach(function(r3){
+    r3.addEventListener("click", function(){ S.f.sel = +r3.getAttribute("data-i"); fRender(); });
+  });
+}
+function fRender(){
+  var f = S.f, r = fBom(), b = r.b, pp = r.pp, sy = b.sy;
+  fCells(); fDraw();
+  $("#fChip").textContent = f.W + "×" + f.H + " мм · " + fmt(b.area,1) + " м² · " + f.cols + "×" + f.rows + " ячеек";
+  $("#fArea").textContent = fmt(b.area,1) + " м² · " + money(r.total/b.area) + "/м²";
+  $("#fFacts").innerHTML =
+    fact("Стоек", b.postsN + " шт · " + fmt(b.postM,1) + " м") +
+    fact("Ригелей", b.railsN + " шт · " + fmt(b.railM,1) + " м") +
+    fact("Ячеек", b.cells.length + " шт") +
+    fact("Узлов", b.nodes/2 + " шт") +
+    fact("Прижим и крышка", fmt(b.clampM + b.capM,1) + " м") +
+    fact("Цена", money(r.total), "money");
+
+  var need = pp.need, post = pp.post;
+  $("#fPost").innerHTML =
+    fact("Нагрузка", fmt(need.q,2) + " кПа") +
+    fact("Грузовая ширина", Math.round(need.b) + " мм") +
+    fact("Пролёт", Math.round(need.L) + " мм") +
+    fact("Требуется", fmt(need.I,1) + " см⁴") +
+    fact("Подобрана", post ? post.d + " мм · " + post.I + " см⁴" : "нет", post ? "ok" : "crit");
+  $("#fPostNote").innerHTML = post
+    ? '<div class="note info">Стойка подбирается из линейки с шагом глубины 10 мм по требуемому моменту инерции — ' +
+      'запас ' + fmt(100*(post.I/need.I - 1),0) + ' %. Прогиб принят L/200, модуль упругости алюминия ' + E_ALU + ' Н/мм².</div>'
+    : '<div class="note crit"><b>Стойку подобрать нельзя.</b> Требуется ' + fmt(need.I,1) + ' см⁴, максимум системы ' +
+      sy.Imax + ' см⁴. Уменьшите шаг стоек, добавьте ряд ригелей или возьмите систему с более глубокой стойкой.</div>';
+
+  var warn = "";
+  var kg = b.cellW*b.cellH/1e6 * pick(FGLASS, f.glass).kg;
+  if(kg > sy.maxKg) warn += '<div class="note crit">Ячейка весит ' + fmt(kg,0) + ' кг при пределе системы ' + sy.maxKg + ' кг — уменьшите ячейку.</div>';
+  var t = pick(FGLASS, f.glass);
+  if(t.t < sy.fillMin || t.t > sy.fillMax) warn += '<div class="note crit">Заполнение ' + t.t + ' мм вне диапазона системы ' + sy.fillMin + '–' + sy.fillMax + ' мм.</div>';
+  if(b.postL > 6000) warn += '<div class="note warn">Стойка ' + fmt(b.postL/1000,1) + ' м длиннее хлыста 6 м: нужен вертикальный стык с компенсацией температурного расширения.</div>';
+  $("#fWarn").innerHTML = warn || '<div class="note ok">Проверки пройдены: стойка подобрана, вес ячейки и толщина заполнения в пределах системы.</div>';
+
+  $("#fCellHint").textContent = "ячейка " + (f.sel + 1) + " из " + b.cells.length +
+    " · " + Math.round(b.cellW) + "×" + Math.round(b.cellH) + " мм";
+  $("#fCellType").value = b.cells[f.sel];
+
+  var h = '<thead><tr><th>Позиция</th><th class="r">Кол-во</th><th class="r">Сумма</th></tr></thead><tbody>';
+  var lastG = null;
+  r.rows.forEach(function(x){
+    if(x.g !== lastG){ h += '<tr class="grp"><td colspan="3">'+x.g+'</td></tr>'; lastG = x.g; }
+    h += '<tr><td>'+esc(x.n)+(x.note?' <span style="color:var(--ink-3)">· '+esc(x.note)+'</span>':'')+
+      '</td><td class="r num">'+fmt(x.q,2)+' '+x.u+'</td><td class="r num">'+money(x.sum)+'</td></tr>';
+  });
+  h += '<tr><td>Сборка и монтаж · '+fmt(r.labor,0)+' мин</td><td class="r num">—</td><td class="r num">'+money(r.labor*RATE_ASSEMBLY)+'</td></tr>';
+  h += '<tr class="sum"><td colspan="2">Итого</td><td class="r num">'+money(r.total)+'</td></tr></tbody>';
+  $("#fBom").innerHTML = h;
+  renderBottom();
+}
+function renderBottom(){
+  if(S.tab === "win"){
+    var r = wBom();
+    $("#botK").textContent = "Изделие " + S.w.W + "×" + S.w.H;
+    $("#botV").textContent = money(r.total);
+  } else {
+    var f = fBom();
+    $("#botK").textContent = "Фасад " + fmt(f.b.area,1) + " м²";
+    $("#botV").textContent = money(f.total);
+  }
+}
+
+/* =====================================================================
+   Панели и события
+   ===================================================================== */
+function wSecPanel(){
+  var bar = $("#wSecs"); bar.innerHTML = "";
+  S.w.secs.forEach(function(code, i){
+    var b = el("button", null, (i+1) + " · " + WSEC[code].n.split(",")[0]);
+    b.setAttribute("aria-pressed", i === S.w.sel ? "true" : "false");
+    b.addEventListener("click", function(){ S.w.sel = i; wSecPanel(); wRender(); });
+    bar.appendChild(b);
+  });
+  var minus = el("button", null, "−"); minus.title = "Убрать секцию";
+  minus.addEventListener("click", function(){
+    if(S.w.secs.length <= 1){ toast("Хотя бы одна секция нужна"); return; }
+    S.w.secs.pop(); if(S.w.sel >= S.w.secs.length) S.w.sel = S.w.secs.length-1; wSecPanel(); wRender();
+  });
+  var plus = el("button", null, "+"); plus.title = "Добавить секцию";
+  plus.addEventListener("click", function(){
+    if(S.w.secs.length >= 4){ toast("Больше четырёх секций — это уже витраж, смотрите вкладку фасада"); return; }
+    S.w.secs.push("deaf"); S.w.sel = S.w.secs.length-1; wSecPanel(); wRender();
+  });
+  bar.appendChild(minus); bar.appendChild(plus);
+  var sel = $("#wSecType"); sel.innerHTML = "";
+  WSEC_ORDER.forEach(function(k){ var o = el("option", null, WSEC[k].n); o.value = k; sel.appendChild(o); });
+  sel.value = S.w.secs[S.w.sel];
+}
+fill($("#wSys"), WSYS); fill($("#wFill"), WFILL); fill($("#wFin"), FIN);
+fill($("#fSys"), FSYS); fill($("#fGlass"), FGLASS); fill($("#fFin"), FIN);
+fill($("#fJoint"), JOINT); fill($("#fWind"), WIND); fill($("#fLvl"), LVL);
+fill($("#fCellType"), Object.keys(FCELL).map(function(k){ return {id:k, n:FCELL[k].n}; }));
+
+$$("#tabs button").forEach(function(b){
+  b.addEventListener("click", function(){
+    S.tab = b.getAttribute("data-t");
+    $$("#tabs button").forEach(function(x){ x.setAttribute("aria-selected", x === b ? "true" : "false"); });
+    $("#win").hidden = S.tab !== "win";
+    $("#fac").hidden = S.tab !== "fac";
+    window.scrollTo(0,0);
+    if(S.tab === "win") wRender(); else fRender();
+  });
+});
+$$("#wType button").forEach(function(b){
+  b.addEventListener("click", function(){
+    S.w.type = b.getAttribute("data-v");
+    $$("#wType button").forEach(function(x){ x.setAttribute("aria-pressed", x === b ? "true" : "false"); });
+    if(S.w.type === "door" && S.w.H < 1900){ S.w.H = 2100; $("#wH").value = 2100; }
+    wRender();
+  });
+});
+["wW","wH"].forEach(function(id){
+  $("#"+id).addEventListener("input", function(e){ S.w[id === "wW" ? "W" : "H"] = +e.target.value || 400; wRender(); });
+});
+["wSys","wFill","wFin"].forEach(function(id){
+  $("#"+id).addEventListener("change", function(e){
+    S.w[{wSys:"sys", wFill:"fill", wFin:"fin"}[id]] = e.target.value; wRender();
+  });
+});
+$("#wSecType").addEventListener("change", function(e){ S.w.secs[S.w.sel] = e.target.value; wSecPanel(); wRender(); });
+
+function bindF(numId, rngId, key, min, max){
+  function set(v){
+    v = Math.max(min, Math.min(max, +v || min));
+    S.f[key] = v; $(numId).value = v; if(rngId) $(rngId).value = v; S.f.cells = null; fRender();
+  }
+  $(numId).addEventListener("input", function(e){ set(e.target.value); });
+  if(rngId) $(rngId).addEventListener("input", function(e){ set(e.target.value); });
+}
+bindF("#fW", "#fWr", "W", 1000, 24000);
+bindF("#fH", "#fHr", "H", 2000, 30000);
+bindF("#fCols", null, "cols", 1, 12);
+bindF("#fRows", null, "rows", 1, 12);
+["fSys","fJoint","fWind","fLvl","fGlass","fFin"].forEach(function(id){
+  $("#"+id).addEventListener("change", function(e){
+    S.f[{fSys:"sys", fJoint:"joint", fWind:"wind", fLvl:"lvl", fGlass:"glass", fFin:"fin"}[id]] = e.target.value;
+    fRender();
+  });
+});
+$("#fCellType").addEventListener("change", function(e){ fCells()[S.f.sel] = e.target.value; fRender(); });
+$("#botBtn").addEventListener("click", function(){
+  var t = S.tab === "win" ? $("#wBom") : $("#fBom");
+  t.scrollIntoView({behavior:"smooth", block:"center"});
+});
+$("#theme").addEventListener("click", function(){
+  var cur = document.documentElement.getAttribute("data-theme");
+  var dark = cur ? cur === "dark" : window.matchMedia("(prefers-color-scheme: dark)").matches;
+  document.documentElement.setAttribute("data-theme", dark ? "light" : "dark");
+  if(S.tab === "win") wDraw(); else fDraw();
+});
+
+/* стартовые значения */
+$("#wW").value = S.w.W; $("#wH").value = S.w.H;
+$("#wSys").value = S.w.sys; $("#wFill").value = S.w.fill; $("#wFin").value = S.w.fin;
+$("#fW").value = S.f.W; $("#fWr").value = S.f.W; $("#fH").value = S.f.H; $("#fHr").value = S.f.H;
+$("#fCols").value = S.f.cols; $("#fRows").value = S.f.rows;
+$("#fSys").value = S.f.sys; $("#fJoint").value = S.f.joint;
+$("#fWind").value = S.f.wind; $("#fLvl").value = S.f.lvl;
+$("#fGlass").value = S.f.glass; $("#fFin").value = S.f.fin;
+wSecPanel(); wRender(); fCells(); fRender();
+$("#fac").hidden = true;
+</script>
+</body>
+</html>
