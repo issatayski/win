@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta name="theme-color" content="#00696B">
-<title>Алюминиевый контур</title>
+<title>WinHub — алюминий</title>
 <style>*{margin:0;padding:0;box-sizing:border-box}</style>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -17,10 +17,11 @@
   --accent:#00696B; --accent-soft:#DBEEED; --accent-ink:#004C4E;
   --money:#9A5B0C; --money-soft:#FBEEDC; --crit:#B4372C; --crit-soft:#FBE7E4;
   --ok:#2A7A52; --ok-soft:#DDF0E5;
-  --alu:#B9C3C6; --alu-2:#93A2A7; --glass:#BFDDE0; --opaque:#9FAEB3; --steel:#5E6E74;
+  --alu:#C3CCCF; --alu-2:#94A3A8; --glass:#BFDDE0; --opaque:#A3B0B5; --steel:#5E6E74;
   --dim:#3E6F9E;
   --on-accent:#FFFFFF;
   --shadow:0 1px 2px rgba(13,20,24,.06), 0 10px 26px -14px rgba(13,20,24,.22);
+  --navshadow:0 -1px 0 var(--line), 0 -8px 24px -16px rgba(13,20,24,.4);
   --r:12px;
 }
 @media (prefers-color-scheme: dark){
@@ -31,10 +32,11 @@
     --accent:#4FBCB8; --accent-soft:#123230; --accent-ink:#8FDCD7;
     --money:#D79B4C; --money-soft:#2E2415; --crit:#E0736A; --crit-soft:#2E1A18;
     --ok:#63BE8C; --ok-soft:#12291D;
-    --alu:#4A5A61; --alu-2:#6B7C83; --glass:#3E6870; --opaque:#3A4850; --steel:#9FB2B8;
+    --alu:#4C5C63; --alu-2:#71838A; --glass:#3E6870; --opaque:#3A4850; --steel:#9FB2B8;
     --dim:#7FA9D4;
     --on-accent:#062120;
     --shadow:0 1px 2px rgba(0,0,0,.4), 0 10px 26px -14px rgba(0,0,0,.7);
+    --navshadow:0 -1px 0 var(--line), 0 -8px 24px -16px rgba(0,0,0,.8);
   }
 }
 :root[data-theme="dark"]{
@@ -44,45 +46,52 @@
   --accent:#4FBCB8; --accent-soft:#123230; --accent-ink:#8FDCD7;
   --money:#D79B4C; --money-soft:#2E2415; --crit:#E0736A; --crit-soft:#2E1A18;
   --ok:#63BE8C; --ok-soft:#12291D;
-  --alu:#4A5A61; --alu-2:#6B7C83; --glass:#3E6870; --opaque:#3A4850; --steel:#9FB2B8;
+  --alu:#4C5C63; --alu-2:#71838A; --glass:#3E6870; --opaque:#3A4850; --steel:#9FB2B8;
   --dim:#7FA9D4;
   --on-accent:#062120;
   --shadow:0 1px 2px rgba(0,0,0,.4), 0 10px 26px -14px rgba(0,0,0,.7);
+  --navshadow:0 -1px 0 var(--line), 0 -8px 24px -16px rgba(0,0,0,.8);
 }
 html{-webkit-text-size-adjust:100%}
 body{background:var(--ground); color:var(--ink);
-  font:400 15px/1.5 "Golos Text",system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;
-  padding-bottom:calc(94px + env(safe-area-inset-bottom))}
+  font:400 15px/1.5 "Golos Text",system-ui,-apple-system,"Segoe UI",Roboto,sans-serif}
 h1,h2,h3{line-height:1.25; letter-spacing:-.01em}
-.wrap{max-width:1080px; margin:0 auto; padding:0 14px}
 
-.head{background:var(--surface); border-bottom:1px solid var(--line); padding:18px 0}
-.head .wrap{display:flex; align-items:center; justify-content:space-between; gap:12px; flex-wrap:wrap}
-.head h1{font-size:22px; font-weight:800}
-.head .sub{font-size:13px; color:var(--ink-3); margin-top:3px}
-.theme{background:var(--surface-2); border:1px solid var(--line); color:var(--ink-2); border-radius:99px;
-  padding:8px 13px; font:600 12px "Golos Text",sans-serif; cursor:pointer}
+.shell{display:flex; min-height:100vh}
+.rail{display:none; width:236px; flex:0 0 236px; position:sticky; top:0; height:100vh;
+  border-right:1px solid var(--line); background:var(--surface); padding:20px 14px; flex-direction:column; gap:3px}
+.brand{display:flex; align-items:baseline; gap:7px; padding:0 10px 16px}
+.brand b{font-size:18px; font-weight:800; letter-spacing:-.02em}
+.brand span{font-size:10px; color:var(--ink-3); font-weight:700; text-transform:uppercase; letter-spacing:.09em}
+.rail button{display:flex; align-items:center; gap:9px; width:100%; text-align:left; background:none;
+  border:0; cursor:pointer; color:var(--ink-2); font:600 14px/1 "Golos Text",sans-serif; padding:10px; border-radius:9px}
+.rail button:hover{background:var(--surface-2); color:var(--ink)}
+.rail button[aria-current="true"]{background:var(--accent-soft); color:var(--accent-ink)}
+.rail svg,.tabbar svg{width:19px;height:19px;stroke:currentColor;fill:none;stroke-width:1.7;stroke-linecap:round;stroke-linejoin:round;flex:0 0 auto}
+.rail .foot{margin-top:auto; padding-top:12px; border-top:1px solid var(--line-2); color:var(--ink-3); font-size:11px; padding-left:10px}
+.main{flex:1 1 auto; min-width:0; padding-bottom:calc(96px + env(safe-area-inset-bottom))}
+.wrap{max-width:1020px; margin:0 auto; padding:0 14px}
 
-.card{background:var(--surface); border:1px solid var(--line); border-radius:var(--r);
-  box-shadow:var(--shadow); margin-top:14px; overflow:hidden}
-.card>header{display:flex; align-items:baseline; justify-content:space-between; gap:10px; padding:14px 16px 0}
-.card>header h2{font-size:15px; font-weight:700}
-.card .hint{font-size:11.5px; color:var(--ink-3); font-weight:600}
-.card .body{padding:13px 16px 16px}
+.top{position:sticky; top:0; z-index:20; background:var(--ground); border-bottom:1px solid var(--line);
+  padding:13px 0 11px; margin-bottom:16px}
+.top .wrap{display:flex; align-items:center; justify-content:space-between; gap:10px}
+.top h1{font-size:17px; font-weight:800}
+.top .sub{font-size:12px; color:var(--ink-3); font-weight:600}
+.theme{background:var(--surface); border:1px solid var(--line); color:var(--ink-2); border-radius:99px;
+  padding:7px 12px; font:600 12px "Golos Text",sans-serif; cursor:pointer}
 
-.tabs{display:flex; gap:4px; border-bottom:1px solid var(--line); padding:0 16px; overflow-x:auto}
-.tabs button{background:none; border:0; border-bottom:2px solid transparent; cursor:pointer;
-  color:var(--ink-3); font:600 14px "Golos Text",sans-serif; padding:13px 12px; white-space:nowrap}
-.tabs button[aria-selected="true"]{color:var(--accent); border-bottom-color:var(--accent)}
-
-.split{display:grid; gap:14px}
-@media(min-width:900px){ .split{grid-template-columns:1.2fr 1fr; align-items:start} .split>*{min-width:0} }
-.split>.card{margin-top:14px}
 section[hidden]{display:none}
-
-svg.draw{display:block; width:100%; height:auto; background:var(--surface-2);
-  border:1px solid var(--line-2); border-radius:10px}
-svg.draw .cell{cursor:pointer}
+.eyebrow{font:700 11px/1 "Golos Text",sans-serif; letter-spacing:.1em; text-transform:uppercase;
+  color:var(--ink-3); margin:22px 0 10px}
+.card{background:var(--surface); border:1px solid var(--line); border-radius:var(--r);
+  box-shadow:var(--shadow); margin-bottom:12px; overflow:hidden}
+.card>header{display:flex; align-items:baseline; justify-content:space-between; gap:10px; padding:14px 15px 0}
+.card>header h2,.card>header h3{font-size:15px; font-weight:700}
+.card .hint{font-size:11.5px; color:var(--ink-3); font-weight:600}
+.card .body{padding:13px 15px 15px}
+.grid{display:grid; gap:12px}
+.grid>*{min-width:0}
+@media(min-width:880px){ .grid.g32{grid-template-columns:1.15fr 1fr; align-items:start} }
 
 label{display:block; font:600 11px/1 "Golos Text",sans-serif; letter-spacing:.05em;
   text-transform:uppercase; color:var(--ink-3); margin-bottom:6px}
@@ -106,9 +115,11 @@ input:focus,select:focus{outline:2px solid var(--accent); outline-offset:1px}
 .btn{background:var(--accent); border:1px solid var(--accent); color:var(--on-accent); border-radius:10px;
   padding:12px 16px; font:700 14px "Golos Text",sans-serif; cursor:pointer; width:100%}
 .btn.ghost{background:var(--surface); border-color:var(--line); color:var(--ink-2)}
+.btn.mini{width:auto; padding:8px 12px; font-size:13px}
+.btnrow{display:flex; gap:9px; margin-top:4px}
 
 .facts{display:grid; grid-template-columns:repeat(auto-fit,minmax(148px,1fr)); gap:8px}
-@media(min-width:560px){ .facts{grid-template-columns:repeat(auto-fit,minmax(120px,1fr))} }
+@media(min-width:560px){ .facts{grid-template-columns:repeat(auto-fit,minmax(118px,1fr))} }
 .fact{background:var(--surface-2); border:1px solid var(--line-2); border-radius:10px; padding:10px 11px}
 .fact .k{font-size:11px; color:var(--ink-3); font-weight:600}
 .fact .v{font:700 17px/1.2 "Golos Text",sans-serif; margin-top:3px; letter-spacing:-.01em; overflow-wrap:anywhere}
@@ -116,16 +127,28 @@ input:focus,select:focus{outline:2px solid var(--accent); outline-offset:1px}
 .fact .v.ok{color:var(--ok)}
 .fact .v.crit{color:var(--crit)}
 
+svg.draw{display:block; width:100%; height:auto; background:var(--surface-2);
+  border:1px solid var(--line-2); border-radius:10px}
+svg.draw .hit{cursor:pointer}
+.legend{display:flex; gap:12px; flex-wrap:wrap; margin-top:9px; font-size:12px; color:var(--ink-3)}
+.legend span{display:flex; align-items:center; gap:5px}
+.legend i{width:10px; height:10px; border-radius:2px; display:inline-block}
+
 .tablewrap{overflow-x:auto; max-width:100%}
 table{width:100%; border-collapse:collapse; font-size:13.5px}
-th,td{text-align:left; padding:8px 10px; border-bottom:1px solid var(--line-2); vertical-align:top}
+th,td{text-align:left; padding:9px 11px; border-bottom:1px solid var(--line-2); vertical-align:top; white-space:nowrap}
 th{font:700 10.5px/1 "Golos Text",sans-serif; text-transform:uppercase; letter-spacing:.07em; color:var(--ink-3)}
 td.r,th.r{text-align:right}
-td.num{font-family:"IBM Plex Mono",monospace; font-size:12.5px; white-space:nowrap}
+td.num{font-family:"IBM Plex Mono",monospace; font-size:12.5px}
 tbody tr:last-child td{border-bottom:0}
 tr.sum td{font-weight:700; background:var(--surface-2)}
 tr.grp td{background:var(--surface-2); font:700 11px/1 "Golos Text",sans-serif; text-transform:uppercase;
-  letter-spacing:.07em; color:var(--ink-3); padding:8px 10px}
+  letter-spacing:.07em; color:var(--ink-3); padding:8px 11px}
+
+.pill{display:inline-block; border-radius:99px; padding:3px 9px; font:600 11px "Golos Text",sans-serif; white-space:nowrap}
+.pill.st{background:var(--accent-soft); color:var(--accent-ink)}
+.pill.et{background:var(--money-soft); color:var(--money)}
+.pill.kd{background:var(--surface-2); color:var(--ink-3); border:1px solid var(--line-2)}
 
 .note{border-radius:10px; padding:11px 13px; font-size:13.5px; margin-top:10px; border:1px solid}
 .note.info{background:var(--surface-2); border-color:var(--line); color:var(--ink-2)}
@@ -133,105 +156,176 @@ tr.grp td{background:var(--surface-2); font:700 11px/1 "Golos Text",sans-serif; 
 .note.warn{background:var(--money-soft); border-color:var(--money); color:var(--money)}
 .note.crit{background:var(--crit-soft); border-color:var(--crit); color:var(--crit)}
 
-.legend{display:flex; gap:12px; flex-wrap:wrap; margin-top:9px; font-size:12px; color:var(--ink-3)}
-.legend span{display:flex; align-items:center; gap:5px}
-.legend i{width:10px; height:10px; border-radius:2px; display:inline-block}
+.olist{display:grid; gap:9px}
+.oitem{display:flex; gap:11px; align-items:center; background:var(--surface); border:1px solid var(--line);
+  border-radius:11px; padding:12px 13px; cursor:pointer; box-shadow:var(--shadow); width:100%; text-align:left; font:inherit; color:inherit}
+.oitem:hover{border-color:var(--accent)}
+.oitem .no{font:600 12px "IBM Plex Mono",monospace; color:var(--accent); flex:0 0 auto}
+.oitem .mid{flex:1 1 auto; min-width:0}
+.oitem .nm{font-weight:600; font-size:14px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap}
+.oitem .meta{font-size:12px; color:var(--ink-3); margin-top:2px; display:flex; gap:6px; flex-wrap:wrap}
+.oitem .amt{flex:0 0 auto; font:700 14px "Golos Text",sans-serif; text-align:right}
 
-.bottom{position:fixed; left:0; right:0; bottom:0; z-index:30; background:var(--surface);
-  border-top:1px solid var(--line); box-shadow:0 -8px 24px -16px rgba(13,20,24,.4);
-  padding:10px 0 calc(10px + env(safe-area-inset-bottom))}
-.bottom .wrap{display:flex; align-items:center; gap:12px}
-.bottom .p{flex:1 1 auto; min-width:0}
-.bottom .p .k{font-size:11px; color:var(--ink-3); font-weight:600}
-.bottom .p .v{font:800 20px/1.15 "Golos Text",sans-serif; letter-spacing:-.02em}
-.bottom .btn{width:auto; flex:0 0 auto}
-.toast{position:fixed; left:50%; transform:translateX(-50%); bottom:96px; z-index:60; background:var(--ink);
+.cutmap{margin-bottom:12px}
+.cutbar{display:flex; height:30px; border-radius:6px; overflow:hidden; border:1px solid var(--line);
+  background:repeating-linear-gradient(45deg,var(--line-2),var(--line-2) 5px,transparent 5px,transparent 10px)}
+.cutbar div{border-right:1px solid var(--surface); font:600 10px/30px "IBM Plex Mono",monospace;
+  text-align:center; color:var(--on-accent); background:var(--accent); overflow:hidden}
+.cutbar div.rest{background:var(--ok)}
+.cutbar div.scrap{background:transparent; color:var(--ink-3)}
+.cuthead{display:flex; justify-content:space-between; font-size:12px; color:var(--ink-3); margin-bottom:5px; gap:8px}
+.bar{height:7px; border-radius:4px; background:var(--line-2); overflow:hidden; margin-top:6px}
+.bar i{display:block; height:100%; background:var(--accent)}
+.bar i.over{background:var(--crit)}
+
+.cat table{min-width:600px}
+.cat td{padding:6px 8px}
+.cat input{padding:6px 8px; font-size:13px; border-radius:7px; min-width:76px; max-width:200px}
+.cat input.w{min-width:150px}
+.cat .del{background:none; border:0; color:var(--crit); cursor:pointer; font:700 15px/1 "Golos Text",sans-serif; padding:6px 9px; border-radius:7px}
+.cat .del:hover{background:var(--crit-soft)}
+
+.tabbar{position:fixed; left:0; right:0; bottom:0; z-index:30; display:flex; background:var(--surface);
+  border-top:1px solid var(--line); box-shadow:var(--navshadow); padding-bottom:env(safe-area-inset-bottom)}
+.tabbar button{flex:1 1 0; min-width:0; background:none; border:0; cursor:pointer; color:var(--ink-3);
+  display:flex; flex-direction:column; align-items:center; gap:3px; padding:8px 2px 7px; font:600 9.5px/1 "Golos Text",sans-serif}
+.tabbar button[aria-current="true"]{color:var(--accent)}
+.tabbar span{max-width:100%; overflow:hidden; text-overflow:ellipsis; white-space:nowrap}
+.toast{position:fixed; left:50%; transform:translateX(-50%); bottom:78px; z-index:60; background:var(--ink);
   color:var(--ground); padding:11px 16px; border-radius:99px; font:600 13px "Golos Text",sans-serif;
   opacity:0; pointer-events:none; transition:opacity .18s; max-width:90vw; text-align:center}
 .toast.on{opacity:1}
+@media(min-width:900px){
+  .rail{display:flex}
+  .tabbar{display:none}
+  .main{padding-bottom:36px}
+  .toast{bottom:26px}
+}
 </style>
 </head>
 <body>
 
-<div class="head"><div class="wrap">
-  <div>
-    <h1>Алюминиевый контур</h1>
-    <div class="sub">Окна и двери из алюминия и стоечно-ригельный фасад. Расчёт живой.</div>
-  </div>
-  <button class="theme" id="theme" type="button">Тема</button>
-</div></div>
+<div class="shell">
+<nav class="rail" aria-label="Разделы">
+  <div class="brand"><b>WinHub</b><span>алюминий</span></div>
+  <button data-go="p1" aria-current="true"><svg viewBox="0 0 24 24"><path d="M5 4h11l3 3v13a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1V5a1 1 0 0 1 1-1z"/><path d="M8 12h8M8 16h5"/></svg>Заказы</button>
+  <button data-go="p2"><svg viewBox="0 0 24 24"><rect x="3.5" y="3.5" width="17" height="17" rx="1.5"/><path d="M12 3.5v17"/></svg>Изделие</button>
+  <button data-go="p3"><svg viewBox="0 0 24 24"><rect x="3.5" y="3.5" width="17" height="17" rx="1"/><path d="M9 3.5v17M15 3.5v17M3.5 9h17M3.5 15h17"/></svg>Фасад</button>
+  <button data-go="p4"><svg viewBox="0 0 24 24"><path d="M4 5h16M4 10h16M4 15h10M4 20h7"/></svg>Состав</button>
+  <button data-go="p5"><svg viewBox="0 0 24 24"><path d="M3 8h18v8H3z"/><path d="M8 8v8M14 8v8"/></svg>Раскрой</button>
+  <button data-go="p6"><svg viewBox="0 0 24 24"><path d="M4 19V9M9 19V5M14 19v-7M19 19v-4"/></svg>Смена</button>
+  <button data-go="p7"><svg viewBox="0 0 24 24"><path d="M4 6h16M4 12h16M4 18h16"/><circle cx="8" cy="6" r="1.6"/><circle cx="15" cy="12" r="1.6"/><circle cx="11" cy="18" r="1.6"/></svg>Каталог</button>
+  <div class="foot">Алюминий: без армирования<br>и без сварки. Данные в браузере.</div>
+</nav>
 
-<div class="wrap">
-  <div class="card"><div class="tabs" id="tabs" role="tablist">
-    <button role="tab" data-t="win" aria-selected="true">Окна и двери</button>
-    <button role="tab" data-t="fac" aria-selected="false">Стоечно-ригельный фасад</button>
+<main class="main">
+  <div class="top"><div class="wrap">
+    <div><h1 id="ttl">Заказы</h1><div class="sub" id="sub">Окна, двери и фасады</div></div>
+    <button class="theme" id="theme" type="button">Тема</button>
   </div></div>
 
-  <!-- ================= ОКНА И ДВЕРИ ================= -->
-  <section id="win">
-    <div class="split">
-      <div class="card">
-        <header><h2>Конструкция</h2><span class="hint" id="wChip">—</span></header>
-        <div class="body">
-          <svg class="draw" id="wDraw" viewBox="0 0 440 340" role="img" aria-label="Схема изделия"></svg>
-          <div class="legend">
-            <span><i style="background:var(--alu)"></i>алюминий</span>
-            <span><i style="background:var(--glass)"></i>заполнение</span>
-            <span><i style="background:var(--steel)"></i>соединитель, петли</span>
-          </div>
-          <div class="facts" id="wFacts" style="margin-top:11px"></div>
-          <div id="wWarn"></div>
+  <!-- ============ 1. ЗАКАЗЫ ============ -->
+  <section id="p1" class="wrap">
+    <div class="facts" id="ordFacts"></div>
+    <div class="eyebrow">Заказы в работе</div>
+    <div class="olist" id="ordList"></div>
+    <div class="btnrow" style="margin-top:12px"><button class="btn ghost" id="newOrder">Новый заказ</button></div>
+    <div class="card" style="margin-top:16px">
+      <header><h3 id="curTitle">Заказ</h3><span class="hint">позиции</span></header>
+      <div class="body">
+        <div class="row" style="margin-bottom:11px">
+          <div class="field" style="margin:0"><label>Клиент</label><input type="text" id="oClient"></div>
+          <div class="field" style="margin:0"><label>Срок</label><input type="text" id="oDue" readonly></div>
         </div>
-      </div>
-      <div>
-        <div class="card">
-          <header><h2>Параметры</h2><span class="hint">алюминий</span></header>
-          <div class="body">
-            <div class="row">
-              <div class="field"><label>Ширина, мм</label><input type="number" id="wW" min="400" max="3600" step="10"></div>
-              <div class="field"><label>Высота, мм</label><input type="number" id="wH" min="400" max="2600" step="10"></div>
-            </div>
-            <div class="field"><label>Тип изделия</label>
-              <div class="seg" id="wType">
-                <button data-v="win" aria-pressed="true">Окно</button>
-                <button data-v="door">Дверь</button>
-              </div>
-            </div>
-            <div class="field"><label>Профильная система</label><select id="wSys"></select></div>
-            <div class="field"><label>Секции</label>
-              <div class="seg" id="wSecs"></div>
-              <select id="wSecType"></select>
-            </div>
-            <div class="field"><label>Заполнение</label><select id="wFill"></select></div>
-            <div class="field" style="margin:0"><label>Отделка</label><select id="wFin"></select></div>
-          </div>
-        </div>
-        <div class="card">
-          <header><h2>Состав и цена</h2><span class="hint" id="wSysHint">—</span></header>
-          <div class="body">
-            <div class="tablewrap"><table id="wBom"></table></div>
-            <div class="note info" id="wNote"></div>
-          </div>
-        </div>
+        <div class="note info" id="dueNote"></div>
+        <div class="tablewrap" style="margin-top:12px"><table id="posTbl"></table></div>
       </div>
     </div>
   </section>
 
-  <!-- ================= ФАСАД ================= -->
-  <section id="fac" hidden>
-    <div class="split">
-      <div class="card">
-        <header><h2>Сетка фасада</h2><span class="hint" id="fChip">—</span></header>
-        <div class="body">
-          <svg class="draw" id="fDraw" viewBox="0 0 460 400" role="img" aria-label="Схема фасада"></svg>
-          <div class="legend">
-            <span><i style="background:var(--alu)"></i>стойка, ригель</span>
-            <span><i style="background:var(--glass)"></i>стеклопакет</span>
-            <span><i style="background:var(--opaque)"></i>непрозрачная</span>
-            <span>клик по ячейке меняет заполнение</span>
+  <!-- ============ 2. ИЗДЕЛИЕ ============ -->
+  <section id="p2" class="wrap" hidden>
+    <div class="grid g32">
+      <div>
+        <div class="card">
+          <header><h2>Изделие</h2><span class="hint" id="wChip">—</span></header>
+          <div class="body">
+            <svg class="draw" id="wDraw" viewBox="0 0 440 340" role="img" aria-label="Схема изделия"></svg>
+            <div class="legend">
+              <span><i style="background:var(--alu)"></i>алюминий</span>
+              <span><i style="background:var(--glass)"></i>заполнение</span>
+              <span><i style="background:var(--steel)"></i>соединитель, петли</span>
+              <span>клик по секции — выбор</span>
+            </div>
+            <div class="facts" id="wFacts" style="margin-top:11px"></div>
+            <div id="wWarn"></div>
           </div>
-          <div class="facts" id="fFacts" style="margin-top:11px"></div>
-          <div id="fWarn"></div>
+        </div>
+        <div class="card">
+          <header><h3>Покупные на изделие</h3><span class="hint" id="wKitHint">—</span></header>
+          <div class="body"><div class="tablewrap"><table id="wKit"></table></div></div>
+        </div>
+      </div>
+      <div>
+        <div class="card">
+          <header><h2>Конструкция</h2><span class="hint">расчёт живой</span></header>
+          <div class="body">
+            <div class="field"><label>Тип изделия</label>
+              <div class="seg" id="wType">
+                <button data-v="win" aria-pressed="true">Окно</button>
+                <button data-v="door">Дверь</button>
+                <button data-v="shop">Витрина</button>
+              </div>
+            </div>
+            <div class="row">
+              <div class="field"><label>Ширина, мм</label><input type="number" id="wW" min="400" max="4000" step="10"></div>
+              <div class="field"><label>Высота, мм</label><input type="number" id="wH" min="400" max="3000" step="10"></div>
+            </div>
+            <div class="field"><label>Секции</label><div class="seg" id="wSecs"></div><select id="wSecType"></select></div>
+            <div class="field"><label>Профильная система</label><select id="wSys"></select></div>
+            <div class="row">
+              <div class="field"><label>Заполнение</label><select id="wFill"></select></div>
+              <div class="field"><label>Кол-во</label><input type="number" id="wQty" min="1" max="99"></div>
+            </div>
+            <div class="field" style="margin:0"><label>Отделка</label><select id="wFin"></select></div>
+          </div>
+        </div>
+        <div class="card"><div class="body">
+          <div class="facts" id="wSum" style="margin-bottom:11px"></div>
+          <button class="btn" id="wAdd">Добавить в заказ</button>
+        </div></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ 3. ФАСАД ============ -->
+  <section id="p3" class="wrap" hidden>
+    <div class="grid g32">
+      <div>
+        <div class="card">
+          <header><h2>Сетка фасада</h2><span class="hint" id="fChip">—</span></header>
+          <div class="body">
+            <svg class="draw" id="fDraw" viewBox="0 0 460 400" role="img" aria-label="Схема фасада"></svg>
+            <div class="legend">
+              <span><i style="background:var(--alu)"></i>стойка и ригель</span>
+              <span><i style="background:var(--glass)"></i>стеклопакет</span>
+              <span><i style="background:var(--opaque)"></i>непрозрачная</span>
+              <span>клик по ячейке меняет заполнение</span>
+            </div>
+            <div class="facts" id="fFacts" style="margin-top:11px"></div>
+            <div id="fWarn"></div>
+          </div>
+        </div>
+        <div class="card">
+          <header><h3>Подбор стойки</h3><span class="hint">по моменту инерции</span></header>
+          <div class="body">
+            <div class="row">
+              <div class="field"><label>Ветровой район</label><select id="fWind"></select></div>
+              <div class="field"><label>Высота над землёй</label><select id="fLvl"></select></div>
+            </div>
+            <div class="facts" id="fPost"></div>
+            <div id="fPostNote"></div>
+          </div>
         </div>
       </div>
       <div>
@@ -245,143 +339,179 @@ tr.grp td{background:var(--surface-2); font:700 11px/1 "Golos Text",sans-serif; 
                 <input class="rng" type="range" id="fHr" min="2000" max="30000" step="100"></div>
             </div>
             <div class="row">
-              <div class="field"><label>Пролётов по ширине</label><input type="number" id="fCols" min="1" max="12"></div>
-              <div class="field"><label>Рядов по высоте</label><input type="number" id="fRows" min="1" max="12"></div>
+              <div class="field"><label>Пролётов</label><input type="number" id="fCols" min="1" max="12"></div>
+              <div class="field"><label>Рядов</label><input type="number" id="fRows" min="1" max="12"></div>
             </div>
             <div class="field"><label>Профильная система</label><select id="fSys"></select></div>
-            <div class="field" style="margin:0"><label>Соединение стойки и ригеля</label><select id="fJoint"></select></div>
-          </div>
-        </div>
-
-        <div class="card">
-          <header><h2>Подбор стойки</h2><span class="hint">по моменту инерции</span></header>
-          <div class="body">
-            <div class="row">
-              <div class="field"><label>Ветровой район</label><select id="fWind"></select></div>
-              <div class="field"><label>Высота над землёй</label><select id="fLvl"></select></div>
-            </div>
-            <div class="facts" id="fPost"></div>
-            <div id="fPostNote"></div>
-          </div>
-        </div>
-
-        <div class="card">
-          <header><h2>Заполнение ячеек</h2><span class="hint" id="fCellHint">—</span></header>
-          <div class="body">
-            <div class="field"><label>Тип выбранной ячейки</label><select id="fCellType"></select></div>
+            <div class="field"><label>Соединение стойки и ригеля</label><select id="fJoint"></select></div>
             <div class="row">
               <div class="field" style="margin:0"><label>Стеклопакет</label><select id="fGlass"></select></div>
               <div class="field" style="margin:0"><label>Отделка</label><select id="fFin"></select></div>
             </div>
           </div>
         </div>
-
         <div class="card">
-          <header><h2>Состав и цена</h2><span class="hint" id="fArea">—</span></header>
-          <div class="body"><div class="tablewrap"><table id="fBom"></table></div></div>
+          <header><h3>Ячейка</h3><span class="hint" id="fCellHint">—</span></header>
+          <div class="body"><select id="fCellType"></select></div>
         </div>
+        <div class="card"><div class="body">
+          <div class="facts" id="fSum" style="margin-bottom:11px"></div>
+          <button class="btn" id="fAdd">Добавить в заказ</button>
+        </div></div>
       </div>
     </div>
   </section>
+
+  <!-- ============ 4. СОСТАВ ============ -->
+  <section id="p4" class="wrap" hidden>
+    <div class="facts" id="specFacts"></div>
+    <div class="card" style="margin-top:12px">
+      <header><h2>Состав позиции</h2><span class="hint" id="specFor">—</span></header>
+      <div class="body"><div class="tablewrap"><table id="bomTbl"></table></div></div>
+    </div>
+    <div class="card">
+      <header><h2>Трудоёмкость по участкам</h2><span class="hint">у алюминия нет сварки и зачистки</span></header>
+      <div class="body"><div class="tablewrap"><table id="laborTbl"></table></div>
+      <div class="note info">Участок определён тем, какое значение калькуляции он потребляет. Сварочного и зачистного участков в алюминиевом контуре нет вовсе: их место занимают фрезеровка узлов и сборка на соединителях.</div></div>
+    </div>
+    <div class="card">
+      <header><h2>Цена</h2><span class="hint">элемент → позиция → заказ</span></header>
+      <div class="body"><div class="tablewrap"><table id="priceTbl"></table></div></div>
+    </div>
+  </section>
+
+  <!-- ============ 5. РАСКРОЙ ============ -->
+  <section id="p5" class="wrap" hidden>
+    <div class="card">
+      <header><h2>Параметры</h2><span class="hint">станок отдельно от политики</span></header>
+      <div class="body">
+        <div class="row">
+          <div class="field"><label>Хлыст, мм</label><select id="cutBar">
+            <option value="6000">6000</option><option value="6500">6500</option><option value="7000">7000</option>
+          </select></div>
+          <div class="field"><label>Целевая функция</label><select id="cutGoal">
+            <option value="waste">Минимум отхода</option><option value="bars">Минимум числа хлыстов</option>
+          </select></div>
+        </div>
+        <div class="facts" id="cutParams"></div>
+        <div class="note info" id="cutNote"></div>
+      </div>
+    </div>
+    <div class="facts" id="cutFacts" style="margin-bottom:12px"></div>
+    <div id="cutOut"></div>
+  </section>
+
+  <!-- ============ 6. СМЕНА ============ -->
+  <section id="p6" class="wrap" hidden>
+    <div class="card">
+      <header><h2>Загрузка участков</h2><span class="hint">все заказы, рабочий день</span></header>
+      <div class="body" id="loadOut"></div>
+    </div>
+    <div class="card">
+      <header><h2>Потребность в покупных</h2><span class="hint">по всем заказам</span></header>
+      <div class="body"><div class="tablewrap"><table id="needTbl"></table></div></div>
+    </div>
+  </section>
+
+  <!-- ============ 7. КАТАЛОГ ============ -->
+  <section id="p7" class="wrap" hidden>
+    <div class="note info" style="margin:0 0 12px">Справочники правятся здесь, правки сразу идут в расчёт и хранятся в браузере. Запись, занятую в заказе, удалить нельзя.</div>
+    <div id="catOut"></div>
+    <div class="btnrow" style="margin-top:14px"><button class="btn ghost" id="catReset">Сбросить к демо-данным</button></div>
+  </section>
+</main>
 </div>
 
-<div class="bottom"><div class="wrap">
-  <div class="p"><div class="k" id="botK">Стоимость</div><div class="v" id="botV">—</div></div>
-  <button class="btn" id="botBtn">Спецификация</button>
-</div></div>
+<nav class="tabbar" aria-label="Разделы">
+  <button data-go="p1" aria-current="true"><svg viewBox="0 0 24 24"><path d="M5 4h11l3 3v13a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1V5a1 1 0 0 1 1-1z"/><path d="M8 12h8M8 16h5"/></svg><span>Заказы</span></button>
+  <button data-go="p2"><svg viewBox="0 0 24 24"><rect x="3.5" y="3.5" width="17" height="17" rx="1.5"/><path d="M12 3.5v17"/></svg><span>Изделие</span></button>
+  <button data-go="p3"><svg viewBox="0 0 24 24"><rect x="3.5" y="3.5" width="17" height="17" rx="1"/><path d="M9 3.5v17M15 3.5v17M3.5 9h17M3.5 15h17"/></svg><span>Фасад</span></button>
+  <button data-go="p4"><svg viewBox="0 0 24 24"><path d="M4 5h16M4 10h16M4 15h10M4 20h7"/></svg><span>Состав</span></button>
+  <button data-go="p5"><svg viewBox="0 0 24 24"><path d="M3 8h18v8H3z"/><path d="M8 8v8M14 8v8"/></svg><span>Раскрой</span></button>
+  <button data-go="p6"><svg viewBox="0 0 24 24"><path d="M4 19V9M9 19V5M14 19v-7M19 19v-4"/></svg><span>Смена</span></button>
+  <button data-go="p7"><svg viewBox="0 0 24 24"><path d="M4 6h16M4 12h16M4 18h16"/><circle cx="8" cy="6" r="1.6"/></svg><span>Каталог</span></button>
+</nav>
 <div class="toast" id="toast"></div>
 
 <script>
 /* =====================================================================
-   Алюминий отличается от ПВХ по существу: армирования нет, сварки нет,
-   углы собираются на соединителе, а тип системы — закрытый перечень,
-   от которого зависят и набор полей, и ветка расчёта.
+   Алюминий: армирования нет, сварки нет, углы на соединителе с обжимом.
+   Тип материала — закрытый перечень, от него зависят и набор полей,
+   и ветка расчёта, и состав участков.
    ===================================================================== */
-var E_ALU = 70000;           /* модуль упругости алюминия, Н/мм² */
-var STIFF = {alu:0.7, steel:2.1, pvc:0.025, wood:0.1};   /* коэффициенты жёсткости по материалам */
+var E_ALU = 70000, STIFF_ALU = 0.7, RATE = 62, MARGIN = 26, VAT = 12;
 
-/* ---------- оконно-дверные системы ---------- */
 var WSYS = [
-  {id:"c48", n:"ALT C48 — холодная", warm:false, frame:48, sash:52, mull:48, ovl:9,  gin:12,
-   pM:3450, beadM:520, sealM:180, corner:1450, uf:5.6, maxSashW:900,  maxSashH:2100, maxKg:70,  fillMax:24},
-  {id:"w62", n:"ALT W62 — тёплая", warm:true,  frame:62, sash:70, mull:62, ovl:10, gin:14,
-   pM:5900, beadM:680, sealM:210, corner:1850, uf:1.9, maxSashW:1000, maxSashH:2300, maxKg:90,  fillMax:38},
-  {id:"w72", n:"ALT W72 — тёплая, терморазрыв 34 мм", warm:true, frame:72, sash:78, mull:72, ovl:10, gin:14,
-   pM:7400, beadM:790, sealM:230, corner:2200, uf:1.4, maxSashW:1100, maxSashH:2400, maxKg:110, fillMax:48}
+  {id:"c48", n:"ALT C48 — холодная", warm:0, frame:48, sash:52, mull:48, ovl:9, gin:12,
+   pM:3450, beadM:520, sealM:180, corner:1450, uf:5.6, maxSashW:900, maxSashH:2100, maxKg:70, fillMax:24, lead:21},
+  {id:"w62", n:"ALT W62 — тёплая", warm:1, frame:62, sash:70, mull:62, ovl:10, gin:14,
+   pM:5900, beadM:680, sealM:210, corner:1850, uf:1.9, maxSashW:1000, maxSashH:2300, maxKg:90, fillMax:38, lead:28},
+  {id:"w72", n:"ALT W72 — тёплая, терморазрыв 34 мм", warm:1, frame:72, sash:78, mull:72, ovl:10, gin:14,
+   pM:7400, beadM:790, sealM:230, corner:2200, uf:1.4, maxSashW:1100, maxSashH:2400, maxKg:110, fillMax:48, lead:35}
 ];
-var WFILL = [
-  {id:"g4",  n:"Стекло 4 мм", t:4,  kg:10, m2:4200, warmOnly:false},
-  {id:"g24", n:"Стеклопакет 24 мм · 4-16-4", t:24, kg:20, m2:9200, warmOnly:false},
-  {id:"g32", n:"Стеклопакет 32 мм · энергосбережение", t:32, kg:30, m2:14100, warmOnly:true},
-  {id:"g44", n:"Стеклопакет 44 мм · два контура", t:44, kg:40, m2:19800, warmOnly:true}
+var FSYS = [
+  {id:"f50", n:"ALT F50 — классическая", face:50, fillMin:4, fillMax:38,
+   postM:9800, railM:8600, clampM:2100, capM:1900, sealM:260, uf:1.8, maxKg:250, Imax:380, lead:35},
+  {id:"f50tt", n:"ALT F50 TT — терморазрыв", face:50, fillMin:4, fillMax:62,
+   postM:12600, railM:10900, clampM:2400, capM:2200, sealM:290, uf:0.9, maxKg:320, Imax:504.16, lead:42},
+  {id:"f38", n:"ALT F38 — полуструктурная", face:38, fillMin:24, fillMax:48,
+   postM:14200, railM:12100, clampM:2600, capM:2900, sealM:300, uf:1.2, maxKg:280, Imax:330, lead:49}
+];
+/* Линейка стоек: глубина с шагом 10 мм. Верх совпадает с паспортом F50 TT. */
+var POSTS = (function(){ var o=[]; for(var d=50; d<=150; d+=10) o.push({id:"p"+d, n:"Стойка "+d+" мм", d:d, I:Math.round(1.4933e-4*d*d*d*100)/100}); return o; })();
+var FILLS = [
+  {id:"g4",  n:"Стекло 4 мм", t:4, kg:10, m2:4200, warm:0, lead:7},
+  {id:"s6",  n:"Стекло 6 мм закалённое", t:6, kg:15, m2:6400, warm:0, lead:14},
+  {id:"g24", n:"Стеклопакет 24 мм", t:24, kg:20, m2:9200, warm:0, lead:10},
+  {id:"g32", n:"Стеклопакет 32 мм", t:32, kg:30, m2:14100, warm:1, lead:14},
+  {id:"g44", n:"Стеклопакет 44 мм · два контура", t:44, kg:40, m2:19800, warm:1, lead:21},
+  {id:"g52", n:"Стеклопакет 52 мм · тепло и шум", t:52, kg:48, m2:24600, warm:1, lead:28}
 ];
 var FIN = [
-  {id:"mill", n:"Без покрытия (мельхиор)", k:1.00},
-  {id:"anod", n:"Анодирование", k:1.18},
-  {id:"ral",  n:"Порошковая окраска RAL", k:1.26},
-  {id:"wood", n:"Декор «под дерево»", k:1.44}
-];
-var WSEC = {
-  deaf:  {n:"Глухая", sash:false},
-  turnL: {n:"Поворотная, левая", sash:true, hinge:"l"},
-  turnR: {n:"Поворотная, правая", sash:true, hinge:"r"}
-};
-var WSEC_ORDER = ["deaf","turnR","turnL"];
-
-/* ---------- фасадные системы ---------- */
-var FSYS = [
-  {id:"f50", n:"ALT F50 — классическая", face:50, warm:true, fillMin:4, fillMax:38,
-   postM:9800, railM:8600, clampM:2100, capM:1900, sealM:260, uf:1.8, maxKg:250, Imax:380},
-  {id:"f50tt", n:"ALT F50 TT — с терморазрывом", face:50, warm:true, fillMin:4, fillMax:62,
-   postM:12600, railM:10900, clampM:2400, capM:2200, sealM:290, uf:0.9, maxKg:320, Imax:504.16},
-  {id:"f38", n:"ALT F38 — полуструктурная", face:38, warm:true, fillMin:24, fillMax:48,
-   postM:14200, railM:12100, clampM:2600, capM:2900, sealM:300, uf:1.2, maxKg:280, Imax:330}
-];
-/* Линейка стоек: глубина с шагом 10 мм, момент инерции растёт как куб глубины.
-   Верхняя точка совпадает с паспортом ALT F50 TT — 504,16 см⁴ при 150 мм. */
-var POSTS = (function(){
-  var out = [];
-  for(var d=50; d<=150; d+=10) out.push({d:d, I:Math.round(1.4933e-4*d*d*d*100)/100});
-  return out;
-})();
-var FGLASS = [
-  {id:"s6",  n:"Стекло 6 мм закалённое", t:6,  kg:15, m2:6400},
-  {id:"g32", n:"Стеклопакет 32 мм", t:32, kg:30, m2:14100},
-  {id:"g44", n:"Стеклопакет 44 мм · два контура", t:44, kg:40, m2:19800},
-  {id:"g52", n:"Стеклопакет 52 мм · тепло и шум", t:52, kg:48, m2:24600}
-];
-var FCELL = {
-  glass: {n:"Стеклопакет", opaque:false},
-  panel: {n:"Непрозрачная — сэндвич и утеплитель", opaque:true},
-  sash:  {n:"Скрытая створка, наружное открывание", opaque:false, sash:true}
-};
-var WIND = [
-  {id:"1", n:"I район · 0,17 кПа", q:0.17}, {id:"2", n:"II район · 0,23 кПа", q:0.23},
-  {id:"3", n:"III район · 0,30 кПа", q:0.30}, {id:"4", n:"IV район · 0,38 кПа", q:0.38},
-  {id:"5", n:"V район · 0,48 кПа", q:0.48}
-];
-var LVL = [
-  {id:"a", n:"до 10 м", k:1.00}, {id:"b", n:"10–20 м", k:1.25},
-  {id:"c", n:"20–40 м", k:1.50}, {id:"d", n:"40–60 м", k:1.70}
+  {id:"mill", n:"Без покрытия", k:1.00, lead:0},
+  {id:"anod", n:"Анодирование", k:1.18, lead:14},
+  {id:"ral",  n:"Порошковая окраска RAL", k:1.26, lead:10},
+  {id:"wood", n:"Декор под дерево", k:1.44, lead:21}
 ];
 var JOINT = [
-  {id:"butt", n:"Встык, на сухарном элементе", ded:1.0, mill:false, note:"без фрезеровки профилей"},
-  {id:"lap6", n:"Внахлёст 6 мм, без выборки паза", ded:1.0, lap:6, mill:false, note:"нахлёст 6 мм"},
-  {id:"lap12", n:"Внахлёст 12 мм с фрезеровкой", ded:1.0, lap:12, mill:true, note:"выборка паза в стойке"}
+  {id:"butt",  n:"Встык, на сухарном элементе", lap:0,  mill:0, note:"без фрезеровки"},
+  {id:"lap6",  n:"Внахлёст 6 мм", lap:6,  mill:0, note:"без выборки паза"},
+  {id:"lap12", n:"Внахлёст 12 мм с фрезеровкой", lap:12, mill:1, note:"выборка паза в стойке"}
 ];
-var CORNER_ANGLE = 45;
-var PANEL_M2 = 8600, ANCHOR = 4200, SADDLE = 780, CAPPLUG = 320, DRAIN = 640;
-var RATE_ASSEMBLY = 62;
+var WIND = [
+  {id:"1", n:"I район · 0,17 кПа", q:0.17}, {id:"2", n:"II · 0,23 кПа", q:0.23},
+  {id:"3", n:"III · 0,30 кПа", q:0.30}, {id:"4", n:"IV · 0,38 кПа", q:0.38}, {id:"5", n:"V · 0,48 кПа", q:0.48}
+];
+var LVL = [{id:"a",n:"до 10 м",k:1.00},{id:"b",n:"10–20 м",k:1.25},{id:"c",n:"20–40 м",k:1.50},{id:"d",n:"40–60 м",k:1.70}];
+var WSEC = {deaf:{n:"Глухая",sash:0}, turnL:{n:"Поворотная лев.",sash:1,hinge:"l"}, turnR:{n:"Поворотная прав.",sash:1,hinge:"r"}};
+var WSEC_ORDER = ["deaf","turnR","turnL"];
+var FCELL = {glass:{n:"Стеклопакет"}, panel:{n:"Непрозрачная — сэндвич"}, sash:{n:"Скрытая створка"}};
+
+var HW_WIN = 18600, HW_DOOR = 34800, THRESH = 5400;
+var PANEL_M2 = 8600, ANCHOR = 4200, SADDLE = 780, CAPPLUG = 320, DRAIN = 640, SPLICE = 5600, SASH_FAC = 96000;
+
+/* Участки алюминиевого контура: сварки и зачистки здесь нет. */
+var AREAS = [
+  {id:"cut",   n:"Порезка профиля 45°", f:function(c){ return c.bars*0.9 + c.barM*0.35; }},
+  {id:"mill",  n:"Фрезеровка узлов",    f:function(c){ return c.millNodes*2.4; }},
+  {id:"assy",  n:"Сборка на соединителях", f:function(c){ return c.joints*3.2; }},
+  {id:"frame", n:"Сборка каркаса",      f:function(c){ return c.posts*22 + c.anchors*12; }},
+  {id:"glaze", n:"Остекление и прижим", f:function(c){ return c.fills*2.6 + c.glassM2*0.45 + c.clampM*0.5; }},
+  {id:"pack",  n:"Упаковка",            f:function(c){ return 1.6 + c.glassM2*0.4; }}
+];
+var CAP = {cut:960, mill:480, assy:720, frame:900, glaze:840, pack:300};
+var CUTTER = {kerf:5, headBar:15, clamp:30};
+var GRADE = {minRest:600, trimRest:20};
 
 /* =====================================================================
    Состояние
    ===================================================================== */
-var S = {
-  tab:"win",
-  w:{W:1400, H:1500, type:"win", sys:"w62", secs:["turnR","deaf"], sel:0, fill:"g32", fin:"ral"},
-  f:{W:7200, H:9000, cols:4, rows:3, sys:"f50tt", joint:"lap6", wind:"3", lvl:"b",
-     glass:"g44", fin:"ral", sel:0, cells:null}
-};
+function defW(){ return {kind:"win", type:"win", W:1400, H:1500, sys:"w62", secs:["turnR","deaf"], sel:0,
+  fill:"g32", fin:"ral", qty:2}; }
+function defF(){ return {kind:"fac", W:7200, H:9000, cols:4, rows:3, sys:"f50tt", joint:"lap6",
+  wind:"3", lvl:"b", fill:"g44", fin:"ral", sel:0, cells:null, qty:1}; }
+var S = {page:"p1", orders:[], cur:null, w:defW(), f:defF(), cutBar:6000, cutGoal:"waste", seq:1};
+
 function pick(a,id){ for(var i=0;i<a.length;i++) if(a[i].id===id) return a[i]; return a[0]; }
 function $(s,r){ return (r||document).querySelector(s); }
 function $$(s,r){ return Array.prototype.slice.call((r||document).querySelectorAll(s)); }
@@ -389,445 +519,789 @@ function el(t,c,x){ var e=document.createElement(t); if(c) e.className=c; if(x!=
 function esc(s){ return String(s).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;"); }
 function fmt(v,d){ return (Math.round(v*Math.pow(10,d||0))/Math.pow(10,d||0)).toLocaleString("ru-RU"); }
 function money(v){ return fmt(Math.round(v)) + " ₸"; }
+function clone(o){ return JSON.parse(JSON.stringify(o)); }
 function cssv(v){ return getComputedStyle(document.documentElement).getPropertyValue(v).trim(); }
-var tt;
-function toast(t){ var b=$("#toast"); b.textContent=t; b.classList.add("on");
+function fact(k,v,c){ return '<div class="fact"><div class="k">'+k+'</div><div class="v '+(c||"")+'">'+v+'</div></div>'; }
+var tt; function toast(t){ var b=$("#toast"); b.textContent=t; b.classList.add("on");
   clearTimeout(tt); tt=setTimeout(function(){ b.classList.remove("on"); },2400); }
-function fill(sel, arr){ sel.innerHTML=""; arr.forEach(function(x){ var o=el("option",null,x.n); o.value=x.id; sel.appendChild(o); }); }
 
 /* =====================================================================
-   ОКНА И ДВЕРИ: у алюминия нет армирования и нет сварки
+   ГЕОМЕТРИЯ
    ===================================================================== */
-function wBuild(){
-  var c = S.w, sy = pick(WSYS, c.sys), n = c.secs.length;
+function wBuild(c){
+  var sy = pick(WSYS, c.sys), n = c.secs.length;
   var lightW = c.W - 2*sy.frame, lightH = c.H - 2*sy.frame;
   var secW = (lightW - (n-1)*sy.mull)/n;
   var parts = [], fills = [], sashes = [];
-  /* Рез 45°, сборка на угловом соединителе: припуска на уварку нет. */
-  parts.push({role:"frame", L:c.W}, {role:"frame", L:c.W}, {role:"frame", L:c.H}, {role:"frame", L:c.H});
-  for(var i=0;i<n-1;i++) parts.push({role:"mull", L:lightH});
+  /* Рез 45°, сборка на соединителе: припуска на уварку нет. */
+  parts.push({r:"frame",L:c.W},{r:"frame",L:c.W},{r:"frame",L:c.H},{r:"frame",L:c.H});
+  for(var i=0;i<n-1;i++) parts.push({r:"mull",L:lightH});
   c.secs.forEach(function(code){
     var t = WSEC[code] || WSEC.deaf;
     if(t.sash){
       var sw = secW + 2*sy.ovl, sh = lightH + 2*sy.ovl;
-      sashes.push({w:sw, h:sh, hinge:t.hinge});
-      parts.push({role:"sash", L:sw}, {role:"sash", L:sw}, {role:"sash", L:sh}, {role:"sash", L:sh});
-      fills.push({w:sw - 2*sy.sash + 2*sy.gin, h:sh - 2*sy.sash + 2*sy.gin});
-    } else {
-      fills.push({w:secW + 2*sy.gin, h:lightH + 2*sy.gin});
-    }
+      sashes.push({w:sw,h:sh,hinge:t.hinge});
+      parts.push({r:"sash",L:sw},{r:"sash",L:sw},{r:"sash",L:sh},{r:"sash",L:sh});
+      fills.push({w:sw-2*sy.sash+2*sy.gin, h:sh-2*sy.sash+2*sy.gin});
+    } else fills.push({w:secW+2*sy.gin, h:lightH+2*sy.gin});
   });
-  var barM = 0; parts.forEach(function(p){ barM += p.L/1000; });
-  var beadM = 0, glassM2 = 0, sealM = 0;
-  fills.forEach(function(f){ beadM += 2*(f.w+f.h)/1000; sealM += 4*(f.w+f.h)/1000; glassM2 += f.w*f.h/1e6; });
-  /* Угловые соединители: четыре на раму и четыре на каждую створку. */
+  var barM=0; parts.forEach(function(p){ barM+=p.L/1000; });
+  var beadM=0, sealM=0, glassM2=0;
+  fills.forEach(function(f){ beadM+=2*(f.w+f.h)/1000; sealM+=4*(f.w+f.h)/1000; glassM2+=f.w*f.h/1e6; });
   var corners = 4 + sashes.length*4;
-  return {sy:sy, n:n, secW:secW, lightW:lightW, lightH:lightH, parts:parts, fills:fills,
-    sashes:sashes, barM:barM, beadM:beadM, sealM:sealM, glassM2:glassM2, corners:corners,
-    area:c.W*c.H/1e6};
+  return {sy:sy,n:n,secW:secW,lightH:lightH,parts:parts,fills:fills,sashes:sashes,
+    barM:barM,beadM:beadM,sealM:sealM,glassM2:glassM2,corners:corners,area:c.W*c.H/1e6,
+    c:{bars:parts.length, barM:barM, joints:corners, millNodes:0, posts:0, anchors:0,
+       fills:fills.length, glassM2:glassM2, clampM:beadM}};
 }
-function wBom(){
-  var c = S.w, b = wBuild(), sy = b.sy, gl = pick(WFILL, c.fill), fin = pick(FIN, c.fin);
-  var rows = [], byRole = {frame:0, sash:0, mull:0}, cnt = {frame:0, sash:0, mull:0};
-  b.parts.forEach(function(p){ byRole[p.role] += p.L/1000; cnt[p.role]++; });
+function fCellsOf(c){
+  var need = c.cols*c.rows;
+  if(!c.cells || c.cells.length !== need){
+    var old = c.cells || []; c.cells = [];
+    for(var i=0;i<need;i++) c.cells.push(old[i] || "glass");
+    if(!old.length) for(var k=0;k<c.cols;k++) c.cells[(c.rows-1)*c.cols+k] = "panel";
+    if(c.sel >= need) c.sel = 0;
+  }
+  return c.cells;
+}
+function postNeed(c){
+  var wind = pick(WIND,c.wind), lvl = pick(LVL,c.lvl);
+  var q = wind.q*lvl.k*0.8, b = c.W/c.cols, L = c.H/c.rows;
+  var w = q*0.001*b, I = 1000*w*Math.pow(L,3)/(384*E_ALU);
+  return {q:q, b:b, L:L, I:I/1e4};
+}
+function postPick(c){
+  var need = postNeed(c), sys = pick(FSYS,c.sys), found = null;
+  POSTS.forEach(function(p){ if(!found && p.I >= need.I && p.I <= sys.Imax) found = p; });
+  return {need:need, post:found, sys:sys};
+}
+function fBuild(c){
+  var sy = pick(FSYS,c.sys), j = pick(JOINT,c.joint), cells = fCellsOf(c);
+  var step = c.W/c.cols, rowH = c.H/c.rows;
+  var postsN = c.cols+1, postL = c.H;
+  var railsN = (c.rows+1)*c.cols, railL = step - sy.face + j.lap;
+  var cellW = step - sy.face, cellH = rowH - sy.face;
+  var glassM2=0, panelM2=0, sashN=0;
+  cells.forEach(function(t){ var a = cellW*cellH/1e6;
+    if(t==="panel") panelM2+=a; else glassM2+=a; if(t==="sash") sashN++; });
+  var postM = postsN*postL/1000, railM = railsN*railL/1000;
+  var clampM = postM + railM, sealM = 2*clampM;
+  var nodes = railsN*2, floors = Math.max(1, Math.round(c.H/3000)), anchors = postsN*floors;
+  /* Стойка длиннее хлыста режется на части, каждый стык — компенсационный узел. */
+  var parts = [];
+  for(var i=0;i<postsN;i++) parts.push({r:"post", L:postL});
+  for(var k=0;k<railsN;k++) parts.push({r:"rail", L:railL});
+  var barM = postM + railM;
+  return {sy:sy,j:j,cells:cells,step:step,rowH:rowH,cellW:cellW,cellH:cellH,
+    postsN:postsN,postL:postL,postM:postM,railsN:railsN,railL:railL,railM:railM,
+    clampM:clampM,sealM:sealM,nodes:nodes,anchors:anchors,floors:floors,
+    glassM2:glassM2,panelM2:panelM2,sashN:sashN,area:c.W*c.H/1e6,parts:parts,
+    c:{bars:parts.length, barM:barM, joints:nodes, millNodes:j.mill?railsN:0, posts:postsN,
+       anchors:anchors, fills:cells.length, glassM2:glassM2+panelM2, clampM:clampM}};
+}
+
+/* =====================================================================
+   СОСТАВ И ЦЕНА
+   ===================================================================== */
+function bom(c){
+  return c.kind === "fac" ? fBom(c) : wBom(c);
+}
+function wBom(c){
+  var b = wBuild(c), sy = b.sy, gl = pick(FILLS,c.fill), fin = pick(FIN,c.fin), rows = [];
+  var m = {frame:0,sash:0,mull:0}, k = {frame:0,sash:0,mull:0};
+  b.parts.forEach(function(p){ m[p.r]+=p.L/1000; k[p.r]++; });
   var RN = {frame:"Профиль рамы", sash:"Профиль створки", mull:"Профиль импоста"};
   ["frame","sash","mull"].forEach(function(r){
-    if(!cnt[r]) return;
-    rows.push({g:"Профиль", n:RN[r] + " " + sy.n.split(" —")[0], q:byRole[r], u:"м",
-      p:sy.pM*fin.k, note:cnt[r] + " балок, рез 45°"});
+    if(!k[r]) return;
+    rows.push({g:"Профиль", n:RN[r]+" "+sy.n.split(" —")[0], q:m[r], u:"м", p:sy.pM*fin.k,
+      lead:sy.lead+fin.lead, note:k[r]+" балок, рез 45°"});
   });
-  rows.push({g:"Профиль", n:"Штапик", q:b.beadM, u:"м", p:sy.beadM*fin.k, note:""});
-  rows.push({g:"Профиль", n:"Уплотнитель EPDM", q:b.sealM, u:"м", p:sy.sealM, note:"два контура"});
+  rows.push({g:"Профиль", n:"Штапик", q:b.beadM, u:"м", p:sy.beadM*fin.k, lead:sy.lead, note:""});
+  rows.push({g:"Профиль", n:"Уплотнитель EPDM", q:b.sealM, u:"м", p:sy.sealM, lead:14, note:"два контура"});
+  b.fills.forEach(function(f,i){
+    rows.push({g:"Заполнение", n:gl.n+" · "+Math.round(f.w)+"×"+Math.round(f.h), q:f.w*f.h/1e6, u:"м²",
+      p:gl.m2, lead:gl.lead, note:"секция "+(i+1)});
+  });
   rows.push({g:"Комплектующие", n:"Угловой соединитель с обжимом", q:b.corners, u:"шт", p:sy.corner,
-    note:"вместо сварки"});
-  b.fills.forEach(function(f, i){
-    rows.push({g:"Заполнение", n:gl.n + " · " + Math.round(f.w) + "×" + Math.round(f.h),
-      q:f.w*f.h/1e6, u:"м²", p:gl.m2, note:"секция " + (i+1)});
-  });
-  if(b.sashes.length){
-    rows.push({g:"Комплектующие", n:"Петли и запор на створку", q:b.sashes.length, u:"компл",
-      p:c.type === "door" ? 34800 : 18600, note:c.type === "door" ? "дверные" : "оконные"});
-  }
-  if(c.type === "door") rows.push({g:"Комплектующие", n:"Порог алюминиевый", q:c.W/1000, u:"м", p:5400, note:"не армируется"});
-  var labor = (b.corners*3.2 + b.parts.length*1.1 + b.fills.length*2.4);
-  var mat = 0; rows.forEach(function(r){ r.sum = r.q*r.p; mat += r.sum; });
-  var total = mat + labor*RATE_ASSEMBLY;
-  return {b:b, rows:rows, mat:mat, labor:labor, total:total, gl:gl, fin:fin};
+    lead:sy.lead, note:"вместо сварки"});
+  if(b.sashes.length) rows.push({g:"Комплектующие", n:(c.type==="door"?"Дверной":"Оконный")+" комплект фурнитуры",
+    q:b.sashes.length, u:"компл", p:c.type==="door"?HW_DOOR:HW_WIN, lead:21, note:""});
+  if(c.type === "door") rows.push({g:"Комплектующие", n:"Порог алюминиевый", q:c.W/1000, u:"м", p:THRESH,
+    lead:sy.lead, note:"не армируется"});
+  return finish(b, rows, c);
 }
-function wRules(){
-  var b = wBuild(), gl = pick(WFILL, S.w.fill), sy = b.sy, out = [];
-  if(gl.t > sy.fillMax) out.push({l:"crit", t:"Заполнение " + gl.t + " мм не входит в фальц системы — предел " + sy.fillMax + " мм"});
-  if(gl.warmOnly && !sy.warm) out.push({l:"crit", t:"Холодная система без терморазрыва: энергосберегающий пакет в ней бессмыслен"});
-  b.sashes.forEach(function(s){
-    if(s.w > sy.maxSashW) out.push({l:"crit", t:"Створка " + Math.round(s.w) + " мм шире предела системы " + sy.maxSashW + " мм"});
-    if(s.h > sy.maxSashH) out.push({l:"crit", t:"Створка " + Math.round(s.h) + " мм выше предела " + sy.maxSashH + " мм"});
-    var kg = s.w*s.h/1e6*gl.kg + 2*(s.w+s.h)/1000*2.1;
-    if(kg > sy.maxKg) out.push({l:"warn", t:"Створка весит " + fmt(kg,1) + " кг при пределе " + sy.maxKg + " кг"});
-  });
+function fBom(c){
+  var b = fBuild(c), sy = b.sy, gl = pick(FILLS,c.fill), fin = pick(FIN,c.fin), pp = postPick(c), rows = [];
+  var depth = pp.post ? pp.post.d : POSTS[POSTS.length-1].d;
+  rows.push({g:"Каркас", n:"Стойка "+sy.n.split(" —")[0]+" · глубина "+depth+" мм", q:b.postM, u:"м",
+    p:sy.postM*fin.k, lead:sy.lead+fin.lead, note:b.postsN+" шт по "+fmt(b.postL/1000,2)+" м"});
+  rows.push({g:"Каркас", n:"Ригель · "+b.j.n.toLowerCase(), q:b.railM, u:"м", p:sy.railM*fin.k,
+    lead:sy.lead+fin.lead, note:b.railsN+" шт по "+Math.round(b.railL)+" мм"});
+  rows.push({g:"Каркас", n:"Прижимная планка", q:b.clampM, u:"м", p:sy.clampM, lead:sy.lead, note:"по видимому контуру"});
+  rows.push({g:"Каркас", n:"Декоративная крышка", q:b.clampM, u:"м", p:sy.capM*fin.k, lead:sy.lead+fin.lead, note:""});
+  rows.push({g:"Каркас", n:"Уплотнители EPDM", q:b.sealM, u:"м", p:sy.sealM, lead:14, note:"два контура"});
+  if(b.glassM2 > 0) rows.push({g:"Заполнение", n:gl.n, q:b.glassM2, u:"м²", p:gl.m2, lead:gl.lead, note:"прозрачные ячейки"});
+  if(b.panelM2 > 0) rows.push({g:"Заполнение", n:"Сэндвич-панель с утеплителем", q:b.panelM2, u:"м²", p:PANEL_M2,
+    lead:21, note:"зоны перекрытий"});
+  if(b.sashN > 0) rows.push({g:"Заполнение", n:"Скрытая створка, наружное открывание", q:b.sashN, u:"шт",
+    p:SASH_FAC, lead:35, note:"вставная позиция"});
+  rows.push({g:"Узлы", n:"Сухарный элемент", q:b.nodes, u:"шт", p:SADDLE, lead:sy.lead, note:"два на узел"});
+  rows.push({g:"Узлы", n:"Кронштейн анкерный к перекрытию", q:b.anchors, u:"шт", p:ANCHOR, lead:14,
+    note:b.floors+" этажей"});
+  rows.push({g:"Узлы", n:"Заглушки и накладки на узел", q:b.nodes, u:"шт", p:CAPPLUG, lead:14, note:""});
+  rows.push({g:"Узлы", n:"Элементы дренажа фальца", q:b.railsN, u:"шт", p:DRAIN, lead:14, note:"по ригелям"});
+  var splices = b.postsN * Math.max(0, Math.ceil(b.postL/S.cutBar) - 1);
+  if(splices > 0) rows.push({g:"Узлы", n:"Компенсационный стык стойки", q:splices, u:"шт", p:SPLICE, lead:sy.lead,
+    note:"температурное расширение"});
+  return finish(b, rows, c);
+}
+function finish(b, rows, c){
+  var labor = AREAS.map(function(a){ var m2 = a.f(b.c); return {id:a.id, n:a.n, min:m2, sum:m2*RATE}; });
+  var laborMin = 0; labor.forEach(function(l){ laborMin += l.min; });
+  var mat = 0, byG = {};
+  rows.forEach(function(r){ r.sum = r.q*r.p; mat += r.sum; byG[r.g] = (byG[r.g]||0) + r.sum; });
+  var cost = mat + laborMin*RATE;
+  return {b:b, rows:rows, byG:byG, labor:labor, laborMin:laborMin, laborSum:laborMin*RATE,
+    mat:mat, cost:cost, unit:cost*(1+MARGIN/100), pos:cost*(1+MARGIN/100)*(c.qty||1)};
+}
+function rules(c){
+  var out = [], gl = pick(FILLS,c.fill);
+  if(c.kind === "fac"){
+    var b = fBuild(c), sy = b.sy, pp = postPick(c);
+    if(!pp.post) out.push({l:"crit", t:"Стойку подобрать нельзя: требуется "+fmt(pp.need.I,1)+" см⁴, максимум системы "+sy.Imax+" см⁴. Уменьшите шаг или добавьте ряд ригелей"});
+    if(gl.t < sy.fillMin || gl.t > sy.fillMax) out.push({l:"crit", t:"Заполнение "+gl.t+" мм вне диапазона системы "+sy.fillMin+"–"+sy.fillMax+" мм"});
+    var kg = b.cellW*b.cellH/1e6*gl.kg;
+    if(kg > sy.maxKg) out.push({l:"crit", t:"Ячейка весит "+fmt(kg,0)+" кг при пределе "+sy.maxKg+" кг"});
+    if(b.postL > S.cutBar) out.push({l:"warn", t:"Стойка "+fmt(b.postL/1000,1)+" м длиннее хлыста "+(S.cutBar/1000)+" м: нужен вертикальный стык с компенсацией расширения"});
+  } else {
+    var b2 = wBuild(c), sy2 = b2.sy;
+    if(gl.t > sy2.fillMax) out.push({l:"crit", t:"Заполнение "+gl.t+" мм не входит в фальц системы, предел "+sy2.fillMax+" мм"});
+    if(gl.warm && !sy2.warm) out.push({l:"crit", t:"Холодная система без терморазрыва: энергосберегающий пакет в ней бессмыслен"});
+    b2.sashes.forEach(function(s){
+      if(s.w > sy2.maxSashW) out.push({l:"crit", t:"Створка "+Math.round(s.w)+" мм шире предела "+sy2.maxSashW+" мм"});
+      if(s.h > sy2.maxSashH) out.push({l:"crit", t:"Створка "+Math.round(s.h)+" мм выше предела "+sy2.maxSashH+" мм"});
+      var kg2 = s.w*s.h/1e6*gl.kg + 2*(s.w+s.h)/1000*2.1;
+      if(kg2 > sy2.maxKg) out.push({l:"warn", t:"Створка весит "+fmt(kg2,1)+" кг при пределе "+sy2.maxKg+" кг"});
+    });
+  }
   return out;
 }
-function wDraw(){
-  var c = S.w, b = wBuild(), sy = b.sy;
-  var VB = 440, padL = 34, padT = 24, padB = 16, boxW = VB - padL - 16, boxH = 340 - padT - padB;
-  var k = Math.min(boxW/c.W, boxH/c.H), w = c.W*k, h = c.H*k;
-  var x0 = padL + (boxW - w)/2, y0 = padT;
-  var fr = Math.max(5, sy.frame*k), mu = Math.max(4, sy.mull*k), sa = Math.max(4, sy.sash*k);
-  var alu = cssv("--alu"), alu2 = cssv("--alu-2"), gl = cssv("--glass"), ink3 = cssv("--ink-3"),
-      acc = cssv("--accent"), steel = cssv("--steel"), dim = cssv("--dim");
-  var s = "";
-  s += '<rect x="'+x0+'" y="'+y0+'" width="'+w+'" height="'+h+'" fill="'+alu+'" stroke="'+alu2+'" stroke-width="1.3"/>';
-  /* Диагонали в углах — рез 45° и соединитель, а не сварной шов. */
-  [[x0,y0,1,1],[x0+w,y0,-1,1],[x0,y0+h,1,-1],[x0+w,y0+h,-1,-1]].forEach(function(p){
-    s += '<line x1="'+p[0]+'" y1="'+p[1]+'" x2="'+(p[0]+p[2]*fr)+'" y2="'+(p[1]+p[3]*fr)+'" stroke="'+steel+'" stroke-width="1"/>';
+
+/* =====================================================================
+   ЗАКАЗЫ
+   ===================================================================== */
+function allPos(){ var o=[]; S.orders.forEach(function(x){ x.pos.forEach(function(p){ o.push(p); }); }); return o; }
+function curOrder(){ for(var i=0;i<S.orders.length;i++) if(S.orders[i].id===S.cur) return S.orders[i]; return null; }
+function newOrder(cl){
+  var o = {id:"o"+(S.seq++), no:"АЛ-"+(2000+S.orders.length+1), client:cl||"Новый заказчик",
+    state:"Оформление", stage:"Замер", pos:[]};
+  S.orders.unshift(o); S.cur = o.id; return o;
+}
+function orderSum(o){ var s=0; o.pos.forEach(function(p){ s += bom(p.cfg).pos; }); return s; }
+function orderDue(o){
+  var bn = 0;
+  AREAS.forEach(function(a){
+    var sh = 0;
+    o.pos.forEach(function(p){ var r = bom(p.cfg); sh += a.f(r.b.c)*(p.cfg.qty||1); });
+    var d = sh/CAP[a.id]; if(d > bn) bn = d;
   });
-  var n = b.n, secW = (w - 2*fr - (n-1)*mu)/n;
+  var lead = 0;
+  o.pos.forEach(function(p){ bom(p.cfg).rows.forEach(function(r){ if(r.lead > lead) lead = r.lead; }); });
+  var d2 = Math.max(Math.ceil(bn)+3, Math.ceil(lead*0.8));
+  var dt = new Date(2026,8,7), add = 0;
+  while(add < d2){ dt.setDate(dt.getDate()+1); if(dt.getDay()!==0) add++; }
+  return {days:d2, date:dt.toLocaleDateString("ru-RU"), lead:lead};
+}
+
+/* =====================================================================
+   ЧЕРТЕЖИ
+   ===================================================================== */
+function wDraw(){
+  var c = S.w, b = wBuild(c), sy = b.sy;
+  var VB=440, padL=34, padT=24, padB=16, boxW=VB-padL-16, boxH=340-padT-padB;
+  var k = Math.min(boxW/c.W, boxH/c.H), w = c.W*k, h = c.H*k, x0 = padL+(boxW-w)/2, y0 = padT;
+  var fr = Math.max(5, sy.frame*k), mu = Math.max(4, sy.mull*k), sa = Math.max(4, sy.sash*k);
+  var alu=cssv("--alu"), alu2=cssv("--alu-2"), gl=cssv("--glass"), ink3=cssv("--ink-3"),
+      acc=cssv("--accent"), steel=cssv("--steel"), dim=cssv("--dim");
+  var s = '<rect x="'+x0+'" y="'+y0+'" width="'+w+'" height="'+h+'" fill="'+alu+'" stroke="'+alu2+'" stroke-width="1.3"/>';
+  [[x0,y0,1,1],[x0+w,y0,-1,1],[x0,y0+h,1,-1],[x0+w,y0+h,-1,-1]].forEach(function(p){
+    s += '<line x1="'+p[0]+'" y1="'+p[1]+'" x2="'+(p[0]+p[2]*fr)+'" y2="'+(p[1]+p[3]*fr)+'" stroke="'+steel+'" stroke-width="1.1"/>';
+  });
+  var n = b.n, secW = (w-2*fr-(n-1)*mu)/n;
   for(var i=0;i<n;i++){
-    var sx = x0 + fr + i*(secW + mu), sy0 = y0 + fr, sh0 = h - 2*fr;
-    if(i > 0) s += '<rect x="'+(sx-mu)+'" y="'+sy0+'" width="'+mu+'" height="'+sh0+'" fill="'+alu+'" stroke="'+alu2+'" stroke-width="0.7"/>';
-    var t = WSEC[c.secs[i]] || WSEC.deaf, on = (i === c.sel);
+    var sx = x0+fr+i*(secW+mu), sy0 = y0+fr, sh0 = h-2*fr;
+    if(i>0) s += '<rect x="'+(sx-mu)+'" y="'+sy0+'" width="'+mu+'" height="'+sh0+'" fill="'+alu+'" stroke="'+alu2+'" stroke-width="0.7"/>';
+    var t = WSEC[c.secs[i]] || WSEC.deaf;
     if(t.sash){
-      s += '<rect x="'+(sx+1)+'" y="'+(sy0+1)+'" width="'+(secW-2)+'" height="'+(sh0-2)+'" fill="'+alu+'" stroke="'+alu2+'" stroke-width="0.8"/>';
-      var ix = sx+sa, iy = sy0+sa, iw = Math.max(0,secW-2*sa), ih = Math.max(0,sh0-2*sa);
+      s += '<rect x="'+(sx+1)+'" y="'+(sy0+1)+'" width="'+(secW-2)+'" height="'+(sh0-2)+'" fill="'+alu+'" stroke="'+alu2+'" stroke-width="0.9"/>';
+      var ix=sx+sa, iy=sy0+sa, iw=Math.max(0,secW-2*sa), ih=Math.max(0,sh0-2*sa);
       s += '<rect x="'+ix+'" y="'+iy+'" width="'+iw+'" height="'+ih+'" fill="'+gl+'" fill-opacity="0.6" stroke="'+alu2+'" stroke-width="0.5"/>';
-      var right = t.hinge === "r";
-      var d = right ? "M "+ix+" "+iy+" L "+(ix+iw)+" "+(iy+ih/2)+" L "+ix+" "+(iy+ih)
-                    : "M "+(ix+iw)+" "+iy+" L "+ix+" "+(iy+ih/2)+" L "+(ix+iw)+" "+(iy+ih);
-      s += '<path d="'+d+'" fill="none" stroke="'+ink3+'" stroke-width="1" stroke-dasharray="4,3"/>';
-      var hx = right ? sx+secW-4 : sx+1;
+      var right = t.hinge==="r";
+      s += '<path d="'+(right ? "M "+ix+" "+iy+" L "+(ix+iw)+" "+(iy+ih/2)+" L "+ix+" "+(iy+ih)
+                             : "M "+(ix+iw)+" "+iy+" L "+ix+" "+(iy+ih/2)+" L "+(ix+iw)+" "+(iy+ih))+
+           '" fill="none" stroke="'+ink3+'" stroke-width="1" stroke-dasharray="4,3"/>';
+      var hx = right ? sx+secW-4.5 : sx+1;
       [0.2,0.8].forEach(function(p){ s += '<rect x="'+hx+'" y="'+(sy0+sh0*p-5)+'" width="3.5" height="10" rx="1.5" fill="'+steel+'"/>'; });
+      var gx = right ? sx+2.5 : sx+secW-6;
+      s += '<rect x="'+gx+'" y="'+(sy0+sh0/2-8)+'" width="3.5" height="16" rx="1.7" fill="'+cssv("--money")+'"/>';
     } else {
       s += '<rect x="'+sx+'" y="'+sy0+'" width="'+secW+'" height="'+sh0+'" fill="'+gl+'" fill-opacity="0.5" stroke="'+alu2+'" stroke-width="0.6"/>';
-      if(secW > 50) s += '<text x="'+(sx+secW/2)+'" y="'+(sy0+sh0/2+4)+'" fill="'+ink3+'" font-size="10" text-anchor="middle">глухая</text>';
+      if(secW>50) s += '<text x="'+(sx+secW/2)+'" y="'+(sy0+sh0/2+4)+'" fill="'+ink3+'" font-size="10" text-anchor="middle" pointer-events="none">глухая</text>';
     }
-    if(on) s += '<rect x="'+sx+'" y="'+sy0+'" width="'+secW+'" height="'+sh0+'" fill="none" stroke="'+acc+'" stroke-width="2"/>';
+    s += '<rect class="hit" data-sec="'+i+'" x="'+sx+'" y="'+sy0+'" width="'+Math.max(0,secW)+'" height="'+sh0+
+      '" fill="none" stroke="'+(i===c.sel?acc:"transparent")+'" stroke-width="2"/>';
   }
   s += '<text x="'+(x0+w/2)+'" y="'+(y0-8)+'" fill="'+dim+'" font-size="11" font-family="IBM Plex Mono,monospace" text-anchor="middle">'+c.W+'</text>';
   s += '<text x="'+(x0-14)+'" y="'+(y0+h/2)+'" fill="'+dim+'" font-size="11" font-family="IBM Plex Mono,monospace" text-anchor="middle" transform="rotate(-90 '+(x0-14)+' '+(y0+h/2)+')">'+c.H+'</text>';
-  var svg = $("#wDraw");
-  svg.setAttribute("viewBox", "0 0 " + VB + " " + Math.round(y0+h+padB));
-  svg.innerHTML = s;
-}
-function wRender(){
-  var c = S.w, r = wBom(), b = r.b, sy = b.sy;
-  wDraw();
-  $("#wChip").textContent = c.W + "×" + c.H + " · " + sy.n.split(" —")[0] + " · " + b.n + " секц.";
-  $("#wSysHint").textContent = (sy.warm ? "тёплая" : "холодная") + " · Uf " + sy.uf + " Вт/(м²·К)";
-  $("#wFacts").innerHTML =
-    fact("Балок", b.parts.length + " шт · " + fmt(b.barM,2) + " м") +
-    fact("Соединителей", b.corners + " шт") +
-    fact("Армирование", "не требуется", "ok") +
-    fact("Площадь", fmt(b.area,2) + " м²") +
-    fact("Сборка", fmt(r.labor,1) + " мин") +
-    fact("Цена", money(r.total), "money");
-  var rl = wRules(), warn = "";
-  rl.forEach(function(x){ warn += '<div class="note '+(x.l==="crit"?"crit":"warn")+'">'+esc(x.t)+'</div>'; });
-  if(!rl.length) warn = '<div class="note ok">Проверки пройдены: заполнение входит в фальц, створки в габаритах, вес в пределе.</div>';
-  $("#wWarn").innerHTML = warn;
-
-  var h = '<thead><tr><th>Позиция</th><th class="r">Кол-во</th><th class="r">Сумма</th></tr></thead><tbody>';
-  var lastG = null;
-  r.rows.forEach(function(x){
-    if(x.g !== lastG){ h += '<tr class="grp"><td colspan="3">'+x.g+'</td></tr>'; lastG = x.g; }
-    h += '<tr><td>'+esc(x.n)+(x.note?' <span style="color:var(--ink-3)">· '+esc(x.note)+'</span>':'')+
-      '</td><td class="r num">'+fmt(x.q,2)+' '+x.u+'</td><td class="r num">'+money(x.sum)+'</td></tr>';
-  });
-  h += '<tr><td>Сборка · '+fmt(r.labor,1)+' мин</td><td class="r num">—</td><td class="r num">'+money(r.labor*RATE_ASSEMBLY)+'</td></tr>';
-  h += '<tr class="sum"><td colspan="2">Итого</td><td class="r num">'+money(r.total)+'</td></tr></tbody>';
-  $("#wBom").innerHTML = h;
-  $("#wNote").textContent = "Ни армирования, ни сварки: углы режутся под 45° и стягиваются соединителем с обжимом, " +
-    "поэтому в составе есть строка соединителей и нет строки армирования. Коэффициент жёсткости алюминия " +
-    STIFF.alu + " против " + STIFF.pvc + " у ПВХ — профиль несёт сам.";
-  renderBottom();
-}
-function fact(k,v,cls){ return '<div class="fact"><div class="k">'+k+'</div><div class="v '+(cls||"")+'">'+v+'</div></div>'; }
-
-/* =====================================================================
-   ФАСАД: сетка стоек и ригелей
-   ===================================================================== */
-function fCells(){
-  var f = S.f, need = f.cols*f.rows;
-  if(!f.cells || f.cells.length !== need){
-    var old = f.cells || [];
-    f.cells = [];
-    for(var i=0;i<need;i++) f.cells.push(old[i] || "glass");
-    /* Нижний ряд по умолчанию непрозрачный — зона перекрытия, режим «тепло-холод». */
-    if(!old.length) for(var c2=0;c2<f.cols;c2++) f.cells[(f.rows-1)*f.cols + c2] = "panel";
-    if(f.sel >= need) f.sel = 0;
-  }
-  return f.cells;
-}
-/* Требуемый момент инерции стойки при равномерной ветровой нагрузке и прогибе L/200. */
-function postNeed(){
-  var f = S.f, wind = pick(WIND, f.wind), lvl = pick(LVL, f.lvl);
-  var q = wind.q * lvl.k * 0.8;                 /* кПа с аэродинамическим коэффициентом */
-  var b = f.W / f.cols;                          /* грузовая ширина стойки, мм */
-  var L = f.H / f.rows;                          /* пролёт между креплениями, мм */
-  var w = q * 0.001 * b;                         /* Н/мм */
-  var I = 1000 * w * Math.pow(L,3) / (384 * E_ALU);   /* мм⁴ */
-  return {q:q, b:b, L:L, I:I/1e4};               /* см⁴ */
-}
-function postPick(){
-  var need = postNeed(), sys = pick(FSYS, S.f.sys), found = null;
-  POSTS.forEach(function(p){
-    if(found) return;
-    if(p.I >= need.I && p.I <= sys.Imax) found = p;
-  });
-  return {need:need, post:found, sys:sys};
-}
-function fBuild(){
-  var f = S.f, sy = pick(FSYS, f.sys), j = pick(JOINT, f.joint), cells = fCells();
-  var step = f.W / f.cols, rowH = f.H / f.rows;
-  var postsN = f.cols + 1, postL = f.H;
-  var railLines = f.rows + 1;
-  var railL = step - sy.face + (j.lap || 0);
-  var railsN = railLines * f.cols;
-  var cellW = step - sy.face, cellH = rowH - sy.face;
-  var glassM2 = 0, panelM2 = 0, sashN = 0;
-  cells.forEach(function(t){
-    var a = cellW*cellH/1e6;
-    if(t === "panel") panelM2 += a; else glassM2 += a;
-    if(t === "sash") sashN++;
-  });
-  var postM = postsN*postL/1000, railM = railsN*railL/1000;
-  /* Прижимная планка и декоративная крышка идут по всему видимому контуру. */
-  var clampM = postM + railM, capM = clampM;
-  var sealM = 2*(postM + railM);
-  var nodes = railsN*2;                           /* два сухаря на узел примыкания */
-  var floors = Math.max(1, Math.round(f.H/3000));
-  var anchors = postsN*floors;
-  return {sy:sy, j:j, step:step, rowH:rowH, cellW:cellW, cellH:cellH, cells:cells,
-    postsN:postsN, postL:postL, postM:postM, railsN:railsN, railL:railL, railM:railM,
-    clampM:clampM, capM:capM, sealM:sealM, nodes:nodes, anchors:anchors,
-    glassM2:glassM2, panelM2:panelM2, sashN:sashN, area:f.W*f.H/1e6};
-}
-function fBom(){
-  var f = S.f, b = fBuild(), sy = b.sy, gl = pick(FGLASS, f.glass), fin = pick(FIN, f.fin), pp = postPick();
-  var rows = [];
-  var depth = pp.post ? pp.post.d : POSTS[POSTS.length-1].d;
-  rows.push({g:"Каркас", n:"Стойка " + sy.n.split(" —")[0] + " · глубина " + depth + " мм",
-    q:b.postM, u:"м", p:sy.postM*fin.k, note:b.postsN + " шт по " + fmt(b.postL/1000,2) + " м"});
-  rows.push({g:"Каркас", n:"Ригель · " + b.j.n.split(",")[0].toLowerCase(),
-    q:b.railM, u:"м", p:sy.railM*fin.k, note:b.railsN + " шт по " + Math.round(b.railL) + " мм"});
-  rows.push({g:"Каркас", n:"Прижимная планка", q:b.clampM, u:"м", p:sy.clampM, note:"по видимому контуру"});
-  rows.push({g:"Каркас", n:"Декоративная крышка", q:b.capM, u:"м", p:sy.capM*fin.k, note:""});
-  rows.push({g:"Каркас", n:"Уплотнители EPDM", q:b.sealM, u:"м", p:sy.sealM, note:"два контура"});
-  if(b.glassM2 > 0) rows.push({g:"Заполнение", n:gl.n, q:b.glassM2, u:"м²", p:gl.m2, note:"прозрачные ячейки"});
-  if(b.panelM2 > 0) rows.push({g:"Заполнение", n:"Сэндвич-панель с утеплителем", q:b.panelM2, u:"м²", p:PANEL_M2,
-    note:"зоны перекрытий, режим «тепло-холод»"});
-  if(b.sashN > 0) rows.push({g:"Заполнение", n:"Скрытая створка, наружное открывание", q:b.sashN, u:"шт", p:96000,
-    note:"вставная позиция"});
-  rows.push({g:"Узлы", n:"Сухарный элемент", q:b.nodes, u:"шт", p:SADDLE, note:"два на узел"});
-  rows.push({g:"Узлы", n:"Кронштейн анкерный к перекрытию", q:b.anchors, u:"шт", p:ANCHOR, note:"по этажам"});
-  rows.push({g:"Узлы", n:"Заглушки и декоративные накладки", q:b.nodes, u:"шт", p:CAPPLUG, note:""});
-  rows.push({g:"Узлы", n:"Элементы дренажа фальца", q:b.railsN, u:"шт", p:DRAIN, note:"по ригелям"});
-  var labor = b.nodes*4.5 + b.postsN*22 + b.cells.length*16 + b.anchors*12;
-  var mat = 0; rows.forEach(function(r){ r.sum = r.q*r.p; mat += r.sum; });
-  return {b:b, rows:rows, mat:mat, labor:labor, total:mat + labor*RATE_ASSEMBLY, pp:pp};
+  var svg = $("#wDraw"); svg.setAttribute("viewBox","0 0 "+VB+" "+Math.round(y0+h+padB)); svg.innerHTML = s;
+  $$(".hit",svg).forEach(function(r){ r.addEventListener("click", function(){ S.w.sel = +r.getAttribute("data-sec"); wSecPanel(); wRender(); }); });
 }
 function fDraw(){
-  var f = S.f, b = fBuild(), sy = b.sy;
-  var VB = 460, padL = 40, padT = 26, padB = 40, boxW = VB - padL - 18, boxH = 400 - padT - padB;
-  var k = Math.min(boxW/f.W, boxH/f.H), w = f.W*k, h = f.H*k;
-  var x0 = padL + (boxW - w)/2, y0 = padT;
-  var fw = Math.max(3, sy.face*k);
-  var alu = cssv("--alu"), alu2 = cssv("--alu-2"), gl = cssv("--glass"), op = cssv("--opaque"),
-      ink3 = cssv("--ink-3"), acc = cssv("--accent"), steel = cssv("--steel"), dim = cssv("--dim");
-  var s = "";
-  s += '<rect x="'+x0+'" y="'+y0+'" width="'+w+'" height="'+h+'" fill="'+alu+'" stroke="'+alu2+'" stroke-width="1"/>';
-  var stepPx = (w - fw)/f.cols, rowPx = (h - fw)/f.rows;
-  for(var r2=0;r2<f.rows;r2++){
-    for(var c2=0;c2<f.cols;c2++){
-      var cx = x0 + fw + c2*stepPx, cy = y0 + fw + r2*rowPx;
-      var cw = stepPx - fw, ch = rowPx - fw, idx = r2*f.cols + c2;
-      var t = b.cells[idx], f2 = (t === "panel") ? op : gl;
-      s += '<rect x="'+cx.toFixed(1)+'" y="'+cy.toFixed(1)+'" width="'+Math.max(0,cw).toFixed(1)+
-        '" height="'+Math.max(0,ch).toFixed(1)+'" fill="'+f2+'" fill-opacity="'+(t==="panel"?"0.85":"0.55")+
-        '" stroke="'+alu2+'" stroke-width="0.5"/>';
-      if(t === "sash" && cw > 24 && ch > 20){
-        s += '<rect x="'+(cx+3)+'" y="'+(cy+3)+'" width="'+(cw-6)+'" height="'+(ch-6)+
-          '" fill="none" stroke="'+steel+'" stroke-width="1.2"/>';
-        s += '<path d="M '+(cx+5)+' '+(cy+5)+' L '+(cx+cw-5)+' '+(cy+ch/2)+' L '+(cx+5)+' '+(cy+ch-5)+
-          '" fill="none" stroke="'+ink3+'" stroke-width="0.9" stroke-dasharray="3,2"/>';
-      }
-      s += '<rect class="cell" data-i="'+idx+'" x="'+cx.toFixed(1)+'" y="'+cy.toFixed(1)+'" width="'+Math.max(0,cw).toFixed(1)+
-        '" height="'+Math.max(0,ch).toFixed(1)+'" fill="none" stroke="'+(f.sel===idx?acc:"transparent")+'" stroke-width="2"/>';
+  var c = S.f, b = fBuild(c), sy = b.sy;
+  var VB=460, padL=42, padT=26, padB=42, boxW=VB-padL-18, boxH=400-padT-padB;
+  var k = Math.min(boxW/c.W, boxH/c.H), w = c.W*k, h = c.H*k, x0 = padL+(boxW-w)/2, y0 = padT;
+  var fw = Math.max(3.5, sy.face*k);
+  var alu=cssv("--alu"), alu2=cssv("--alu-2"), gl=cssv("--glass"), op=cssv("--opaque"),
+      ink3=cssv("--ink-3"), acc=cssv("--accent"), steel=cssv("--steel"), dim=cssv("--dim");
+  var s = '<rect x="'+x0+'" y="'+y0+'" width="'+w+'" height="'+h+'" fill="'+alu+'" stroke="'+alu2+'" stroke-width="1"/>';
+  var stepPx = (w-fw)/c.cols, rowPx = (h-fw)/c.rows;
+  for(var r2=0;r2<c.rows;r2++) for(var c2=0;c2<c.cols;c2++){
+    var cx = x0+fw+c2*stepPx, cy = y0+fw+r2*rowPx, cw = stepPx-fw, ch = rowPx-fw, idx = r2*c.cols+c2;
+    var t = b.cells[idx], f2 = (t==="panel") ? op : gl;
+    s += '<rect x="'+cx.toFixed(1)+'" y="'+cy.toFixed(1)+'" width="'+Math.max(0,cw).toFixed(1)+'" height="'+Math.max(0,ch).toFixed(1)+
+      '" fill="'+f2+'" fill-opacity="'+(t==="panel"?"0.9":"0.55")+'" stroke="'+alu2+'" stroke-width="0.5"/>';
+    if(t==="sash" && cw>22 && ch>18){
+      s += '<rect x="'+(cx+3)+'" y="'+(cy+3)+'" width="'+(cw-6)+'" height="'+(ch-6)+'" fill="none" stroke="'+steel+'" stroke-width="1.2"/>';
+      s += '<path d="M '+(cx+5)+' '+(cy+5)+' L '+(cx+cw-5)+' '+(cy+ch/2)+' L '+(cx+5)+' '+(cy+ch-5)+'" fill="none" stroke="'+ink3+'" stroke-width="0.9" stroke-dasharray="3,2"/>';
+    }
+    s += '<rect class="hit" data-i="'+idx+'" x="'+cx.toFixed(1)+'" y="'+cy.toFixed(1)+'" width="'+Math.max(0,cw).toFixed(1)+
+      '" height="'+Math.max(0,ch).toFixed(1)+'" fill="none" stroke="'+(c.sel===idx?acc:"transparent")+'" stroke-width="2"/>';
+  }
+  /* Кронштейны по этажам — там, где стойка крепится к перекрытию. */
+  for(var fl=1; fl<b.floors; fl++){
+    var yy = y0 + h*fl/b.floors;
+    for(var pi=0; pi<b.postsN; pi++){
+      var px = x0 + pi*stepPx;
+      s += '<rect x="'+(px-1)+'" y="'+(yy-2)+'" width="'+(fw+2)+'" height="4" fill="'+steel+'"/>';
     }
   }
-  function dimH(x1,x2,y,txt){
-    s += '<line x1="'+x1+'" y1="'+y+'" x2="'+x2+'" y2="'+y+'" stroke="'+dim+'" stroke-width="1"/>';
-    s += '<text x="'+((x1+x2)/2)+'" y="'+(y-5)+'" fill="'+dim+'" font-size="10.5" font-family="IBM Plex Mono,monospace" text-anchor="middle">'+txt+'</text>';
-  }
-  dimH(x0, x0 + stepPx, y0 + h + 16, "шаг " + Math.round(b.step));
-  dimH(x0, x0 + w, y0 + h + 34, "a=" + f.W);
-  s += '<text x="'+(x0-16)+'" y="'+(y0+h/2)+'" fill="'+dim+'" font-size="10.5" font-family="IBM Plex Mono,monospace" text-anchor="middle" transform="rotate(-90 '+(x0-16)+' '+(y0+h/2)+')">b='+f.H+'</text>';
-  var svg = $("#fDraw");
-  svg.setAttribute("viewBox", "0 0 " + VB + " " + Math.round(y0+h+44));
-  svg.innerHTML = s;
-  $$(".cell", svg).forEach(function(r3){
-    r3.addEventListener("click", function(){ S.f.sel = +r3.getAttribute("data-i"); fRender(); });
-  });
-}
-function fRender(){
-  var f = S.f, r = fBom(), b = r.b, pp = r.pp, sy = b.sy;
-  fCells(); fDraw();
-  $("#fChip").textContent = f.W + "×" + f.H + " мм · " + fmt(b.area,1) + " м² · " + f.cols + "×" + f.rows + " ячеек";
-  $("#fArea").textContent = fmt(b.area,1) + " м² · " + money(r.total/b.area) + "/м²";
-  $("#fFacts").innerHTML =
-    fact("Стоек", b.postsN + " шт · " + fmt(b.postM,1) + " м") +
-    fact("Ригелей", b.railsN + " шт · " + fmt(b.railM,1) + " м") +
-    fact("Ячеек", b.cells.length + " шт") +
-    fact("Узлов", b.nodes/2 + " шт") +
-    fact("Прижим и крышка", fmt(b.clampM + b.capM,1) + " м") +
-    fact("Цена", money(r.total), "money");
-
-  var need = pp.need, post = pp.post;
-  $("#fPost").innerHTML =
-    fact("Нагрузка", fmt(need.q,2) + " кПа") +
-    fact("Грузовая ширина", Math.round(need.b) + " мм") +
-    fact("Пролёт", Math.round(need.L) + " мм") +
-    fact("Требуется", fmt(need.I,1) + " см⁴") +
-    fact("Подобрана", post ? post.d + " мм · " + post.I + " см⁴" : "нет", post ? "ok" : "crit");
-  $("#fPostNote").innerHTML = post
-    ? '<div class="note info">Стойка подбирается из линейки с шагом глубины 10 мм по требуемому моменту инерции — ' +
-      'запас ' + fmt(100*(post.I/need.I - 1),0) + ' %. Прогиб принят L/200, модуль упругости алюминия ' + E_ALU + ' Н/мм².</div>'
-    : '<div class="note crit"><b>Стойку подобрать нельзя.</b> Требуется ' + fmt(need.I,1) + ' см⁴, максимум системы ' +
-      sy.Imax + ' см⁴. Уменьшите шаг стоек, добавьте ряд ригелей или возьмите систему с более глубокой стойкой.</div>';
-
-  var warn = "";
-  var kg = b.cellW*b.cellH/1e6 * pick(FGLASS, f.glass).kg;
-  if(kg > sy.maxKg) warn += '<div class="note crit">Ячейка весит ' + fmt(kg,0) + ' кг при пределе системы ' + sy.maxKg + ' кг — уменьшите ячейку.</div>';
-  var t = pick(FGLASS, f.glass);
-  if(t.t < sy.fillMin || t.t > sy.fillMax) warn += '<div class="note crit">Заполнение ' + t.t + ' мм вне диапазона системы ' + sy.fillMin + '–' + sy.fillMax + ' мм.</div>';
-  if(b.postL > 6000) warn += '<div class="note warn">Стойка ' + fmt(b.postL/1000,1) + ' м длиннее хлыста 6 м: нужен вертикальный стык с компенсацией температурного расширения.</div>';
-  $("#fWarn").innerHTML = warn || '<div class="note ok">Проверки пройдены: стойка подобрана, вес ячейки и толщина заполнения в пределах системы.</div>';
-
-  $("#fCellHint").textContent = "ячейка " + (f.sel + 1) + " из " + b.cells.length +
-    " · " + Math.round(b.cellW) + "×" + Math.round(b.cellH) + " мм";
-  $("#fCellType").value = b.cells[f.sel];
-
-  var h = '<thead><tr><th>Позиция</th><th class="r">Кол-во</th><th class="r">Сумма</th></tr></thead><tbody>';
-  var lastG = null;
-  r.rows.forEach(function(x){
-    if(x.g !== lastG){ h += '<tr class="grp"><td colspan="3">'+x.g+'</td></tr>'; lastG = x.g; }
-    h += '<tr><td>'+esc(x.n)+(x.note?' <span style="color:var(--ink-3)">· '+esc(x.note)+'</span>':'')+
-      '</td><td class="r num">'+fmt(x.q,2)+' '+x.u+'</td><td class="r num">'+money(x.sum)+'</td></tr>';
-  });
-  h += '<tr><td>Сборка и монтаж · '+fmt(r.labor,0)+' мин</td><td class="r num">—</td><td class="r num">'+money(r.labor*RATE_ASSEMBLY)+'</td></tr>';
-  h += '<tr class="sum"><td colspan="2">Итого</td><td class="r num">'+money(r.total)+'</td></tr></tbody>';
-  $("#fBom").innerHTML = h;
-  renderBottom();
-}
-function renderBottom(){
-  if(S.tab === "win"){
-    var r = wBom();
-    $("#botK").textContent = "Изделие " + S.w.W + "×" + S.w.H;
-    $("#botV").textContent = money(r.total);
-  } else {
-    var f = fBom();
-    $("#botK").textContent = "Фасад " + fmt(f.b.area,1) + " м²";
-    $("#botV").textContent = money(f.total);
-  }
+  s += '<line x1="'+x0+'" y1="'+(y0+h+16)+'" x2="'+(x0+stepPx)+'" y2="'+(y0+h+16)+'" stroke="'+dim+'" stroke-width="1"/>';
+  s += '<text x="'+(x0+stepPx/2)+'" y="'+(y0+h+11)+'" fill="'+dim+'" font-size="10.5" font-family="IBM Plex Mono,monospace" text-anchor="middle">шаг '+Math.round(b.step)+'</text>';
+  s += '<line x1="'+x0+'" y1="'+(y0+h+34)+'" x2="'+(x0+w)+'" y2="'+(y0+h+34)+'" stroke="'+dim+'" stroke-width="1"/>';
+  s += '<text x="'+(x0+w/2)+'" y="'+(y0+h+29)+'" fill="'+dim+'" font-size="10.5" font-family="IBM Plex Mono,monospace" text-anchor="middle">a='+c.W+'</text>';
+  s += '<text x="'+(x0-18)+'" y="'+(y0+h/2)+'" fill="'+dim+'" font-size="10.5" font-family="IBM Plex Mono,monospace" text-anchor="middle" transform="rotate(-90 '+(x0-18)+' '+(y0+h/2)+')">b='+c.H+'</text>';
+  var svg = $("#fDraw"); svg.setAttribute("viewBox","0 0 "+VB+" "+Math.round(y0+h+46)); svg.innerHTML = s;
+  $$(".hit",svg).forEach(function(r){ r.addEventListener("click", function(){ S.f.sel = +r.getAttribute("data-i"); fRender(); }); });
 }
 
 /* =====================================================================
-   Панели и события
+   ЭКРАНЫ
    ===================================================================== */
 function wSecPanel(){
   var bar = $("#wSecs"); bar.innerHTML = "";
-  S.w.secs.forEach(function(code, i){
-    var b = el("button", null, (i+1) + " · " + WSEC[code].n.split(",")[0]);
-    b.setAttribute("aria-pressed", i === S.w.sel ? "true" : "false");
+  S.w.secs.forEach(function(code,i){
+    var b = el("button",null,(i+1)+" · "+WSEC[code].n);
+    b.setAttribute("aria-pressed", i===S.w.sel?"true":"false");
     b.addEventListener("click", function(){ S.w.sel = i; wSecPanel(); wRender(); });
     bar.appendChild(b);
   });
-  var minus = el("button", null, "−"); minus.title = "Убрать секцию";
-  minus.addEventListener("click", function(){
-    if(S.w.secs.length <= 1){ toast("Хотя бы одна секция нужна"); return; }
-    S.w.secs.pop(); if(S.w.sel >= S.w.secs.length) S.w.sel = S.w.secs.length-1; wSecPanel(); wRender();
-  });
-  var plus = el("button", null, "+"); plus.title = "Добавить секцию";
-  plus.addEventListener("click", function(){
-    if(S.w.secs.length >= 4){ toast("Больше четырёх секций — это уже витраж, смотрите вкладку фасада"); return; }
-    S.w.secs.push("deaf"); S.w.sel = S.w.secs.length-1; wSecPanel(); wRender();
-  });
-  bar.appendChild(minus); bar.appendChild(plus);
+  var mi = el("button",null,"−"); mi.addEventListener("click", function(){
+    if(S.w.secs.length<=1){ toast("Хотя бы одна секция нужна"); return; }
+    S.w.secs.pop(); if(S.w.sel>=S.w.secs.length) S.w.sel = S.w.secs.length-1; wSecPanel(); wRender(); });
+  var pl = el("button",null,"+"); pl.addEventListener("click", function(){
+    if(S.w.secs.length>=4){ toast("Больше четырёх секций — это витраж, смотрите экран фасада"); return; }
+    S.w.secs.push("deaf"); S.w.sel = S.w.secs.length-1; wSecPanel(); wRender(); });
+  bar.appendChild(mi); bar.appendChild(pl);
   var sel = $("#wSecType"); sel.innerHTML = "";
-  WSEC_ORDER.forEach(function(k){ var o = el("option", null, WSEC[k].n); o.value = k; sel.appendChild(o); });
+  WSEC_ORDER.forEach(function(k){ var o = el("option",null,WSEC[k].n); o.value = k; sel.appendChild(o); });
   sel.value = S.w.secs[S.w.sel];
 }
-fill($("#wSys"), WSYS); fill($("#wFill"), WFILL); fill($("#wFin"), FIN);
-fill($("#fSys"), FSYS); fill($("#fGlass"), FGLASS); fill($("#fFin"), FIN);
-fill($("#fJoint"), JOINT); fill($("#fWind"), WIND); fill($("#fLvl"), LVL);
-fill($("#fCellType"), Object.keys(FCELL).map(function(k){ return {id:k, n:FCELL[k].n}; }));
-
-$$("#tabs button").forEach(function(b){
-  b.addEventListener("click", function(){
-    S.tab = b.getAttribute("data-t");
-    $$("#tabs button").forEach(function(x){ x.setAttribute("aria-selected", x === b ? "true" : "false"); });
-    $("#win").hidden = S.tab !== "win";
-    $("#fac").hidden = S.tab !== "fac";
-    window.scrollTo(0,0);
-    if(S.tab === "win") wRender(); else fRender();
+function kitTable(r, tblId, hintId){
+  var rows = r.rows.filter(function(x){ return x.g === "Комплектующие" || x.g === "Узлы" || x.g === "Заполнение"; });
+  $(hintId).textContent = rows.length + " позиций";
+  var h = '<thead><tr><th>Позиция</th><th class="r">Кол-во</th><th class="r">Срок</th><th class="r">Сумма</th></tr></thead><tbody>';
+  var lg = null, tot = 0;
+  rows.forEach(function(x){
+    if(x.g!==lg){ h += '<tr class="grp"><td colspan="4">'+x.g+'</td></tr>'; lg = x.g; }
+    tot += x.sum;
+    h += '<tr><td style="white-space:normal">'+esc(x.n)+(x.note?' <span style="color:var(--ink-3)">· '+esc(x.note)+'</span>':'')+
+      '</td><td class="r num">'+fmt(x.q,2)+' '+x.u+'</td><td class="r num" style="color:var(--ink-3)">'+(x.lead||0)+' дн</td>'+
+      '<td class="r num">'+money(x.sum)+'</td></tr>';
   });
-});
-$$("#wType button").forEach(function(b){
-  b.addEventListener("click", function(){
-    S.w.type = b.getAttribute("data-v");
-    $$("#wType button").forEach(function(x){ x.setAttribute("aria-pressed", x === b ? "true" : "false"); });
-    if(S.w.type === "door" && S.w.H < 1900){ S.w.H = 2100; $("#wH").value = 2100; }
-    wRender();
-  });
-});
-["wW","wH"].forEach(function(id){
-  $("#"+id).addEventListener("input", function(e){ S.w[id === "wW" ? "W" : "H"] = +e.target.value || 400; wRender(); });
-});
-["wSys","wFill","wFin"].forEach(function(id){
-  $("#"+id).addEventListener("change", function(e){
-    S.w[{wSys:"sys", wFill:"fill", wFin:"fin"}[id]] = e.target.value; wRender();
-  });
-});
-$("#wSecType").addEventListener("change", function(e){ S.w.secs[S.w.sel] = e.target.value; wSecPanel(); wRender(); });
-
-function bindF(numId, rngId, key, min, max){
-  function set(v){
-    v = Math.max(min, Math.min(max, +v || min));
-    S.f[key] = v; $(numId).value = v; if(rngId) $(rngId).value = v; S.f.cells = null; fRender();
-  }
-  $(numId).addEventListener("input", function(e){ set(e.target.value); });
-  if(rngId) $(rngId).addEventListener("input", function(e){ set(e.target.value); });
+  h += '<tr class="sum"><td colspan="3">Итого</td><td class="r num">'+money(tot)+'</td></tr></tbody>';
+  $(tblId).innerHTML = h;
 }
-bindF("#fW", "#fWr", "W", 1000, 24000);
-bindF("#fH", "#fHr", "H", 2000, 30000);
-bindF("#fCols", null, "cols", 1, 12);
-bindF("#fRows", null, "rows", 1, 12);
-["fSys","fJoint","fWind","fLvl","fGlass","fFin"].forEach(function(id){
-  $("#"+id).addEventListener("change", function(e){
-    S.f[{fSys:"sys", fJoint:"joint", fWind:"wind", fLvl:"lvl", fGlass:"glass", fFin:"fin"}[id]] = e.target.value;
-    fRender();
+function wRender(){
+  var c = S.w, r = bom(c), b = r.b, sy = b.sy;
+  wDraw();
+  $("#wChip").textContent = c.W+"×"+c.H+" · "+sy.n.split(" —")[0]+" · "+b.n+" секц.";
+  $("#wFacts").innerHTML =
+    fact("Балок", b.parts.length+" шт · "+fmt(b.barM,2)+" м") +
+    fact("Соединителей", b.corners+" шт") +
+    fact("Армирование", "не нужно", "ok") +
+    fact("Площадь", fmt(b.area,2)+" м²") +
+    fact("Трудоёмкость", fmt(r.laborMin,1)+" мин") +
+    fact("Uf системы", sy.uf+" Вт/(м²·К)");
+  var rl = rules(c), warn = "";
+  rl.forEach(function(x){ warn += '<div class="note '+(x.l==="crit"?"crit":"warn")+'">'+esc(x.t)+'</div>'; });
+  $("#wWarn").innerHTML = warn || '<div class="note ok">Проверки пройдены: заполнение входит в фальц, створки в габаритах, вес в пределе.</div>';
+  kitTable(r, "#wKit", "#wKitHint");
+  $("#wSum").innerHTML =
+    fact("Профиль", money(r.byG["Профиль"]||0)) +
+    fact("Заполнение", money(r.byG["Заполнение"]||0)) +
+    fact("Комплектующие", money(r.byG["Комплектующие"]||0)) +
+    fact("Себестоимость", money(r.cost), "money") +
+    fact("Цена за шт", money(r.unit), "ok");
+}
+function fRender(){
+  var c = S.f, r = bom(c), b = r.b, sy = b.sy, pp = postPick(c);
+  fCellsOf(c); fDraw();
+  $("#fChip").textContent = c.W+"×"+c.H+" · "+fmt(b.area,1)+" м² · "+c.cols+"×"+c.rows+" ячеек";
+  $("#fFacts").innerHTML =
+    fact("Стоек", b.postsN+" шт · "+fmt(b.postM,1)+" м") +
+    fact("Ригелей", b.railsN+" шт по "+Math.round(b.railL)+" мм") +
+    fact("Узлов", b.nodes/2+" шт") +
+    fact("Кронштейнов", b.anchors+" шт") +
+    fact("Прижим и крышка", fmt(b.clampM*2,1)+" м") +
+    fact("Трудоёмкость", fmt(r.laborMin,0)+" мин");
+  var need = pp.need, post = pp.post;
+  $("#fPost").innerHTML =
+    fact("Нагрузка", fmt(need.q,2)+" кПа") +
+    fact("Грузовая ширина", Math.round(need.b)+" мм") +
+    fact("Пролёт", Math.round(need.L)+" мм") +
+    fact("Требуется", fmt(need.I,1)+" см⁴") +
+    fact("Подобрана", post ? post.d+" мм · "+post.I+" см⁴" : "отказ", post?"ok":"crit");
+  $("#fPostNote").innerHTML = post
+    ? '<div class="note info">Линейка стоек идёт с шагом глубины 10 мм; выбрана первая, чей момент инерции покрывает требуемый — запас '+fmt(100*(post.I/need.I-1),0)+' %. Прогиб принят L/200, модуль упругости алюминия '+E_ALU+' Н/мм².</div>'
+    : '<div class="note crit"><b>Стойку подобрать нельзя.</b> Ближайшая не подставляется: уменьшите шаг стоек, добавьте ряд ригелей или возьмите систему с более глубокой стойкой.</div>';
+  var rl = rules(c), warn = "";
+  rl.forEach(function(x){ warn += '<div class="note '+(x.l==="crit"?"crit":"warn")+'">'+esc(x.t)+'</div>'; });
+  $("#fWarn").innerHTML = warn || '<div class="note ok">Проверки пройдены: стойка подобрана, вес ячейки и толщина заполнения в пределах системы.</div>';
+  $("#fCellHint").textContent = "ячейка "+(c.sel+1)+" из "+b.cells.length+" · "+Math.round(b.cellW)+"×"+Math.round(b.cellH)+" мм";
+  $("#fCellType").value = b.cells[c.sel];
+  $("#fSum").innerHTML =
+    fact("Каркас", money(r.byG["Каркас"]||0)) +
+    fact("Заполнение", money(r.byG["Заполнение"]||0)) +
+    fact("Узлы", money(r.byG["Узлы"]||0)) +
+    fact("Себестоимость", money(r.cost), "money") +
+    fact("Цена за м²", money(r.unit/b.area), "ok");
+}
+function renderOrders(){
+  var tot=0, minTot=0, cnt=0;
+  S.orders.forEach(function(o){ tot += orderSum(o);
+    o.pos.forEach(function(p){ cnt += (p.cfg.qty||1); minTot += bom(p.cfg).laborMin*(p.cfg.qty||1); }); });
+  $("#ordFacts").innerHTML = fact("Заказов", S.orders.length+"") + fact("Позиций", cnt+"") +
+    fact("Трудоёмкость", fmt(minTot/60,1)+" ч") + fact("Сумма", money(tot), "money");
+  var L = $("#ordList"); L.innerHTML = "";
+  S.orders.forEach(function(o){
+    var b = el("button","oitem"), d = orderDue(o);
+    b.innerHTML = '<span class="no">'+o.no+'</span><span class="mid"><span class="nm">'+esc(o.client)+'</span>'+
+      '<span class="meta"><span class="pill st">'+o.state+'</span><span class="pill et">'+o.stage+'</span>'+
+      '<span>'+o.pos.length+' поз. · срок '+d.date+'</span></span></span>'+
+      '<span class="amt">'+money(orderSum(o))+'</span>';
+    if(o.id===S.cur) b.style.borderColor = "var(--accent)";
+    b.addEventListener("click", function(){ S.cur = o.id; save(); renderOrders(); renderSpec(); });
+    L.appendChild(b);
   });
-});
-$("#fCellType").addEventListener("change", function(e){ fCells()[S.f.sel] = e.target.value; fRender(); });
-$("#botBtn").addEventListener("click", function(){
-  var t = S.tab === "win" ? $("#wBom") : $("#fBom");
-  t.scrollIntoView({behavior:"smooth", block:"center"});
-});
+  var o = curOrder();
+  $("#curTitle").textContent = o ? o.no+" · позиции" : "Заказ";
+  $("#oClient").value = o ? o.client : "";
+  var d2 = o ? orderDue(o) : null;
+  $("#oDue").value = d2 ? d2.date+"  ("+d2.days+" раб. дн.)" : "";
+  $("#dueNote").textContent = d2
+    ? "Срок "+d2.days+" рабочих дней: узкое место по мощности участков и самая долгая поставка покупных — "+d2.lead+" дн."
+    : "Срок считается из загрузки участков и сроков поставки.";
+  var T = $("#posTbl");
+  if(!o || !o.pos.length){
+    T.innerHTML = '<tbody><tr><td style="color:var(--ink-3);white-space:normal">Позиций нет. Соберите изделие или фасад и добавьте в заказ.</td></tr></tbody>';
+    return;
+  }
+  var h = '<thead><tr><th>Позиция</th><th>Система</th><th class="r">Кол-во</th><th class="r">Цена</th><th class="r">Сумма</th><th></th></tr></thead><tbody>';
+  o.pos.forEach(function(p,i){
+    var r = bom(p.cfg), sysN = (p.cfg.kind==="fac" ? pick(FSYS,p.cfg.sys) : pick(WSYS,p.cfg.sys)).n.split(" —")[0];
+    h += '<tr><td style="white-space:normal"><span class="pill kd">'+(p.cfg.kind==="fac"?"фасад":"изделие")+'</span> '+esc(p.name)+'</td>'+
+      '<td>'+sysN+' · '+pick(FIN,p.cfg.fin).n+'</td><td class="r num">'+(p.cfg.qty||1)+'</td>'+
+      '<td class="r num">'+money(r.unit)+'</td><td class="r num">'+money(r.pos)+'</td>'+
+      '<td class="r" style="white-space:nowrap"><button class="btn ghost mini" data-edit="'+i+'">Править</button> '+
+      '<button class="btn ghost mini" data-del="'+i+'">Убрать</button></td></tr>';
+  });
+  var s2 = orderSum(o);
+  h += '<tr class="sum"><td colspan="4">Итого</td><td class="r num">'+money(s2)+'</td><td></td></tr>';
+  h += '<tr><td colspan="4" style="color:var(--ink-3)">НДС '+VAT+'%</td><td class="r num">'+money(s2*VAT/100)+'</td><td></td></tr>';
+  h += '<tr class="sum"><td colspan="4">К оплате</td><td class="r num">'+money(s2*(1+VAT/100))+'</td><td></td></tr></tbody>';
+  T.innerHTML = h;
+  $$("[data-del]",T).forEach(function(b){ b.addEventListener("click", function(){
+    o.pos.splice(+b.getAttribute("data-del"),1); save(); renderAll(); toast("Позиция убрана"); }); });
+  $$("[data-edit]",T).forEach(function(b){ b.addEventListener("click", function(){
+    var p = o.pos[+b.getAttribute("data-edit")];
+    if(p.cfg.kind === "fac"){ S.f = clone(p.cfg); go("p3"); syncF(); fRender(); }
+    else { S.w = clone(p.cfg); go("p2"); syncW(); wSecPanel(); wRender(); }
+    toast("Позиция открыта"); }); });
+}
+function renderSpec(){
+  var o = curOrder();
+  var cfg = (o && o.pos.length) ? o.pos[o.pos.length-1].cfg : S.w;
+  var r = bom(cfg);
+  $("#specFor").textContent = (cfg.kind==="fac" ? "Фасад " : "Изделие ") + cfg.W+"×"+cfg.H+" · "+(cfg.qty||1)+" шт";
+  $("#specFacts").innerHTML =
+    fact("Материалы", money(r.mat)) + fact("Работа", fmt(r.laborMin,1)+" мин") +
+    fact("Себестоимость", money(r.cost)) + fact("Цена за шт", money(r.unit), "money") +
+    fact("Сумма позиции", money(r.pos), "ok");
+  var h = '<thead><tr><th>Наименование</th><th class="r">Кол-во</th><th class="r">Цена</th><th class="r">Сумма</th></tr></thead><tbody>';
+  var lg = null;
+  r.rows.forEach(function(x){
+    if(x.g!==lg){ h += '<tr class="grp"><td colspan="3">'+x.g+'</td><td class="r">'+money(r.byG[x.g])+'</td></tr>'; lg = x.g; }
+    h += '<tr><td style="white-space:normal">'+esc(x.n)+(x.note?' <span style="color:var(--ink-3)">· '+esc(x.note)+'</span>':'')+
+      '</td><td class="r num">'+fmt(x.q,3)+' '+x.u+'</td><td class="r num">'+fmt(x.p)+'</td><td class="r num">'+money(x.sum)+'</td></tr>';
+  });
+  h += '<tr class="sum"><td colspan="3">Материалы и покупные</td><td class="r num">'+money(r.mat)+'</td></tr></tbody>';
+  $("#bomTbl").innerHTML = h;
+  var lh = '<thead><tr><th>Участок</th><th class="r">Норматив</th><th class="r">Стоимость</th></tr></thead><tbody>';
+  r.labor.forEach(function(l){
+    lh += '<tr><td>'+l.n+'</td><td class="r num">'+(l.min>0?fmt(l.min,1)+" мин":"—")+'</td><td class="r num">'+(l.min>0?money(l.sum):"—")+'</td></tr>';
+  });
+  lh += '<tr class="sum"><td>Итого</td><td class="r num">'+fmt(r.laborMin,1)+' мин</td><td class="r num">'+money(r.laborSum)+'</td></tr></tbody>';
+  $("#laborTbl").innerHTML = lh;
+  var ph = '<thead><tr><th>Уровень</th><th>Шаг</th><th class="r">Сумма</th></tr></thead><tbody>';
+  Object.keys(r.byG).forEach(function(g){ ph += '<tr><td>элемент</td><td>'+g+'</td><td class="r num">'+money(r.byG[g])+'</td></tr>'; });
+  ph += '<tr><td>элемент</td><td>Работа '+fmt(r.laborMin,1)+' мин × '+RATE+' ₸</td><td class="r num">'+money(r.laborSum)+'</td></tr>';
+  ph += '<tr class="sum"><td>элемент</td><td>Себестоимость</td><td class="r num">'+money(r.cost)+'</td></tr>';
+  ph += '<tr><td>позиция</td><td>Наценка '+MARGIN+'%</td><td class="r num">'+money(r.cost*MARGIN/100)+'</td></tr>';
+  ph += '<tr class="sum"><td>позиция</td><td>Цена за штуку</td><td class="r num">'+money(r.unit)+'</td></tr>';
+  if(o){ var s3 = orderSum(o);
+    ph += '<tr><td>заказ</td><td>Сумма по позициям</td><td class="r num">'+money(s3)+'</td></tr>';
+    ph += '<tr class="sum"><td>заказ</td><td>К оплате с НДС</td><td class="r num">'+money(s3*(1+VAT/100))+'</td></tr>'; }
+  ph += '</tbody>';
+  $("#priceTbl").innerHTML = ph;
+}
+function cutPlan(){
+  var groups = {}, splices = 0;
+  allPos().forEach(function(p){
+    var c = p.cfg, r = bom(c), b = r.b;
+    var fin = pick(FIN,c.fin), sys = c.kind==="fac" ? pick(FSYS,c.sys) : pick(WSYS,c.sys);
+    b.parts.forEach(function(part){
+      var key = sys.id+"|"+part.r+"|"+fin.id;
+      if(!groups[key]) groups[key] = {sys:sys, role:part.r, fin:fin, items:[]};
+      for(var q=0;q<(c.qty||1);q++){
+        var L = part.L;
+        /* Балка длиннее хлыста делится на части — каждый стык компенсационный. */
+        if(L > S.cutBar - CUTTER.headBar - CUTTER.clamp){
+          var pieces = Math.ceil(L/(S.cutBar - CUTTER.headBar - CUTTER.clamp));
+          splices += pieces - 1;
+          for(var i=0;i<pieces;i++) groups[key].items.push(Math.round(L/pieces));
+        } else groups[key].items.push(Math.round(L));
+      }
+    });
+  });
+  var bar = S.cutBar, out = [], tot = {used:0,need:0,scrap:0,rest:0,bars:0};
+  Object.keys(groups).forEach(function(key){
+    var G = groups[key], usable = bar - CUTTER.headBar - CUTTER.clamp;
+    var items = G.items.slice().sort(function(a,b2){ return b2-a; }), bars = [];
+    items.forEach(function(L){
+      var need = L + CUTTER.kerf, placed = false;
+      for(var i=0;i<bars.length;i++) if(bars[i].free >= need){ bars[i].cuts.push(L); bars[i].free -= need; placed = true; break; }
+      if(!placed) bars.push({cuts:[L], free:usable-need});
+    });
+    var gRest=0, gScrap=0, gNeed=0;
+    bars.forEach(function(bb){
+      bb.cuts.forEach(function(x){ gNeed += x; });
+      var keep = 0;
+      if(S.cutGoal === "waste"){ var sv = bb.free - GRADE.trimRest; if(sv >= GRADE.minRest) keep = sv; }
+      bb.rest = keep; bb.scrap = bb.free - keep; gRest += keep; gScrap += bb.scrap;
+    });
+    tot.bars += bars.length; tot.used += bars.length*bar; tot.need += gNeed;
+    tot.scrap += gScrap + bars.length*(CUTTER.headBar+CUTTER.clamp); tot.rest += gRest;
+    out.push({g:G, bars:bars});
+  });
+  return {groups:out, tot:tot, bar:bar, splices:splices};
+}
+function renderCut(){
+  $("#cutParams").innerHTML = fact("Пропил", CUTTER.kerf+" мм") + fact("Торцовка", CUTTER.headBar+" мм") +
+    fact("Зона зажима", CUTTER.clamp+" мм") + fact("Порог остатка", GRADE.minRest+" мм") +
+    fact("Торцовка остатка", GRADE.trimRest+" мм");
+  $("#cutNote").textContent = S.cutGoal === "waste"
+    ? "Пропил, торцовка и зажим — свойства пилы; порог делового остатка — политика предприятия. Сохраняемая длина считается после торцовки."
+    : "В режиме «минимум хлыстов» пороги отхода и делового остатка не применяются — параметр принадлежит режиму.";
+  var plan = cutPlan(), out = $("#cutOut");
+  if(!plan.groups.length){ out.innerHTML = '<div class="note info">Позиций нет — резать нечего.</div>'; $("#cutFacts").innerHTML = ""; return; }
+  var t = plan.tot;
+  $("#cutFacts").innerHTML = fact("Хлыстов", t.bars+" шт") + fact("В деталях", fmt(t.need/1000,1)+" м") +
+    fact("Деловой остаток", fmt(t.rest/1000,1)+" м", "ok") +
+    fact("Отход", fmt(100*t.scrap/t.used,1)+" %", t.scrap/t.used>0.12?"money":"ok") +
+    fact("Стыков стоек", plan.splices+" шт", plan.splices?"money":"ok");
+  var RN = {frame:"рама", sash:"створка", mull:"импост", post:"стойка", rail:"ригель"}, h = "";
+  plan.groups.forEach(function(G){
+    h += '<div class="card"><header><h3>'+G.g.sys.n.split(" —")[0]+" · "+RN[G.g.role]+" · "+G.g.fin.n+
+      '</h3><span class="hint">'+G.bars.length+' хлыстов по '+plan.bar+' мм</span></header><div class="body">';
+    G.bars.slice(0,10).forEach(function(bb,i){
+      h += '<div class="cutmap"><div class="cuthead"><span>Хлыст '+(i+1)+' · '+bb.cuts.length+' дет.</span><span>'+
+        (bb.rest>0 ? 'остаток '+Math.round(bb.rest)+' мм в реестр' : 'отход '+Math.round(bb.scrap)+' мм')+'</span></div><div class="cutbar">';
+      bb.cuts.forEach(function(x){ h += '<div style="flex:0 0 '+(100*(x+CUTTER.kerf)/plan.bar).toFixed(2)+'%">'+x+'</div>'; });
+      if(bb.rest>0) h += '<div class="rest" style="flex:0 0 '+(100*bb.rest/plan.bar).toFixed(2)+'%">'+Math.round(bb.rest)+'</div>';
+      if(bb.scrap>0) h += '<div class="scrap" style="flex:1 1 auto">'+Math.round(bb.scrap)+'</div>';
+      h += '</div></div>';
+    });
+    if(G.bars.length > 10) h += '<div class="note info">Показаны первые 10 хлыстов из '+G.bars.length+'.</div>';
+    h += '</div></div>';
+  });
+  out.innerHTML = h;
+}
+function renderShift(){
+  var load = {}; AREAS.forEach(function(a){ load[a.id] = 0; });
+  allPos().forEach(function(p){ var r = bom(p.cfg);
+    r.labor.forEach(function(l){ load[l.id] += l.min*(p.cfg.qty||1); }); });
+  var L = "";
+  AREAS.forEach(function(a){
+    var m = load[a.id], cap = CAP[a.id], pct = 100*m/cap;
+    L += '<div style="margin-bottom:12px"><div style="display:flex;justify-content:space-between;font-size:13px">'+
+      '<span>'+a.n+'</span><span class="num" style="color:var(--ink-3)">'+fmt(m,0)+' / '+cap+' мин</span></div>'+
+      '<div class="bar"><i class="'+(pct>100?"over":"")+'" style="width:'+Math.min(100,pct).toFixed(1)+'%"></i></div></div>';
+  });
+  var over = AREAS.filter(function(a){ return load[a.id] > CAP[a.id]; });
+  L += over.length
+    ? '<div class="note warn">Дневная мощность превышена: '+over.map(function(a){return a.n;}).join(", ")+'. Срок заказа считается по этому участку.</div>'
+    : '<div class="note info">В алюминиевом контуре нет сварки и зачистки — вместо них фрезеровка узлов и сборка на соединителях, и узкое место обычно там.</div>';
+  $("#loadOut").innerHTML = L;
+  var need = {};
+  allPos().forEach(function(p){ bom(p.cfg).rows.forEach(function(r){
+    if(r.g === "Профиль" || r.g === "Каркас") return;
+    if(!need[r.n]) need[r.n] = {n:r.n, q:0, u:r.u, p:r.p, lead:r.lead||7, g:r.g};
+    need[r.n].q += r.q*(p.cfg.qty||1); }); });
+  var list = Object.keys(need).map(function(k){ return need[k]; });
+  list.sort(function(a,b){ return (b.lead-a.lead) || (b.q*b.p - a.q*a.p); });
+  if(!list.length){ $("#needTbl").innerHTML = '<tbody><tr><td style="color:var(--ink-3)">Потребности нет</td></tr></tbody>'; return; }
+  var nh = '<thead><tr><th>Позиция</th><th>Группа</th><th class="r">Потребность</th><th class="r">Поставка</th><th class="r">Заказать до</th><th class="r">Сумма</th></tr></thead><tbody>';
+  var tot = 0;
+  list.forEach(function(x){
+    tot += x.q*x.p;
+    var dt = new Date(2026,8,7); dt.setDate(dt.getDate() + 30 - x.lead);
+    nh += '<tr><td style="white-space:normal">'+esc(x.n)+'</td><td style="color:var(--ink-3)">'+x.g+'</td>'+
+      '<td class="r num">'+fmt(x.q,2)+' '+x.u+'</td><td class="r num">'+x.lead+' дн</td>'+
+      '<td class="r num" style="color:var(--money)">'+dt.toLocaleDateString("ru-RU")+'</td>'+
+      '<td class="r num">'+money(x.q*x.p)+'</td></tr>';
+  });
+  nh += '<tr class="sum"><td colspan="5">Итого покупных</td><td class="r num">'+money(tot)+'</td></tr></tbody>';
+  $("#needTbl").innerHTML = nh;
+}
+
+/* =====================================================================
+   КАТАЛОГ
+   ===================================================================== */
+var LSKEY = "winhub.alm.v1";
+function uid(p){ return p + Math.random().toString(36).slice(2,7); }
+function usedBy(pred){ var n=0; S.orders.forEach(function(o){ o.pos.forEach(function(p){ if(pred(p.cfg)) n++; }); }); return n; }
+var CAT = [
+  {id:"wsys", n:"Оконно-дверные системы", arr:function(){ return WSYS; },
+   cols:[{k:"n",l:"Название",w:1},{k:"warm",l:"Тёплая 1/0",t:"n"},{k:"frame",l:"Рама, мм",t:"n"},
+     {k:"sash",l:"Створка, мм",t:"n"},{k:"ovl",l:"Нахлёст",t:"n"},{k:"gin",l:"Заход стекла",t:"n"},
+     {k:"pM",l:"Профиль, ₸/м",t:"n"},{k:"corner",l:"Соединитель, ₸",t:"n"},{k:"uf",l:"Uf",t:"n"},
+     {k:"maxSashW",l:"Макс. створка Ш",t:"n"},{k:"fillMax",l:"Макс. заполнение",t:"n"},{k:"lead",l:"Поставка, дн",t:"n"}],
+   mk:function(){ return {id:uid("w"), n:"Новая система", warm:1, frame:60, sash:68, mull:60, ovl:10, gin:14,
+     pM:5000, beadM:600, sealM:200, corner:1700, uf:2.2, maxSashW:1000, maxSashH:2200, maxKg:90, fillMax:36, lead:28}; },
+   use:function(r){ return usedBy(function(c){ return c.kind!=="fac" && c.sys===r.id; }); }},
+  {id:"fsys", n:"Фасадные системы", arr:function(){ return FSYS; },
+   cols:[{k:"n",l:"Название",w:1},{k:"face",l:"Видимая ширина",t:"n"},{k:"fillMin",l:"Заполнение от",t:"n"},
+     {k:"fillMax",l:"до",t:"n"},{k:"postM",l:"Стойка, ₸/м",t:"n"},{k:"railM",l:"Ригель, ₸/м",t:"n"},
+     {k:"clampM",l:"Прижим, ₸/м",t:"n"},{k:"capM",l:"Крышка, ₸/м",t:"n"},{k:"maxKg",l:"Макс. вес ячейки",t:"n"},
+     {k:"Imax",l:"Макс. момент, см⁴",t:"n"},{k:"lead",l:"Поставка, дн",t:"n"}],
+   mk:function(){ return {id:uid("f"), n:"Новая фасадная", face:50, fillMin:4, fillMax:40, postM:10000,
+     railM:9000, clampM:2200, capM:2000, sealM:270, uf:1.5, maxKg:260, Imax:400, lead:35}; },
+   use:function(r){ return usedBy(function(c){ return c.kind==="fac" && c.sys===r.id; }); },
+   note:"Максимальный момент инерции ограничивает подбор стойки: если требуется больше, система откажет."},
+  {id:"posts", n:"Линейка стоек", arr:function(){ return POSTS; },
+   cols:[{k:"n",l:"Название",w:1},{k:"d",l:"Глубина, мм",t:"n"},{k:"I",l:"Момент инерции, см⁴",t:"n"}],
+   mk:function(){ var last = POSTS[POSTS.length-1]; return {id:uid("p"), n:"Стойка "+(last.d+10)+" мм", d:last.d+10,
+     I:Math.round(1.4933e-4*Math.pow(last.d+10,3)*100)/100}; },
+   use:function(){ return 0; },
+   note:"Шаг глубины 10 мм — так устроены реальные линейки: глубина растёт, видимая ширина остаётся 50 мм."},
+  {id:"fill", n:"Заполнения", arr:function(){ return FILLS; },
+   cols:[{k:"n",l:"Название",w:1},{k:"t",l:"Толщина, мм",t:"n"},{k:"kg",l:"Вес, кг/м²",t:"n"},
+     {k:"m2",l:"Цена, ₸/м²",t:"n"},{k:"warm",l:"Энергосб. 1/0",t:"n"},{k:"lead",l:"Поставка, дн",t:"n"}],
+   mk:function(){ return {id:uid("g"), n:"Новое заполнение", t:32, kg:30, m2:14000, warm:1, lead:14}; },
+   use:function(r){ return usedBy(function(c){ return c.fill===r.id; }); }},
+  {id:"fin", n:"Отделка", arr:function(){ return FIN; },
+   cols:[{k:"n",l:"Название",w:1},{k:"k",l:"Коэффициент",t:"n"},{k:"lead",l:"Плюс к сроку, дн",t:"n"}],
+   mk:function(){ return {id:uid("fn"), n:"Новая отделка", k:1.2, lead:14}; },
+   use:function(r){ return usedBy(function(c){ return c.fin===r.id; }); }},
+  {id:"joint", n:"Соединения стойки и ригеля", arr:function(){ return JOINT; },
+   cols:[{k:"n",l:"Название",w:1},{k:"lap",l:"Нахлёст, мм",t:"n"},{k:"mill",l:"Фрезеровка 1/0",t:"n"},{k:"note",l:"Пояснение",w:1}],
+   mk:function(){ return {id:uid("j"), n:"Новое соединение", lap:0, mill:0, note:""}; },
+   use:function(r){ return usedBy(function(c){ return c.kind==="fac" && c.joint===r.id; }); },
+   note:"Нахлёст входит в длину ригеля, фрезеровка добавляет операцию на участок «Фрезеровка узлов»."},
+  {id:"wind", n:"Ветровые районы", arr:function(){ return WIND; },
+   cols:[{k:"n",l:"Название",w:1},{k:"q",l:"Давление, кПа",t:"n"}],
+   mk:function(){ return {id:uid("wd"), n:"Новый район", q:0.3}; },
+   use:function(r){ return usedBy(function(c){ return c.kind==="fac" && c.wind===r.id; }); }}
+];
+function gp(o,p){ var v=o; p.split(".").forEach(function(k){ v=v[k]; }); return v; }
+function renderCat(){
+  var out = "";
+  CAT.forEach(function(C){
+    var arr = C.arr();
+    out += '<div class="card cat"><header><h2>'+C.n+'</h2><span class="hint">'+arr.length+' зап.</span></header><div class="body">';
+    out += '<div class="tablewrap"><table><thead><tr>';
+    C.cols.forEach(function(c){ out += '<th>'+c.l+'</th>'; });
+    out += '<th></th></tr></thead><tbody>';
+    arr.forEach(function(r,i){
+      out += '<tr>';
+      C.cols.forEach(function(c){
+        var v = gp(r,c.k);
+        out += '<td><input class="'+(c.w?"w":"")+'" '+(c.t==="n"?'type="number" step="any"':'type="text"')+
+          ' value="'+esc(v==null?"":v)+'" data-cat="'+C.id+'" data-i="'+i+'" data-k="'+c.k+'"></td>';
+      });
+      out += '<td><button class="del" data-dc="'+C.id+'" data-di="'+i+'" title="Удалить">&#10005;</button></td></tr>';
+    });
+    out += '</tbody></table></div><div class="btnrow"><button class="btn ghost mini" data-add="'+C.id+'">+ добавить запись</button></div>';
+    if(C.note) out += '<div class="note info">'+C.note+'</div>';
+    out += '</div></div>';
+  });
+  $("#catOut").innerHTML = out;
+  $$("#catOut input[data-cat]").forEach(function(inp){
+    inp.addEventListener("change", function(){
+      var C = pick(CAT, inp.getAttribute("data-cat")), r = C.arr()[+inp.getAttribute("data-i")];
+      r[inp.getAttribute("data-k")] = inp.type==="number" ? (+inp.value||0) : inp.value;
+      save(); refill(); renderAll();
+    });
+  });
+  $$("#catOut [data-add]").forEach(function(b){ b.addEventListener("click", function(){
+    var C = pick(CAT, b.getAttribute("data-add")); C.arr().push(C.mk());
+    save(); refill(); renderAll(); toast("Запись добавлена"); }); });
+  $$("#catOut [data-dc]").forEach(function(b){ b.addEventListener("click", function(){
+    var C = pick(CAT, b.getAttribute("data-dc")), arr = C.arr(), i = +b.getAttribute("data-di");
+    if(arr.length<=1){ toast("Последнюю запись удалить нельзя"); return; }
+    var n = C.use(arr[i]);
+    if(n){ toast("Запись занята в "+n+" позиц. заказов"); return; }
+    arr.splice(i,1); save(); refill(); renderAll(); toast("Запись удалена"); }); });
+}
+function refill(){
+  fillSel($("#wSys"),WSYS,"w","sys"); fillSel($("#wFill"),FILLS,"w","fill"); fillSel($("#wFin"),FIN,"w","fin");
+  fillSel($("#fSys"),FSYS,"f","sys"); fillSel($("#fGlass"),FILLS,"f","fill"); fillSel($("#fFin"),FIN,"f","fin");
+  fillSel($("#fJoint"),JOINT,"f","joint"); fillSel($("#fWind"),WIND,"f","wind"); fillSel($("#fLvl"),LVL,"f","lvl");
+}
+function fillSel(sel, arr, st, key){
+  sel.innerHTML = "";
+  arr.forEach(function(x){ var o = el("option",null,x.n); o.value = x.id; sel.appendChild(o); });
+  var has = false; arr.forEach(function(x){ if(x.id === S[st][key]) has = true; });
+  if(!has) S[st][key] = arr[0].id;
+  sel.value = S[st][key];
+}
+function save(){
+  try{ localStorage.setItem(LSKEY, JSON.stringify({WSYS:WSYS,FSYS:FSYS,POSTS:POSTS,FILLS:FILLS,FIN:FIN,
+    JOINT:JOINT,WIND:WIND, orders:S.orders, cur:S.cur, w:S.w, f:S.f, seq:S.seq})); }catch(e){}
+}
+function load(){
+  var raw = null; try{ raw = localStorage.getItem(LSKEY); }catch(e){ return false; }
+  if(!raw) return false;
+  try{
+    var d = JSON.parse(raw); if(!d || !d.WSYS || !d.WSYS.length) return false;
+    function rp(t,s){ if(!s) return; t.length = 0; s.forEach(function(x){ t.push(x); }); }
+    rp(WSYS,d.WSYS); rp(FSYS,d.FSYS); rp(POSTS,d.POSTS); rp(FILLS,d.FILLS); rp(FIN,d.FIN);
+    rp(JOINT,d.JOINT); rp(WIND,d.WIND);
+    if(d.orders) S.orders = d.orders;
+    S.cur = d.cur; if(d.w) S.w = d.w; if(d.f) S.f = d.f; S.seq = d.seq||1;
+    return true;
+  }catch(e){ return false; }
+}
+function wipe(){ try{ localStorage.removeItem(LSKEY); }catch(e){} }
+
+/* =====================================================================
+   Навигация
+   ===================================================================== */
+var TITLES = {
+  p1:["Заказы","Окна, двери и фасады"],
+  p2:["Изделие","Алюминиевое окно, дверь, витрина"],
+  p3:["Фасад","Стоечно-ригельная сетка"],
+  p4:["Состав","Спецификация, трудоёмкость, цена"],
+  p5:["Раскрой","1D по хлыстам, стыки стоек"],
+  p6:["Смена","Загрузка и закупка"],
+  p7:["Каталог","Справочники алюминиевого контура"]
+};
+function renderAll(){ wRender(); fRender(); renderOrders(); renderSpec(); renderCut(); renderShift(); renderCat(); }
+function go(id){
+  S.page = id;
+  $$("section[id^=p]").forEach(function(s){ s.hidden = (s.id !== id); });
+  $$("[data-go]").forEach(function(b){ b.setAttribute("aria-current", b.getAttribute("data-go")===id?"true":"false"); });
+  $("#ttl").textContent = TITLES[id][0]; $("#sub").textContent = TITLES[id][1];
+  window.scrollTo(0,0); renderAll();
+}
+$$("[data-go]").forEach(function(b){ b.addEventListener("click", function(){ go(b.getAttribute("data-go")); }); });
 $("#theme").addEventListener("click", function(){
   var cur = document.documentElement.getAttribute("data-theme");
   var dark = cur ? cur === "dark" : window.matchMedia("(prefers-color-scheme: dark)").matches;
   document.documentElement.setAttribute("data-theme", dark ? "light" : "dark");
-  if(S.tab === "win") wDraw(); else fDraw();
+  wDraw(); fDraw();
 });
 
-/* стартовые значения */
-$("#wW").value = S.w.W; $("#wH").value = S.w.H;
-$("#wSys").value = S.w.sys; $("#wFill").value = S.w.fill; $("#wFin").value = S.w.fin;
-$("#fW").value = S.f.W; $("#fWr").value = S.f.W; $("#fH").value = S.f.H; $("#fHr").value = S.f.H;
-$("#fCols").value = S.f.cols; $("#fRows").value = S.f.rows;
-$("#fSys").value = S.f.sys; $("#fJoint").value = S.f.joint;
-$("#fWind").value = S.f.wind; $("#fLvl").value = S.f.lvl;
-$("#fGlass").value = S.f.glass; $("#fFin").value = S.f.fin;
-wSecPanel(); wRender(); fCells(); fRender();
-$("#fac").hidden = true;
+function syncW(){ $("#wW").value = S.w.W; $("#wH").value = S.w.H; $("#wQty").value = S.w.qty || 1;
+  $$("#wType button").forEach(function(b){ b.setAttribute("aria-pressed", b.getAttribute("data-v")===S.w.type?"true":"false"); });
+  refill(); }
+function syncF(){ $("#fW").value = S.f.W; $("#fWr").value = S.f.W; $("#fH").value = S.f.H; $("#fHr").value = S.f.H;
+  $("#fCols").value = S.f.cols; $("#fRows").value = S.f.rows; refill(); }
+
+$$("#wType button").forEach(function(b){ b.addEventListener("click", function(){
+  S.w.type = b.getAttribute("data-v");
+  $$("#wType button").forEach(function(x){ x.setAttribute("aria-pressed", x===b?"true":"false"); });
+  if(S.w.type==="door" && S.w.H<1900){ S.w.H = 2100; $("#wH").value = 2100; }
+  if(S.w.type==="shop" && S.w.W<2000){ S.w.W = 2400; $("#wW").value = 2400; }
+  save(); wRender(); }); });
+["wW","wH","wQty"].forEach(function(id){ $("#"+id).addEventListener("input", function(e){
+  S.w[{wW:"W",wH:"H",wQty:"qty"}[id]] = +e.target.value||1; save(); wRender(); }); });
+["wSys","wFill","wFin"].forEach(function(id){ $("#"+id).addEventListener("change", function(e){
+  S.w[{wSys:"sys",wFill:"fill",wFin:"fin"}[id]] = e.target.value; save(); wRender(); }); });
+$("#wSecType").addEventListener("change", function(e){ S.w.secs[S.w.sel] = e.target.value; save(); wSecPanel(); wRender(); });
+$("#wAdd").addEventListener("click", function(){
+  if(rules(S.w).filter(function(x){ return x.l==="crit"; }).length){ toast("Правило технолога не пройдено"); return; }
+  var o = curOrder() || newOrder();
+  var TN = {win:"Окно", door:"Дверь", shop:"Витрина"};
+  o.pos.push({name:TN[S.w.type]+" "+S.w.W+"×"+S.w.H, cfg:clone(S.w)});
+  save(); toast("Добавлено в "+o.no); go("p1"); });
+
+function bindF(numId,rngId,key,min,max){
+  function set(v){ v = Math.max(min, Math.min(max, +v||min));
+    S.f[key] = v; $(numId).value = v; if(rngId) $(rngId).value = v; S.f.cells = null; save(); fRender(); }
+  $(numId).addEventListener("input", function(e){ set(e.target.value); });
+  if(rngId) $(rngId).addEventListener("input", function(e){ set(e.target.value); });
+}
+bindF("#fW","#fWr","W",1000,24000); bindF("#fH","#fHr","H",2000,30000);
+bindF("#fCols",null,"cols",1,12); bindF("#fRows",null,"rows",1,12);
+["fSys","fJoint","fWind","fLvl","fGlass","fFin"].forEach(function(id){
+  $("#"+id).addEventListener("change", function(e){
+    S.f[{fSys:"sys",fJoint:"joint",fWind:"wind",fLvl:"lvl",fGlass:"fill",fFin:"fin"}[id]] = e.target.value;
+    save(); fRender(); }); });
+$("#fCellType").addEventListener("change", function(e){ fCellsOf(S.f)[S.f.sel] = e.target.value; save(); fRender(); });
+$("#fAdd").addEventListener("click", function(){
+  if(rules(S.f).filter(function(x){ return x.l==="crit"; }).length){ toast("Правило технолога не пройдено"); return; }
+  var o = curOrder() || newOrder();
+  o.pos.push({name:"Фасад "+S.f.W+"×"+S.f.H, cfg:clone(S.f)});
+  save(); toast("Добавлено в "+o.no); go("p1"); });
+
+$("#newOrder").addEventListener("click", function(){ newOrder(); save(); renderAll(); toast("Заказ создан"); });
+$("#oClient").addEventListener("input", function(e){ var o = curOrder(); if(o){ o.client = e.target.value; save(); renderOrders(); } });
+$("#cutBar").addEventListener("change", function(e){ S.cutBar = +e.target.value; save(); renderCut(); renderAll(); });
+$("#cutGoal").addEventListener("change", function(e){ S.cutGoal = e.target.value; save(); renderCut(); });
+$("#catReset").addEventListener("click", function(){ wipe(); location.reload(); });
+
+/* демо-данные */
+function seed(){
+  var a = newOrder("ТОО «Астана Гласс»");
+  a.state = "В производстве"; a.stage = "Сборка каркаса";
+  var f1 = defF(); f1.qty = 1;
+  a.pos.push({name:"Фасад 7200×9000", cfg:f1});
+  var w1 = defW(); w1.qty = 8;
+  a.pos.push({name:"Окно 1400×1500", cfg:w1});
+  var b = newOrder("ИП Досжан");
+  b.state = "Согласование"; b.stage = "Замер";
+  var d1 = defW(); d1.type = "door"; d1.W = 900; d1.H = 2100; d1.sys = "c48"; d1.fill = "g24";
+  d1.secs = ["turnR"]; d1.qty = 4; d1.fin = "anod";
+  b.pos.push({name:"Дверь 900×2100", cfg:d1});
+  S.cur = a.id;
+}
+$("#fCellType").innerHTML = "";
+Object.keys(FCELL).forEach(function(k){ var o = el("option",null,FCELL[k].n); o.value = k; $("#fCellType").appendChild(o); });
+if(!load()) seed();
+refill(); syncW(); syncF(); wSecPanel();
+$("#cutBar").value = S.cutBar; $("#cutGoal").value = S.cutGoal;
+go("p1");
 </script>
 </body>
 </html>
