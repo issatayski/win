@@ -1,0 +1,985 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#00696B">
+<title>WinHub — размер заполнения, алюминий</title>
+<style>*{margin:0;padding:0;box-sizing:border-box}</style>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Golos+Text:wght@400;500;600;700;800&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<style>
+:root{
+  --ground:#EEF3F4; --surface:#FFFFFF; --surface-2:#F6FAFA;
+  --ink:#0D1418; --ink-2:#42555C; --ink-3:#7B8F96;
+  --line:#D5DFE1; --line-2:#E7EEEF;
+  --accent:#00696B; --accent-soft:#DBEEED; --accent-ink:#004C4E;
+  --money:#9A5B0C; --money-soft:#FBEEDC; --crit:#B4372C; --crit-soft:#FBE7E4;
+  --ok:#2A7A52; --ok-soft:#DDF0E5;
+  --alu:#C3CCCF; --alu-2:#94A3A8; --glass:#BFDDE0; --seal:#5E6E74; --bead:#8FA6AC;
+  --dim:#3E6F9E;
+  --on-accent:#FFFFFF;
+  --shadow:0 1px 2px rgba(13,20,24,.06), 0 10px 26px -14px rgba(13,20,24,.22);
+  --navshadow:0 -1px 0 var(--line), 0 -8px 24px -16px rgba(13,20,24,.4);
+  --r:12px;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --ground:#0A1114; --surface:#131E22; --surface-2:#18262B;
+    --ink:#E8EFF0; --ink-2:#A6BABF; --ink-3:#71888E;
+    --line:#25373D; --line-2:#1E2E33;
+    --accent:#4FBCB8; --accent-soft:#123230; --accent-ink:#8FDCD7;
+    --money:#D79B4C; --money-soft:#2E2415; --crit:#E0736A; --crit-soft:#2E1A18;
+    --ok:#63BE8C; --ok-soft:#12291D;
+    --alu:#4C5C63; --alu-2:#71838A; --glass:#3E6870; --seal:#9FB2B8; --bead:#5D737A;
+    --dim:#7FA9D4;
+    --on-accent:#062120;
+    --shadow:0 1px 2px rgba(0,0,0,.4), 0 10px 26px -14px rgba(0,0,0,.7);
+    --navshadow:0 -1px 0 var(--line), 0 -8px 24px -16px rgba(0,0,0,.8);
+  }
+}
+:root[data-theme="dark"]{
+  --ground:#0A1114; --surface:#131E22; --surface-2:#18262B;
+  --ink:#E8EFF0; --ink-2:#A6BABF; --ink-3:#71888E;
+  --line:#25373D; --line-2:#1E2E33;
+  --accent:#4FBCB8; --accent-soft:#123230; --accent-ink:#8FDCD7;
+  --money:#D79B4C; --money-soft:#2E2415; --crit:#E0736A; --crit-soft:#2E1A18;
+  --ok:#63BE8C; --ok-soft:#12291D;
+  --alu:#4C5C63; --alu-2:#71838A; --glass:#3E6870; --seal:#9FB2B8; --bead:#5D737A;
+  --dim:#7FA9D4;
+  --on-accent:#062120;
+  --shadow:0 1px 2px rgba(0,0,0,.4), 0 10px 26px -14px rgba(0,0,0,.7);
+  --navshadow:0 -1px 0 var(--line), 0 -8px 24px -16px rgba(0,0,0,.8);
+}
+html{-webkit-text-size-adjust:100%}
+body{background:var(--ground); color:var(--ink);
+  font:400 15px/1.5 "Golos Text",system-ui,-apple-system,"Segoe UI",Roboto,sans-serif}
+h1,h2,h3{line-height:1.25; letter-spacing:-.01em}
+
+.shell{display:flex; min-height:100vh}
+.rail{display:none; width:236px; flex:0 0 236px; position:sticky; top:0; height:100vh;
+  border-right:1px solid var(--line); background:var(--surface); padding:20px 14px; flex-direction:column; gap:3px}
+.brand{display:flex; align-items:baseline; gap:7px; padding:0 10px 16px}
+.brand b{font-size:18px; font-weight:800; letter-spacing:-.02em}
+.brand span{font-size:10px; color:var(--ink-3); font-weight:700; text-transform:uppercase; letter-spacing:.09em}
+.rail button{display:flex; align-items:center; gap:9px; width:100%; text-align:left; background:none;
+  border:0; cursor:pointer; color:var(--ink-2); font:600 14px/1 "Golos Text",sans-serif; padding:10px; border-radius:9px}
+.rail button:hover{background:var(--surface-2); color:var(--ink)}
+.rail button[aria-current="true"]{background:var(--accent-soft); color:var(--accent-ink)}
+.rail svg,.tabbar svg{width:19px;height:19px;stroke:currentColor;fill:none;stroke-width:1.7;stroke-linecap:round;stroke-linejoin:round;flex:0 0 auto}
+.rail .foot{margin-top:auto; padding-top:12px; border-top:1px solid var(--line-2); color:var(--ink-3); font-size:11px; padding-left:10px}
+.main{flex:1 1 auto; min-width:0; padding-bottom:calc(96px + env(safe-area-inset-bottom))}
+.wrap{max-width:1020px; margin:0 auto; padding:0 14px}
+
+.top{position:sticky; top:0; z-index:20; background:var(--ground); border-bottom:1px solid var(--line);
+  padding:13px 0 11px; margin-bottom:16px}
+.top .wrap{display:flex; align-items:center; justify-content:space-between; gap:10px}
+.top h1{font-size:17px; font-weight:800}
+.top .sub{font-size:12px; color:var(--ink-3); font-weight:600}
+.theme{background:var(--surface); border:1px solid var(--line); color:var(--ink-2); border-radius:99px;
+  padding:7px 12px; font:600 12px "Golos Text",sans-serif; cursor:pointer}
+
+section[hidden]{display:none}
+.eyebrow{font:700 11px/1 "Golos Text",sans-serif; letter-spacing:.1em; text-transform:uppercase;
+  color:var(--ink-3); margin:22px 0 10px}
+.card{background:var(--surface); border:1px solid var(--line); border-radius:var(--r);
+  box-shadow:var(--shadow); margin-bottom:12px; overflow:hidden}
+.card>header{display:flex; align-items:baseline; justify-content:space-between; gap:10px; padding:14px 15px 0}
+.card>header h2,.card>header h3{font-size:15px; font-weight:700}
+.card .hint{font-size:11.5px; color:var(--ink-3); font-weight:600}
+.card .body{padding:13px 15px 15px}
+.grid{display:grid; gap:12px}
+.grid>*{min-width:0}
+@media(min-width:880px){ .grid.g32{grid-template-columns:1.1fr 1fr; align-items:start} }
+
+label{display:block; font:600 11px/1 "Golos Text",sans-serif; letter-spacing:.05em;
+  text-transform:uppercase; color:var(--ink-3); margin-bottom:6px}
+input[type=number],input[type=text],select{width:100%; background:var(--surface-2); color:var(--ink);
+  border:1px solid var(--line); border-radius:9px; padding:10px 11px;
+  font:500 15px "Golos Text",sans-serif; -webkit-appearance:none; appearance:none}
+select{background-image:linear-gradient(45deg,transparent 50%,var(--ink-3) 50%),linear-gradient(135deg,var(--ink-3) 50%,transparent 50%);
+  background-position:calc(100% - 16px) 19px, calc(100% - 11px) 19px; background-size:5px 5px,5px 5px;
+  background-repeat:no-repeat; padding-right:32px}
+input:focus,select:focus{outline:2px solid var(--accent); outline-offset:1px}
+.field{margin-bottom:11px}
+.row{display:flex; gap:10px}
+.row>*{flex:1 1 0; min-width:0}
+
+.seg{display:flex; gap:6px; flex-wrap:wrap; margin-bottom:9px}
+.seg button{background:var(--surface-2); border:1px solid var(--line); color:var(--ink-2);
+  border-radius:8px; padding:8px 11px; font:600 12.5px "Golos Text",sans-serif; cursor:pointer}
+.seg button[aria-pressed="true"]{background:var(--accent); border-color:var(--accent); color:var(--on-accent)}
+
+.btn{background:var(--accent); border:1px solid var(--accent); color:var(--on-accent); border-radius:10px;
+  padding:12px 16px; font:700 14px "Golos Text",sans-serif; cursor:pointer; width:100%}
+.btn.ghost{background:var(--surface); border-color:var(--line); color:var(--ink-2)}
+.btn.mini{width:auto; padding:8px 12px; font-size:13px}
+.btnrow{display:flex; gap:9px; margin-top:4px; flex-wrap:wrap}
+
+.facts{display:grid; grid-template-columns:repeat(auto-fit,minmax(140px,1fr)); gap:8px}
+.fact{background:var(--surface-2); border:1px solid var(--line-2); border-radius:10px; padding:10px 11px}
+.fact .k{font-size:11px; color:var(--ink-3); font-weight:600}
+.fact .v{font:700 17px/1.2 "Golos Text",sans-serif; margin-top:3px; letter-spacing:-.01em; overflow-wrap:anywhere}
+.fact .v.ok{color:var(--ok)}
+.fact .v.crit{color:var(--crit)}
+
+svg.draw{display:block; width:100%; height:auto; background:var(--surface-2);
+  border:1px solid var(--line-2); border-radius:10px}
+svg.draw .hit{cursor:pointer}
+.legend{display:flex; gap:12px; flex-wrap:wrap; margin-top:9px; font-size:12px; color:var(--ink-3)}
+.legend span{display:flex; align-items:center; gap:5px}
+.legend i{width:10px; height:10px; border-radius:2px; display:inline-block}
+
+.tablewrap{overflow-x:auto; max-width:100%}
+table{width:100%; border-collapse:collapse; font-size:13.5px}
+th,td{text-align:left; padding:9px 11px; border-bottom:1px solid var(--line-2); vertical-align:top; white-space:nowrap}
+th{font:700 10.5px/1 "Golos Text",sans-serif; text-transform:uppercase; letter-spacing:.07em; color:var(--ink-3)}
+td.r,th.r{text-align:right}
+td.num{font-family:"IBM Plex Mono",monospace; font-size:12.5px}
+tbody tr:last-child td{border-bottom:0}
+tr.sel td{background:var(--accent-soft)}
+tr.grp td{background:var(--surface-2); font:700 11px/1 "Golos Text",sans-serif; text-transform:uppercase;
+  letter-spacing:.07em; color:var(--ink-3); padding:8px 11px}
+
+.pill{display:inline-block; border-radius:99px; padding:3px 9px; font:600 11px "Golos Text",sans-serif; white-space:nowrap}
+.pill.st{background:var(--accent-soft); color:var(--accent-ink)}
+.pill.stub{background:var(--money-soft); color:var(--money)}
+.pill.kd{background:var(--surface-2); color:var(--ink-3); border:1px solid var(--line-2)}
+
+.note{border-radius:10px; padding:11px 13px; font-size:13.5px; margin-top:10px; border:1px solid}
+.note.info{background:var(--surface-2); border-color:var(--line); color:var(--ink-2)}
+.note.ok{background:var(--ok-soft); border-color:var(--ok); color:var(--ok)}
+.note.warn{background:var(--money-soft); border-color:var(--money); color:var(--money)}
+.note.crit{background:var(--crit-soft); border-color:var(--crit); color:var(--crit)}
+
+/* вывод расчёта — моноширинный, чтобы читался как выкладка, а не как результат */
+.derive{font:500 12.5px/1.75 "IBM Plex Mono",monospace; background:var(--surface-2);
+  border:1px solid var(--line-2); border-radius:10px; padding:12px 13px; overflow-x:auto; white-space:pre}
+.derive b{color:var(--accent-ink); font-weight:600}
+.derive .bad{color:var(--crit)}
+.derive .good{color:var(--ok)}
+
+/* выноски паспорта: номер на чертеже равен номеру у поля ввода */
+.badge{display:inline-flex; align-items:center; justify-content:center; width:19px; height:19px;
+  border-radius:99px; background:var(--accent); color:var(--on-accent);
+  font:700 11px/1 "IBM Plex Mono",monospace; flex:0 0 auto}
+.calls{display:grid; grid-template-columns:repeat(auto-fit,minmax(190px,1fr)); gap:10px; margin-top:12px}
+.call{display:flex; gap:9px; align-items:flex-start; background:var(--surface-2);
+  border:1px solid var(--line-2); border-radius:10px; padding:9px 10px}
+.call .mid{flex:1 1 auto; min-width:0}
+.call .nm{font:600 12px "Golos Text",sans-serif; color:var(--ink-2)}
+.call .ds{font-size:11px; color:var(--ink-3); margin-top:1px}
+.call input{margin-top:6px; padding:7px 9px; font-size:14px}
+.call.lit{border-color:var(--accent); box-shadow:0 0 0 2px var(--accent-soft)}
+svg .cal{opacity:.35; transition:opacity .15s}
+svg .cal.lit{opacity:1}
+
+.cat table{min-width:520px}
+.cat td{padding:6px 8px}
+.cat input{padding:6px 8px; font-size:13px; border-radius:7px; min-width:72px; max-width:190px}
+.cat .del{background:none; border:0; color:var(--crit); cursor:pointer; font:700 15px/1 "Golos Text",sans-serif; padding:6px 9px; border-radius:7px}
+.cat .del:hover{background:var(--crit-soft)}
+
+.tabbar{position:fixed; left:0; right:0; bottom:0; z-index:30; display:flex; background:var(--surface);
+  border-top:1px solid var(--line); box-shadow:var(--navshadow); padding-bottom:env(safe-area-inset-bottom)}
+.tabbar button{flex:1 1 0; min-width:0; background:none; border:0; cursor:pointer; color:var(--ink-3);
+  display:flex; flex-direction:column; align-items:center; gap:3px; padding:8px 2px 7px; font:600 9.5px/1 "Golos Text",sans-serif}
+.tabbar button[aria-current="true"]{color:var(--accent)}
+.tabbar span{max-width:100%; overflow:hidden; text-overflow:ellipsis; white-space:nowrap}
+.toast{position:fixed; left:50%; transform:translateX(-50%); bottom:78px; z-index:60; background:var(--ink);
+  color:var(--ground); padding:11px 16px; border-radius:99px; font:600 13px "Golos Text",sans-serif;
+  opacity:0; pointer-events:none; transition:opacity .18s; max-width:90vw; text-align:center}
+.toast.on{opacity:1}
+@media(min-width:900px){
+  .rail{display:flex}
+  .tabbar{display:none}
+  .main{padding-bottom:36px}
+  .toast{bottom:26px}
+}
+</style>
+</head>
+<body>
+
+<div class="shell">
+<nav class="rail" aria-label="Разделы">
+  <div class="brand"><b>WinHub</b><span>заполнение</span></div>
+  <button data-go="p1" aria-current="true"><svg viewBox="0 0 24 24"><rect x="3.5" y="3.5" width="17" height="17" rx="1.5"/><path d="M12 3.5v17"/></svg>Конструкция</button>
+  <button data-go="p2"><svg viewBox="0 0 24 24"><rect x="4" y="4" width="16" height="16" rx="1.5"/><path d="M4 9h16M9 4v16"/></svg>Кромки поля</button>
+  <button data-go="p3"><svg viewBox="0 0 24 24"><path d="M4 7h16M4 12h16M4 17h9"/><circle cx="18" cy="17" r="2"/></svg>Паспорт системы</button>
+  <button data-go="p4"><svg viewBox="0 0 24 24"><rect x="3.5" y="5" width="17" height="14" rx="1.5"/><path d="M8 5v14"/></svg>Артикулы</button>
+  <div class="foot">Тёплый алюминий.<br>Числа — заглушки до каталога.<br>Данные в браузере.</div>
+</nav>
+
+<main class="main">
+  <div class="top"><div class="wrap">
+    <div><h1 id="ttl">Конструкция</h1><div class="sub" id="sub">Размер заполнения по кромкам</div></div>
+    <button class="theme" id="theme" type="button">Тема</button>
+  </div></div>
+
+  <!-- ===================== 1. КОНСТРУКЦИЯ ===================== -->
+  <section id="p1" class="wrap">
+    <div class="grid g32">
+      <div>
+        <div class="card">
+          <header><h2>Изделие</h2><span class="hint" id="c1chip">—</span></header>
+          <div class="body">
+            <svg class="draw" id="draw" viewBox="0 0 460 380" role="img" aria-label="Схема изделия"></svg>
+            <div class="legend">
+              <span><i style="background:var(--alu)"></i>рама и импост</span>
+              <span><i style="background:var(--alu-2)"></i>створка</span>
+              <span><i style="background:var(--glass)"></i>заполнение</span>
+              <span>клик по полю — выбрать</span>
+            </div>
+            <div class="facts" id="facts" style="margin-top:11px"></div>
+            <div id="warn"></div>
+          </div>
+        </div>
+        <div class="card">
+          <header><h3>Поля и заполнение</h3><span class="hint">клик по строке — кромки поля</span></header>
+          <div class="body"><div class="tablewrap"><table id="cellTbl"></table></div></div>
+        </div>
+      </div>
+
+      <div>
+        <div class="card">
+          <header><h2>Ввод</h2><span class="hint">расчёт живой</span></header>
+          <div class="body">
+            <div class="row">
+              <div class="field"><label>Ширина, мм</label><input type="number" id="iW" step="10"></div>
+              <div class="field"><label>Высота, мм</label><input type="number" id="iH" step="10"></div>
+            </div>
+            <div class="field"><label>Полей по ширине</label>
+              <div class="seg" id="iCols">
+                <button data-v="1">1</button><button data-v="2">2</button>
+                <button data-v="3">3</button><button data-v="4">4</button>
+              </div>
+            </div>
+            <div class="field" id="colWidths"></div>
+            <div class="field"><label>Горизонтальный импост</label>
+              <div class="seg" id="iTr">
+                <button data-v="0">Нет</button><button data-v="1">Есть</button>
+              </div>
+            </div>
+            <div class="field" id="trRow" hidden><label>Высота нижнего ряда, мм — от низа до оси импоста</label>
+              <input type="number" id="iTrH" step="10"></div>
+            <div class="field"><label>Заполнение</label><select id="iFill"></select></div>
+            <hr style="border:0;border-top:1px solid var(--line-2);margin:14px 0">
+            <div class="field"><label>Выбранное поле</label>
+              <div class="seg" id="iCellType">
+                <button data-v="fix">Глухое</button>
+                <button data-v="turn">Поворотная</button>
+                <button data-v="tilt">Поворотно-откидная</button>
+              </div>
+              <div class="hint" id="selHint">—</div>
+            </div>
+            <div class="btnrow">
+              <button class="btn ghost mini" id="goEdges">Показать кромки поля</button>
+              <button class="btn ghost mini" id="reset">Сбросить всё</button>
+            </div>
+          </div>
+        </div>
+        <div class="card">
+          <header><h3>Проверки</h3><span class="hint" id="chkChip">—</span></header>
+          <div class="body" id="checks"></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===================== 2. КРОМКИ ПОЛЯ ===================== -->
+  <section id="p2" class="wrap" hidden>
+    <div class="card">
+      <header><h2 id="edgeTitle">Поле</h2><span class="hint">вывод результата, а не результат</span></header>
+      <div class="body">
+        <div class="derive" id="edgeDerive"></div>
+        <div class="facts" id="edgeFacts" style="margin-top:12px"></div>
+        <div id="edgeWarn"></div>
+      </div>
+    </div>
+    <div class="card">
+      <header><h3>Координаты кромок по сечению</h3><span class="hint">геометрический контроль</span></header>
+      <div class="body">
+        <div class="tablewrap"><table id="coordTbl"></table></div>
+        <div class="note info" style="margin-top:11px">Сумма полей и вычетов сходится с габаритом всегда — она следует из способа расчёта и потому ничего не проверяет. Смысл имеет геометрия: каждая кромка заполнения обязана лежать внутри своего фальца, а профили не должны накладываться. Это и проверяется здесь.</div>
+      </div>
+    </div>
+    <div class="card">
+      <header><h3>Комплектующие поля</h3><span class="hint">от периметра и числа узлов</span></header>
+      <div class="body"><div class="tablewrap"><table id="kitTbl"></table></div></div>
+    </div>
+  </section>
+
+  <!-- ===================== 3. ПАСПОРТ СИСТЕМЫ ===================== -->
+  <section id="p3" class="wrap" hidden>
+    <div class="note warn" style="margin:0 0 12px">Все числа этого паспорта — <b>заглушки</b> правдоподобного порядка. Их место — каталожный лист системы. Расчёт от подстановки настоящих значений не меняется.</div>
+
+    <div class="card">
+      <header><h2>Вид на фасад — откуда берётся размер</h2><span class="pill stub">заглушка</span></header>
+      <div class="body">
+        <svg class="draw" id="planCut" viewBox="0 0 640 250" role="img" aria-label="Сечение в плане: рама, импост, створка"></svg>
+        <div class="calls" id="planCalls"></div>
+      </div>
+    </div>
+
+    <div class="card">
+      <header><h2>Разрез по глубине — что влезет и чем прижать</h2><span class="pill stub">заглушка</span></header>
+      <div class="body">
+        <svg class="draw" id="depthCut" viewBox="0 0 640 250" role="img" aria-label="Разрез по глубине паза"></svg>
+        <div class="calls" id="depthCalls"></div>
+      </div>
+    </div>
+
+    <div class="card cat">
+      <header><h3>Штапики рамы и импоста</h3><span class="hint">подбор по толщине заполнения</span></header>
+      <div class="body">
+        <div class="tablewrap"><table id="beadF"></table></div>
+        <div class="btnrow"><button class="btn ghost mini" data-addbead="F">Добавить строку</button></div>
+      </div>
+    </div>
+    <div class="card cat">
+      <header><h3>Штапики створки</h3><span class="hint">паз створки глубже — таблица своя</span></header>
+      <div class="body">
+        <div class="tablewrap"><table id="beadZ"></table></div>
+        <div class="btnrow"><button class="btn ghost mini" data-addbead="Z">Добавить строку</button></div>
+      </div>
+    </div>
+
+    <div class="card">
+      <header><h3>Пределы системы</h3><span class="hint">входы правил отказа</span></header>
+      <div class="body"><div class="calls" id="limCalls"></div></div>
+    </div>
+  </section>
+
+  <!-- ===================== 4. АРТИКУЛЫ ===================== -->
+  <section id="p4" class="wrap" hidden>
+    <div class="note info" style="margin:0 0 12px">L — рама, T — импост, Z — створка. Это <b>роли конструктива</b>, а не формы сечения, и от роли зависит состав карточки: у рамы есть наплав и одна сторона заполнения, у импоста две симметричные стороны и наплава нет, у створки есть и наплав, и своя полка.</div>
+    <div id="artCards"></div>
+  </section>
+</main>
+</div>
+
+<nav class="tabbar" aria-label="Разделы">
+  <button data-go="p1" aria-current="true"><svg viewBox="0 0 24 24"><rect x="3.5" y="3.5" width="17" height="17" rx="1.5"/><path d="M12 3.5v17"/></svg><span>Конструкция</span></button>
+  <button data-go="p2"><svg viewBox="0 0 24 24"><rect x="4" y="4" width="16" height="16" rx="1.5"/><path d="M4 9h16M9 4v16"/></svg><span>Кромки</span></button>
+  <button data-go="p3"><svg viewBox="0 0 24 24"><path d="M4 7h16M4 12h16M4 17h9"/><circle cx="18" cy="17" r="2"/></svg><span>Паспорт</span></button>
+  <button data-go="p4"><svg viewBox="0 0 24 24"><rect x="3.5" y="5" width="17" height="14" rx="1.5"/><path d="M8 5v14"/></svg><span>Артикулы</span></button>
+</nav>
+
+<div class="toast" id="toast"></div>
+
+<script>
+"use strict";
+var $ = function(s,r){ return (r||document).querySelector(s); };
+var $$ = function(s,r){ return Array.prototype.slice.call((r||document).querySelectorAll(s)); };
+var esc = function(s){ return String(s).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;"); };
+
+/* ============================================================
+   ПАСПОРТ СИСТЕМЫ
+   Все значения — заглушки. Единственный источник настоящих —
+   каталожный лист конкретной марки профиля.
+   ============================================================ */
+var SYS = {
+  n:"Тёплая 72 — заглушка", depth:72, delta:1,
+  L:{ f:34, r:20, ovl:10 },   /* рама: полка, фальц, наплав (посадка створки) */
+  T:{ F:72, r:20 },           /* импост: полка целиком, делится пополам */
+  Z:{ f:38, r:22 },           /* створка: полка, фальц */
+  seal:{ out:3, in:3 },       /* уплотнители в сжатом виде, по глубине */
+  lim:{ fillMin:24, fillMax:48, clampMin:14, gapMin:3,
+        maxKg:110, sashKg:100, sashW:1100, sashH:2400 },
+  beadF:[ {a:24,b:24,art:"ШТ-24-Р",g:15}, {a:32,b:32,art:"ШТ-32-Р",g:16},
+          {a:40,b:40,art:"ШТ-40-Р",g:16}, {a:44,b:48,art:"ШТ-48-Р",g:17} ],
+  beadZ:[ {a:24,b:24,art:"ШТ-24-С",g:16}, {a:32,b:32,art:"ШТ-32-С",g:16},
+          {a:40,b:40,art:"ШТ-40-С",g:17}, {a:44,b:48,art:"ШТ-48-С",g:18} ]
+};
+
+/* Заполнение: t — толщина пакета, gl — суммарная толщина стёкол (на вес) */
+var FILLS = [
+  {id:"f24a", n:"24 мм · 4-16-4",          t:24, gl:8},
+  {id:"f32a", n:"32 мм · 4-24-4",          t:32, gl:8},
+  {id:"f32b", n:"32 мм · 4-10-4-10-4",     t:32, gl:12},
+  {id:"f40a", n:"40 мм · 6-16-4-10-4",     t:40, gl:14},
+  {id:"f44a", n:"44 мм · 4-16-4-16-4",     t:44, gl:12},
+  {id:"f48a", n:"48 мм · 6-16-6-14-6",     t:48, gl:18}
+];
+
+var TYPES = { fix:{n:"Глухое"}, turn:{n:"Поворотная"}, tilt:{n:"Поворотно-откидная"} };
+
+var S = null;   /* состояние конструкции */
+
+function freshState(){
+  return { W:1500, H:1600, cols:2, colW:[750,750], tr:0, trH:700,
+           fill:"f32b", cells:{}, sel:"0-0" };
+}
+
+/* ---------- ключи и типы полей ---------- */
+function cellKey(c,r){ return c+"-"+r; }
+function cellType(c,r){ var v = S.cells[cellKey(c,r)]; return v || "fix"; }
+function setCellType(c,r,v){ S.cells[cellKey(c,r)] = v; }
+function rowsCount(){ return S.tr ? 2 : 1; }
+
+/* ---------- сетка: базовые линии ---------- */
+/* Вертикальные: 0, оси импостов, W. Горизонтальные: 0 (низ), ось импоста, H. */
+function xBase(){
+  var xs=[0], acc=0, i;
+  for(i=0;i<S.cols-1;i++){ acc += S.colW[i]; xs.push(acc); }
+  xs.push(S.W);
+  return xs;
+}
+function yBase(){ return S.tr ? [0, S.trH, S.H] : [0, S.H]; }
+
+/* ---------- подбор штапика ---------- */
+function pickBead(list, t){
+  for(var i=0;i<list.length;i++){ if(t >= list[i].a && t <= list[i].b) return list[i]; }
+  return null;
+}
+
+/* ---------- вычет одной кромки ----------
+   nb — сосед по этой кромке: "L" (рама) или "T" (импост)
+   kind — "fix" (заполнение прямо в соседа) или "sash" (через створку)
+   Возвращает и число, и его вывод, чтобы экран кромок ничего не пересчитывал. */
+function edgeDeduction(nb, kind, t){
+  var fnb = (nb === "T") ? SYS.T.F/2 : SYS.L.f;
+  var d = SYS.delta;
+  if(kind === "fix"){
+    var bf = pickBead(SYS.beadF, t);
+    if(!bf) return null;
+    return { d: fnb - bf.g + d, g: bf.g, bead: bf, r: (nb==="T"? SYS.T.r : SYS.L.r),
+             nb: nb, kind: kind,
+             expr: fnb + " − " + bf.g + " + " + d,
+             words: (nb==="T" ? "импост T" : "рама L") };
+  }
+  var bz = pickBead(SYS.beadZ, t);
+  if(!bz) return null;
+  return { d: (fnb - SYS.L.ovl) + SYS.Z.f - bz.g + d, g: bz.g, bead: bz, r: SYS.Z.r,
+           nb: nb, kind: kind,
+           expr: "(" + fnb + " − " + SYS.L.ovl + ") + " + SYS.Z.f + " − " + bz.g + " + " + d,
+           words: "створка Z у " + (nb==="T" ? "импоста T" : "рамы L") };
+}
+
+/* ---------- полный расчёт ---------- */
+function calc(){
+  var xs = xBase(), ys = yBase(), fill = FILLS.filter(function(f){return f.id===S.fill;})[0];
+  var t = fill.t, cells = [], c, r;
+  for(c=0;c<S.cols;c++){
+    for(r=0;r<rowsCount();r++){
+      var kindL = (c===0) ? "L" : "T";
+      var kindR = (c===S.cols-1) ? "L" : "T";
+      var kindB = (r===0) ? "L" : "T";
+      var kindT = (r===rowsCount()-1) ? "L" : "T";
+      var ty = cellType(c,r);
+      var k = (ty === "fix") ? "fix" : "sash";
+      var eL = edgeDeduction(kindL,k,t), eR = edgeDeduction(kindR,k,t),
+          eB = edgeDeduction(kindB,k,t), eT = edgeDeduction(kindT,k,t);
+      var spanW = xs[c+1]-xs[c], spanH = ys[r+1]-ys[r];
+      var ok = !!(eL&&eR&&eB&&eT);
+      var gw = ok ? spanW - eL.d - eR.d : 0;
+      var gh = ok ? spanH - eB.d - eT.d : 0;
+      var area = gw*gh/1e6;
+      cells.push({ c:c, r:r, key:cellKey(c,r), type:ty, ok:ok,
+        spanW:spanW, spanH:spanH, x0:xs[c], x1:xs[c+1], y0:ys[r], y1:ys[r+1],
+        eL:eL, eR:eR, eB:eB, eT:eT, gw:gw, gh:gh, area:area,
+        kg: area * fill.gl * 2.5, bead: ok ? eL.bead : null,
+        /* габарит створки: от посадки на соседа с каждой стороны */
+        sashW: (ok && k==="sash") ? spanW - (( (c===0?SYS.L.f:SYS.T.F/2) - SYS.L.ovl) + ((c===S.cols-1?SYS.L.f:SYS.T.F/2) - SYS.L.ovl)) : 0,
+        sashH: (ok && k==="sash") ? spanH - (( (r===0?SYS.L.f:SYS.T.F/2) - SYS.L.ovl) + ((r===rowsCount()-1?SYS.L.f:SYS.T.F/2) - SYS.L.ovl)) : 0
+      });
+    }
+  }
+  return { xs:xs, ys:ys, fill:fill, cells:cells };
+}
+
+/* ---------- проверки ---------- */
+function checksOf(R){
+  var out = [], L = SYS.lim, t = R.fill.t;
+  if(t < L.fillMin || t > L.fillMax)
+    out.push({l:"crit", t:"Заполнение "+t+" мм вне диапазона системы "+L.fillMin+"–"+L.fillMax+" мм. Это отказ, а не подстановка ближайшего."});
+  if(!pickBead(SYS.beadF,t)) out.push({l:"crit", t:"Под "+t+" мм нет штапика рамы в таблице системы."});
+
+  /* геометрия профилей — не зависит от размеров окна */
+  if(SYS.T.F/2 <= SYS.L.ovl)
+    out.push({l:"crit", t:"Полуполка импоста "+(SYS.T.F/2)+" мм не больше наплава "+SYS.L.ovl+" мм: две створки по бокам импоста наложатся друг на друга."});
+
+  R.cells.forEach(function(x){
+    var nm = "Поле "+(x.c+1)+(rowsCount()>1 ? (x.r===0?" низ":" верх") : "");
+    if(!x.ok){ out.push({l:"crit", t:nm+": штапик под "+t+" мм не найден."}); return; }
+    if(x.gw <= 0 || x.gh <= 0){ out.push({l:"crit", t:nm+": вычеты съели поле целиком ("+Math.round(x.gw)+"×"+Math.round(x.gh)+")."}); return; }
+    [["левая",x.eL],["правая",x.eR],["нижняя",x.eB],["верхняя",x.eT]].forEach(function(p){
+      var e = p[1], clamp = e.g - SYS.delta, gap = e.r - clamp;
+      if(clamp < L.clampMin)
+        out.push({l:"crit", t:nm+", "+p[0]+" кромка: защемление "+clamp+" мм меньше "+L.clampMin+" мм."});
+      if(gap < L.gapMin)
+        out.push({l:"crit", t:nm+", "+p[0]+" кромка: зазор до дна фальца "+gap+" мм меньше "+L.gapMin+" мм — заполнение упрётся."});
+    });
+    if(x.kg > L.maxKg)
+      out.push({l:"crit", t:nm+": вес "+x.kg.toFixed(0)+" кг выше предела системы "+L.maxKg+" кг."});
+    if(x.type !== "fix"){
+      if(x.kg > L.sashKg)
+        out.push({l:"warn", t:nm+": вес створки "+x.kg.toFixed(0)+" кг выше предела фурнитуры "+L.sashKg+" кг."});
+      if(x.sashW > L.sashW || x.sashH > L.sashH)
+        out.push({l:"warn", t:nm+": габарит створки "+Math.round(x.sashW)+"×"+Math.round(x.sashH)+" вне размерной группы "+L.sashW+"×"+L.sashH+"."});
+    }
+  });
+  return out;
+}
+
+/* ============================================================
+   ЭКРАН 1 — КОНСТРУКЦИЯ
+   ============================================================ */
+function drawWindow(R){
+  var VW=460, VH=380, pad=30;
+  var k = Math.min((VW-2*pad)/S.W, (VH-2*pad)/S.H);
+  var ox = (VW - S.W*k)/2, oy = (VH - S.H*k)/2;
+  /* Y экрана растёт вниз, отметки конструкции — от низа */
+  var X = function(v){ return ox + v*k; };
+  var Y = function(v){ return oy + (S.H - v)*k; };
+  var s = [];
+  s.push('<rect x="'+X(0)+'" y="'+Y(S.H)+'" width="'+(S.W*k)+'" height="'+(S.H*k)+'" fill="var(--alu)" stroke="var(--alu-2)"/>');
+
+  R.cells.forEach(function(x){
+    var lit = (x.key === S.sel);
+    /* световой проём поля — между гранями соседних профилей */
+    var fL=(x.c===0?SYS.L.f:SYS.T.F/2), fR=(x.c===S.cols-1?SYS.L.f:SYS.T.F/2);
+    var fB=(x.r===0?SYS.L.f:SYS.T.F/2), fT=(x.r===rowsCount()-1?SYS.L.f:SYS.T.F/2);
+    var ax=x.x0+fL, bx=x.x1-fR, ay=x.y0+fB, by=x.y1-fT;
+    if(x.type !== "fix"){
+      /* створка заходит на соседа наплавом */
+      var sx=ax-SYS.L.ovl, sX=bx+SYS.L.ovl, sy=ay-SYS.L.ovl, sY=by+SYS.L.ovl;
+      s.push('<rect x="'+X(sx)+'" y="'+Y(sY)+'" width="'+((sX-sx)*k)+'" height="'+((sY-sy)*k)+'" fill="var(--alu-2)" stroke="var(--alu-2)"/>');
+      ax=sx+SYS.Z.f; bx=sX-SYS.Z.f; ay=sy+SYS.Z.f; by=sY-SYS.Z.f;
+    }
+    s.push('<rect class="hit" data-cell="'+x.key+'" x="'+X(ax)+'" y="'+Y(by)+'" width="'+Math.max(0,(bx-ax)*k)+'" height="'+Math.max(0,(by-ay)*k)+'" fill="var(--glass)" stroke="'+(lit?"var(--accent)":"var(--alu-2)")+'" stroke-width="'+(lit?2.5:1)+'"/>');
+    var cx=(X(ax)+X(bx))/2, cy=(Y(ay)+Y(by))/2;
+    if((bx-ax)*k > 54 && (by-ay)*k > 30){
+      s.push('<text x="'+cx+'" y="'+(cy-2)+'" text-anchor="middle" font-family="IBM Plex Mono,monospace" font-size="10.5" fill="var(--ink)">'+Math.round(x.gw)+'×'+Math.round(x.gh)+'</text>');
+      s.push('<text x="'+cx+'" y="'+(cy+11)+'" text-anchor="middle" font-family="Golos Text,sans-serif" font-size="9" fill="var(--ink-3)">'+(x.type==="fix"?"глухое":"створка")+'</text>');
+    }
+    /* прозрачная накладка, чтобы клик ловился и по створке */
+    s.push('<rect class="hit" data-cell="'+x.key+'" x="'+X(x.x0)+'" y="'+Y(x.y1)+'" width="'+(x.spanW*k)+'" height="'+(x.spanH*k)+'" fill="transparent"/>');
+  });
+
+  s.push('<text x="'+(VW/2)+'" y="'+(Y(0)+18)+'" text-anchor="middle" font-family="IBM Plex Mono,monospace" font-size="10" fill="var(--ink-3)">'+S.W+'</text>');
+  s.push('<text x="'+(X(0)-9)+'" y="'+(VH/2)+'" text-anchor="middle" font-family="IBM Plex Mono,monospace" font-size="10" fill="var(--ink-3)" transform="rotate(-90 '+(X(0)-9)+' '+(VH/2)+')">'+S.H+'</text>');
+  $("#draw").innerHTML = s.join("");
+  $$("#draw .hit").forEach(function(el){
+    el.addEventListener("click", function(){ S.sel = el.getAttribute("data-cell"); save(); render(); });
+  });
+}
+
+function renderCells(R){
+  var h = '<thead><tr><th>Поле</th><th>Тип</th><th class="r">Заполнение</th><th class="r">Штапик</th><th class="r">Вес</th></tr></thead><tbody>';
+  R.cells.forEach(function(x){
+    var nm = "Поле "+(x.c+1)+(rowsCount()>1 ? (x.r===0?" · низ":" · верх") : "");
+    h += '<tr data-cell="'+x.key+'" class="'+(x.key===S.sel?"sel":"")+'" style="cursor:pointer">'+
+      '<td>'+nm+'</td><td>'+TYPES[x.type].n+'</td>'+
+      '<td class="r num">'+(x.ok?Math.round(x.gw)+'×'+Math.round(x.gh):'—')+'</td>'+
+      '<td class="r num">'+(x.bead?esc(x.bead.art):'нет')+'</td>'+
+      '<td class="r num">'+(x.ok?x.kg.toFixed(0)+' кг':'—')+'</td></tr>';
+  });
+  $("#cellTbl").innerHTML = h + '</tbody>';
+  $$("#cellTbl tr[data-cell]").forEach(function(tr){
+    tr.addEventListener("click", function(){ S.sel = tr.getAttribute("data-cell"); save(); render(); });
+  });
+}
+
+function renderColWidths(){
+  var h = '<label>Ширины полей между базовыми линиями, мм</label><div class="row">';
+  for(var i=0;i<S.cols;i++){
+    h += '<input type="number" step="10" data-cw="'+i+'" value="'+S.colW[i]+'"'+(i===S.cols-1?' readonly':'')+'>';
+  }
+  $("#colWidths").innerHTML = h + '</div>';
+  $$("#colWidths input[data-cw]").forEach(function(inp){
+    inp.addEventListener("input", function(){
+      var i = +inp.getAttribute("data-cw"), v = Math.max(50, +inp.value||0);
+      S.colW[i] = v; balanceCols(); save(); render();
+    });
+  });
+}
+function balanceCols(){
+  S.colW.length = S.cols;
+  var acc=0, i;
+  for(i=0;i<S.cols-1;i++){ S.colW[i] = S.colW[i] || Math.round(S.W/S.cols); acc += S.colW[i]; }
+  S.colW[S.cols-1] = S.W - acc;
+}
+
+function render(){
+  balanceCols();
+  var R = calc();
+  drawWindow(R); renderCells(R);
+
+  var sel = R.cells.filter(function(x){return x.key===S.sel;})[0] || R.cells[0];
+  S.sel = sel.key;
+
+  var totalKg = R.cells.reduce(function(a,x){return a+x.kg;},0);
+  var totalM2 = R.cells.reduce(function(a,x){return a+x.area;},0);
+  $("#facts").innerHTML =
+    fact("Полей", R.cells.length) +
+    fact("Стекла", totalM2.toFixed(2)+" м²") +
+    fact("Вес заполнения", totalKg.toFixed(0)+" кг") +
+    fact("Штапик", sel.bead ? sel.bead.art : "нет");
+  $("#c1chip").textContent = SYS.n + " · " + R.fill.n;
+
+  var ch = checksOf(R);
+  var crit = ch.filter(function(x){return x.l==="crit";}).length;
+  $("#chkChip").textContent = ch.length ? (crit? crit+" отказ": ch.length+" замечание") : "пройдены";
+  $("#checks").innerHTML = ch.length
+    ? ch.map(function(x){ return '<div class="note '+x.l+'" style="margin-top:8px">'+esc(x.t)+'</div>'; }).join("")
+    : '<div class="note ok" style="margin-top:0">Заполнение в диапазоне, защемление и зазор в норме, вес в пределе.</div>';
+  $("#warn").innerHTML = crit ? '<div class="note crit">Есть отказ — см. проверки.</div>' : '';
+
+  $("#selHint").textContent = "Поле "+(sel.c+1)+(rowsCount()>1?(sel.r===0?" · низ":" · верх"):"")+
+    " · "+(sel.ok? Math.round(sel.gw)+"×"+Math.round(sel.gh)+" мм" : "не считается");
+  $$("#iCellType button").forEach(function(b){ b.setAttribute("aria-pressed", String(b.dataset.v===sel.type)); });
+  $$("#iCols button").forEach(function(b){ b.setAttribute("aria-pressed", String(+b.dataset.v===S.cols)); });
+  $$("#iTr button").forEach(function(b){ b.setAttribute("aria-pressed", String(+b.dataset.v===S.tr)); });
+  $("#trRow").hidden = !S.tr;
+  renderEdges(R, sel);
+}
+function fact(k,v,cls){ return '<div class="fact"><div class="k">'+esc(k)+'</div><div class="v '+(cls||"")+'">'+esc(v)+'</div></div>'; }
+
+/* ============================================================
+   ЭКРАН 2 — КРОМКИ ПОЛЯ
+   Показывает не число, а его вывод: каждый вычет со своей формулой.
+   ============================================================ */
+function renderEdges(R, x){
+  var nm = "Поле "+(x.c+1)+(rowsCount()>1?(x.r===0?" · низ":" · верх"):"");
+  $("#edgeTitle").textContent = nm + " · " + TYPES[x.type].n;
+  if(!x.ok){
+    $("#edgeDerive").innerHTML = '<span class="bad">Штапик под '+R.fill.t+' мм не найден — расчёт кромок невозможен.</span>';
+    $("#edgeFacts").innerHTML = ""; $("#edgeWarn").innerHTML = ""; $("#coordTbl").innerHTML = ""; $("#kitTbl").innerHTML = "";
+    return;
+  }
+  var pad = function(s,n){ s=String(s); while(s.length<n) s+=" "; return s; };
+  var line = function(t,e){ return "  " + pad(t,9) + pad(e.words,22) + "вычет " + pad(e.d,4) + "(" + e.expr + ")"; };
+  var d = "";
+  d += "  " + nm + " · " + TYPES[x.type].n + " · " + R.fill.n + "\n\n";
+  d += line("слева",  x.eL) + "\n";
+  d += line("справа", x.eR) + "\n";
+  d += line("сверху", x.eT) + "\n";
+  d += line("снизу",  x.eB) + "\n\n";
+  d += "  <b>Ш = " + x.spanW + " − " + x.eL.d + " − " + x.eR.d + " = " + Math.round(x.gw) + "</b>\n";
+  d += "  <b>В = " + x.spanH + " − " + x.eB.d + " − " + x.eT.d + " = " + Math.round(x.gh) + "</b>\n\n";
+  var clamp = x.eL.g - SYS.delta, gap = x.eL.r - clamp;
+  var mk = function(ok){ return ok ? '<span class="good">✓</span>' : '<span class="bad">✗</span>'; };
+  d += "  штапик " + x.bead.art + " · защемление " + clamp + " мм " + mk(clamp>=SYS.lim.clampMin) +
+       " · зазор " + gap + " мм " + mk(gap>=SYS.lim.gapMin) +
+       " · вес " + x.kg.toFixed(0) + " кг " + mk(x.kg<=SYS.lim.maxKg);
+  $("#edgeDerive").innerHTML = d;
+
+  $("#edgeFacts").innerHTML =
+    fact("Заполнение", Math.round(x.gw)+" × "+Math.round(x.gh)) +
+    fact("Периметр", (2*(x.gw+x.gh)/1000).toFixed(2)+" м") +
+    fact("Площадь", x.area.toFixed(2)+" м²") +
+    (x.type!=="fix" ? fact("Габарит створки", Math.round(x.sashW)+" × "+Math.round(x.sashH)) : fact("Штапик", x.bead.art));
+
+  /* вычеты противоположных кромок различаются, если различаются соседи */
+  var asym = (x.eL.d !== x.eR.d) || (x.eB.d !== x.eT.d);
+  $("#edgeWarn").innerHTML = asym
+    ? '<div class="note info">Вычеты противоположных кромок здесь различаются — слева и справа разные соседи. Формула вида «минус два раза по столько-то» дала бы другой размер.</div>'
+    : '';
+
+  renderCoords(R, x);
+  renderKit(R, x);
+}
+
+/* Координаты кромок: геометрический контроль, а не сумма вычетов */
+function renderCoords(R, x){
+  var rows = [], L = SYS.lim;
+  var fL=(x.c===0?SYS.L.f:SYS.T.F/2), fR=(x.c===S.cols-1?SYS.L.f:SYS.T.F/2);
+  var faceL = x.x0 + fL, faceR = x.x1 - fR;
+  rows.push(["Базовая линия слева", x.x0, "—", (x.c===0?"наружная грань рамы":"ось импоста"), true]);
+  rows.push(["Грань соседа слева", x.x0, faceL, (x.c===0?"полка рамы "+fL:"полуполка импоста "+fL), true]);
+  var gl, gr;
+  if(x.type === "fix"){
+    gl = x.x0 + x.eL.d; gr = x.x1 - x.eR.d;
+  }else{
+    var sl = faceL - SYS.L.ovl, sr = faceR + SYS.L.ovl;
+    rows.push(["Створка", sl, sr, "наплав "+SYS.L.ovl+" мм на соседа с каждой стороны", sr>sl]);
+    gl = x.x0 + x.eL.d; gr = x.x1 - x.eR.d;
+  }
+  var clampL = x.eL.g - SYS.delta, gapL = x.eL.r - clampL;
+  rows.push(["Заполнение", gl, gr, "защемление "+clampL+" мм, зазор "+gapL+" мм",
+             gr>gl && clampL>=L.clampMin && gapL>=L.gapMin]);
+  rows.push(["Грань соседа справа", faceR, x.x1, (x.c===S.cols-1?"полка рамы "+fR:"полуполка импоста "+fR), true]);
+  rows.push(["Базовая линия справа", x.x1, "—", (x.c===S.cols-1?"наружная грань рамы":"ось импоста"), x.x1<=S.W]);
+
+  var h = '<thead><tr><th>Элемент сечения</th><th class="r">от</th><th class="r">до</th><th>Условие</th><th class="r">—</th></tr></thead><tbody>';
+  rows.forEach(function(r){
+    h += '<tr><td>'+esc(r[0])+'</td><td class="r num">'+(typeof r[1]==="number"?Math.round(r[1]):r[1])+
+      '</td><td class="r num">'+(typeof r[2]==="number"?Math.round(r[2]):r[2])+'</td><td style="white-space:normal">'+esc(r[3])+
+      '</td><td class="r">'+(r[4]?'<span style="color:var(--ok)">✓</span>':'<span style="color:var(--crit)">✗</span>')+'</td></tr>';
+  });
+  /* Кромка стекла заходит ЗА грань соседа — это заход под полку, а не ошибка */
+  h += '<tr class="grp"><td colspan="5">Кромка заполнения лежит за гранью соседа на величину защемления — так и должно быть</td></tr>';
+  $("#coordTbl").innerHTML = h + '</tbody>';
+}
+
+function renderKit(R, x){
+  var per = 2*(x.gw + x.gh)/1000, t = R.fill.t;
+  var rows = [
+    ["Штапик "+x.bead.art, per.toFixed(2)+" м", "периметр заполнения, 4 отрезка"],
+    ["Уплотнитель наружный", per.toFixed(2)+" м", "контур по периметру"],
+    ["Уплотнитель внутренний", per.toFixed(2)+" м", "контур по периметру"],
+    ["Подкладки опорные", "2 шт", "на нижнюю кромку, отступ 50–80 мм от углов, ширина "+(t+2)+" мм"],
+    ["Подкладки дистанционные", "2 шт", "по боковым кромкам, держат зазор"],
+    ["Угловые соединители", (x.type==="fix"?"—":"4 шт"), (x.type==="fix"?"поле без собственной рамки":"углы створки")],
+    ["Комплект фурнитуры", (x.type==="fix"?"—":"1 компл"), TYPES[x.type].n]
+  ];
+  var h = '<thead><tr><th>Комплектующее</th><th class="r">Кол-во</th><th>База расчёта</th></tr></thead><tbody>';
+  rows.forEach(function(r){ h += '<tr><td>'+esc(r[0])+'</td><td class="r num">'+esc(r[1])+'</td><td style="white-space:normal">'+esc(r[2])+'</td></tr>'; });
+  $("#kitTbl").innerHTML = h + '</tbody>';
+}
+
+/* ============================================================
+   ЭКРАН 3 — ПАСПОРТ: чертёж с выносками
+   Номер на чертеже равен номеру у поля ввода.
+   ============================================================ */
+var PLAN_CALLS = [
+  {id:1, path:"L.f",   nm:"Полка рамы L",     ds:"f — сколько рама закрывает поля"},
+  {id:2, path:"L.ovl", nm:"Наплав",           ds:"заход створки на соседа"},
+  {id:3, path:"T.F",   nm:"Полка импоста T",  ds:"F целиком, в вычет идёт половина"},
+  {id:4, path:"Z.f",   nm:"Полка створки Z",  ds:"f створки от её наружной грани"},
+  {id:5, path:"delta", nm:"Производственный минус δ", ds:"чтобы заполнение не заклинило"}
+];
+var DEPTH_CALLS = [
+  {id:6, path:"L.r",      nm:"Фальц рамы",        ds:"от грани полки до дна паза"},
+  {id:7, path:"Z.r",      nm:"Фальц створки",     ds:"у створки паз обычно глубже"},
+  {id:8, path:"seal.out", nm:"Уплотнитель наружный", ds:"в сжатом виде"},
+  {id:9, path:"seal.in",  nm:"Уплотнитель внутренний", ds:"в сжатом виде"}
+];
+var LIM_CALLS = [
+  {id:0, path:"lim.fillMin",  nm:"Заполнение от", ds:"мм"},
+  {id:0, path:"lim.fillMax",  nm:"Заполнение до", ds:"мм"},
+  {id:0, path:"lim.clampMin", nm:"Защемление не менее", ds:"мм, иначе отказ"},
+  {id:0, path:"lim.gapMin",   nm:"Зазор до дна фальца не менее", ds:"мм"},
+  {id:0, path:"lim.maxKg",    nm:"Вес поля не более", ds:"кг"},
+  {id:0, path:"lim.sashKg",   nm:"Вес створки не более", ds:"кг, предел фурнитуры"},
+  {id:0, path:"lim.sashW",    nm:"Створка, макс. ширина", ds:"мм"},
+  {id:0, path:"lim.sashH",    nm:"Створка, макс. высота", ds:"мм"}
+];
+function getPath(p){ var a=p.split("."), o=SYS, i; for(i=0;i<a.length;i++) o=o[a[i]]; return o; }
+function setPath(p,v){ var a=p.split("."), o=SYS, i; for(i=0;i<a.length-1;i++) o=o[a[i]]; o[a[a.length-1]]=v; }
+
+function badgeSvg(n,x,y){
+  return '<g class="cal" data-cal="'+n+'"><circle cx="'+x+'" cy="'+y+'" r="9.5" fill="var(--accent)"/>'+
+    '<text x="'+x+'" y="'+(y+3.6)+'" text-anchor="middle" font-family="IBM Plex Mono,monospace" font-size="10" font-weight="700" fill="var(--on-accent)">'+n+'</text></g>';
+}
+function drawPlanCut(){
+  /* Сечение в плане, не в масштабе: рама — стекло — импост — створка — стекло — створка — рама.
+     Стекло намеренно заходит ПОД полки: это и есть заход g, который виден на чертеже. */
+  var s = [], yT=90, yB=160, gT=115, gB=137;
+  var prof = function(x,w,f){ return '<rect x="'+x+'" y="'+yT+'" width="'+w+'" height="'+(yB-yT)+'" fill="'+f+'" stroke="var(--alu-2)"/>'; };
+  var glass = function(x,w){ return '<rect x="'+x+'" y="'+gT+'" width="'+w+'" height="'+(gB-gT)+'" fill="var(--glass)" stroke="var(--alu-2)"/>'; };
+  var cap = function(x,y,t,w){ return '<text x="'+x+'" y="'+y+'" text-anchor="middle" font-family="Golos Text" font-size="10.5" font-weight="'+(w||700)+'" fill="var(--ink-'+(w?3:2)+')">'+t+'</text>'; };
+  s.push(prof(30,52,"var(--alu)"));       /* рама L слева            30…82  */
+  s.push(glass(70,120));                  /* стекло глухого поля     70…190 */
+  s.push(prof(180,60,"var(--alu)"));      /* импост T               180…240 */
+  s.push(prof(232,58,"var(--alu-2)"));    /* стойка створки, наплав 232…290 */
+  s.push(glass(280,150));                 /* стекло створки         280…430 */
+  s.push(prof(420,58,"var(--alu-2)"));    /* стойка створки         420…478 */
+  s.push(prof(470,54,"var(--alu)"));      /* рама L справа          470…524 */
+  s.push(cap(56,78,"рама L")); s.push(cap(210,78,"импост T")); s.push(cap(497,78,"рама L"));
+  /* створка занимает поле целиком — подписывается скобой, а не точкой */
+  s.push('<path d="M232 172 L232 180 L478 180 L478 172" stroke="var(--alu-2)" stroke-width="1.2" fill="none"/>');
+  s.push(cap(355,194,"створка Z"));
+  s.push(cap(130,194,"глухое поле",1));
+  var lead = function(x,y1,y2){ return '<path d="M'+x+' '+y1+' L'+x+' '+y2+'" stroke="var(--accent)" stroke-width="1.2" fill="none"/>'; };
+  s.push(lead(56,yT,58)  + badgeSvg(1,56,48));    /* полка рамы */
+  s.push(lead(190,gT,58) + badgeSvg(5,190,48));   /* кромка стекла — производственный минус */
+  s.push(lead(474,yT,58) + badgeSvg(2,474,48));   /* наплав створки на раму */
+  s.push(lead(210,yB,200)+ badgeSvg(3,210,212));  /* полка импоста */
+  s.push(lead(261,yT,58) + badgeSvg(4,261,48));   /* полка створки */
+  $("#planCut").innerHTML = s.join("");
+}
+function drawDepthCut(){
+  /* Разрез по глубине паза: полка — уплотнитель — заполнение — уплотнитель — штапик */
+  var s = [], x0=140, y0=60, h=120, yb=y0+h;
+  s.push('<rect x="'+x0+'" y="'+y0+'" width="34" height="'+h+'" fill="var(--alu)" stroke="var(--alu-2)"/>');
+  s.push('<rect x="'+(x0+34)+'" y="'+(y0+22)+'" width="12" height="'+(h-44)+'" fill="var(--seal)" opacity=".55"/>');
+  s.push('<rect x="'+(x0+46)+'" y="'+(y0+14)+'" width="150" height="'+(h-28)+'" fill="var(--glass)" stroke="var(--alu-2)"/>');
+  s.push('<rect x="'+(x0+196)+'" y="'+(y0+22)+'" width="12" height="'+(h-44)+'" fill="var(--seal)" opacity=".55"/>');
+  s.push('<rect x="'+(x0+208)+'" y="'+y0+'" width="40" height="'+h+'" fill="var(--bead)" stroke="var(--alu-2)"/>');
+  var cap = function(x,t){ return '<text x="'+x+'" y="'+(yb+22)+'" text-anchor="middle" font-family="Golos Text" font-size="10.5" font-weight="700" fill="var(--ink-2)">'+t+'</text>'; };
+  s.push(cap(x0+17,"профиль")); s.push(cap(x0+121,"заполнение")); s.push(cap(x0+228,"штапик"));
+  s.push('<path d="M'+(x0+34)+' '+(yb+34)+' L'+(x0+208)+' '+(yb+34)+'" stroke="var(--ink-3)" stroke-width="1"/>');
+  s.push('<text x="'+(x0+121)+'" y="'+(yb+50)+'" text-anchor="middle" font-family="IBM Plex Mono,monospace" font-size="10" fill="var(--ink-3)">паз = уплотнитель + t + уплотнитель + штапик</text>');
+  var lead = function(x1,y1,x2,y2){ return '<path d="M'+x1+' '+y1+' L'+x2+' '+y2+'" stroke="var(--accent)" stroke-width="1.2" fill="none"/>'; };
+  s.push(lead(x0+34,y0,x0+34,34) + badgeSvg(6,x0+34,24));
+  s.push(lead(x0+208,y0,x0+208,34) + badgeSvg(7,x0+208,24));
+  s.push(lead(x0+38,y0+34,x0-40,y0+8) + badgeSvg(8,x0-52,y0));
+  s.push(lead(x0+202,y0+34,x0+300,y0+8) + badgeSvg(9,x0+312,y0));
+  $("#depthCut").innerHTML = s.join("");
+}
+function renderCalls(host, list){
+  $(host).innerHTML = list.map(function(c){
+    return '<div class="call" data-for="'+c.id+'">'+
+      (c.id ? '<span class="badge">'+c.id+'</span>' : '<span class="badge" style="background:var(--line);color:var(--ink-3)">·</span>')+
+      '<div class="mid"><div class="nm">'+esc(c.nm)+'</div><div class="ds">'+esc(c.ds)+'</div>'+
+      '<input type="number" step="1" data-path="'+c.path+'" value="'+getPath(c.path)+'"></div></div>';
+  }).join("");
+  $$(host+" input[data-path]").forEach(function(inp){
+    inp.addEventListener("input", function(){
+      var v = +inp.value; if(isNaN(v)) return;
+      setPath(inp.getAttribute("data-path"), v); save(); render();
+    });
+    var box = inp.closest(".call"), n = box.getAttribute("data-for");
+    var lit = function(on){
+      box.classList.toggle("lit", on);
+      var g = document.querySelector('[data-cal="'+n+'"]'); if(g) g.classList.toggle("lit", on);
+    };
+    inp.addEventListener("focus", function(){ lit(true); });
+    inp.addEventListener("blur",  function(){ lit(false); });
+  });
+}
+function renderBeadTable(which){
+  var list = which==="F" ? SYS.beadF : SYS.beadZ;
+  var h = '<thead><tr><th>Заполнение от</th><th>до</th><th>Артикул штапика</th><th>Заход g</th><th></th></tr></thead><tbody>';
+  list.forEach(function(b,i){
+    h += '<tr>'+
+      '<td><input type="number" data-b="'+which+'" data-i="'+i+'" data-k="a" value="'+b.a+'"></td>'+
+      '<td><input type="number" data-b="'+which+'" data-i="'+i+'" data-k="b" value="'+b.b+'"></td>'+
+      '<td><input type="text" data-b="'+which+'" data-i="'+i+'" data-k="art" value="'+esc(b.art)+'"></td>'+
+      '<td><input type="number" data-b="'+which+'" data-i="'+i+'" data-k="g" value="'+b.g+'"></td>'+
+      '<td><button class="del" data-delb="'+which+'" data-i="'+i+'" aria-label="Удалить">×</button></td></tr>';
+  });
+  $(which==="F"?"#beadF":"#beadZ").innerHTML = h + '</tbody>';
+}
+function bindBeads(){
+  $$("input[data-b]").forEach(function(inp){
+    inp.addEventListener("input", function(){
+      var w = inp.getAttribute("data-b"), i = +inp.getAttribute("data-i"), k = inp.getAttribute("data-k");
+      var list = w==="F"?SYS.beadF:SYS.beadZ;
+      list[i][k] = (k==="art") ? inp.value : (+inp.value||0);
+      save(); render();
+    });
+  });
+  $$("button[data-delb]").forEach(function(b){
+    b.addEventListener("click", function(){
+      var w = b.getAttribute("data-delb"), i = +b.getAttribute("data-i");
+      (w==="F"?SYS.beadF:SYS.beadZ).splice(i,1);
+      renderBeadTable(w); bindBeads(); save(); render();
+    });
+  });
+}
+
+/* ============================================================
+   ЭКРАН 4 — АРТИКУЛЫ: три формы карточки по ролям
+   ============================================================ */
+function renderArt(){
+  var t = FILLS.filter(function(f){return f.id===S.fill;})[0].t;
+  var bf = pickBead(SYS.beadF,t), bz = pickBead(SYS.beadZ,t);
+  var cards = [
+    { code:"L", nm:"Рама", fields:[["Полка f","L.f"],["Фальц","L.r"],["Наплав — посадка створки","L.ovl"]],
+      base:"наружная грань каркаса", sides:"одна сторона заполнения",
+      der: bf ? "глухая кромка: "+SYS.L.f+" − "+bf.g+" + "+SYS.delta+" = "+(SYS.L.f-bf.g+SYS.delta)+" мм" : "штапик не найден" },
+    { code:"T", nm:"Импост", fields:[["Полка F целиком","T.F"],["Фальц","T.r"]],
+      base:"собственная ось", sides:"две симметричные стороны, наплава нет",
+      der: bf ? "глухая кромка: "+(SYS.T.F/2)+" − "+bf.g+" + "+SYS.delta+" = "+(SYS.T.F/2-bf.g+SYS.delta)+" мм" : "штапик не найден" },
+    { code:"Z", nm:"Створка", fields:[["Полка f","Z.f"],["Фальц","Z.r"]],
+      base:"посадка на соседа, а не габарит", sides:"одна сторона заполнения, наплав берётся у соседа",
+      der: bz ? "у рамы: ("+SYS.L.f+" − "+SYS.L.ovl+") + "+SYS.Z.f+" − "+bz.g+" + "+SYS.delta+" = "+((SYS.L.f-SYS.L.ovl)+SYS.Z.f-bz.g+SYS.delta)+" мм\nу импоста: ("+(SYS.T.F/2)+" − "+SYS.L.ovl+") + "+SYS.Z.f+" − "+bz.g+" + "+SYS.delta+" = "+((SYS.T.F/2-SYS.L.ovl)+SYS.Z.f-bz.g+SYS.delta)+" мм" : "штапик не найден" }
+  ];
+  $("#artCards").innerHTML = cards.map(function(c){
+    return '<div class="card"><header><h2>'+c.code+' — '+c.nm+'</h2><span class="pill kd">'+esc(c.sides)+'</span></header>'+
+      '<div class="body"><div class="row" style="flex-wrap:wrap">'+
+      c.fields.map(function(f){
+        return '<div class="field" style="min-width:130px"><label>'+esc(f[0])+', мм</label>'+
+          '<input type="number" data-path="'+f[1]+'" value="'+getPath(f[1])+'"></div>';
+      }).join("")+
+      '</div><div class="ds" style="font-size:12px;color:var(--ink-3);margin-bottom:9px">База отсчёта: '+esc(c.base)+'</div>'+
+      '<div class="derive">'+esc(c.der)+'</div></div></div>';
+  }).join("");
+  $$("#artCards input[data-path]").forEach(function(inp){
+    inp.addEventListener("input", function(){
+      var v = +inp.value; if(isNaN(v)) return;
+      setPath(inp.getAttribute("data-path"), v); save(); renderAll();
+    });
+  });
+}
+
+/* ============================================================
+   НАВИГАЦИЯ, ХРАНЕНИЕ, СБОРКА
+   ============================================================ */
+var TITLES = { p1:["Конструкция","Размер заполнения по кромкам"],
+               p2:["Кромки поля","Вывод результата, а не результат"],
+               p3:["Паспорт системы","Числа — заглушки до каталога"],
+               p4:["Артикулы","L — рама, T — импост, Z — створка"] };
+function go(id){
+  $$("section").forEach(function(s){ s.hidden = (s.id !== id); });
+  $$("[data-go]").forEach(function(b){ b.setAttribute("aria-current", String(b.dataset.go===id)); });
+  $("#ttl").textContent = TITLES[id][0]; $("#sub").textContent = TITLES[id][1];
+  window.scrollTo(0,0);
+}
+var LSKEY = "winhub.aluglass.v1";
+function save(){
+  try{ localStorage.setItem(LSKEY, JSON.stringify({SYS:SYS, S:S})); }catch(e){}
+}
+function load(){
+  try{
+    var raw = localStorage.getItem(LSKEY); if(!raw) return false;
+    var d = JSON.parse(raw); if(!d || !d.SYS || !d.S) return false;
+    Object.keys(d.SYS).forEach(function(k){ SYS[k] = d.SYS[k]; });
+    S = d.S; return true;
+  }catch(e){ return false; }
+}
+function toast(msg){
+  var t = $("#toast"); t.textContent = msg; t.classList.add("on");
+  setTimeout(function(){ t.classList.remove("on"); }, 1900);
+}
+function renderAll(){
+  renderColWidths(); render();
+  renderCalls("#planCalls", PLAN_CALLS);
+  renderCalls("#depthCalls", DEPTH_CALLS);
+  renderCalls("#limCalls", LIM_CALLS);
+  renderBeadTable("F"); renderBeadTable("Z"); bindBeads();
+  renderArt();
+}
+
+function boot(){
+  if(!load()) S = freshState();
+  $("#iFill").innerHTML = FILLS.map(function(f){
+    return '<option value="'+f.id+'"'+(f.id===S.fill?" selected":"")+'>'+esc(f.n)+'</option>';
+  }).join("");
+  $("#iW").value = S.W; $("#iH").value = S.H; $("#iTrH").value = S.trH;
+
+  $("#iW").addEventListener("input", function(){ S.W = Math.max(200,+this.value||0); balanceCols(); save(); renderAll(); });
+  $("#iH").addEventListener("input", function(){ S.H = Math.max(200,+this.value||0); if(S.trH>=S.H) S.trH = Math.round(S.H/2); save(); renderAll(); });
+  $("#iTrH").addEventListener("input", function(){ S.trH = Math.min(S.H-100, Math.max(100,+this.value||0)); save(); render(); });
+  $("#iFill").addEventListener("change", function(){ S.fill = this.value; save(); renderAll(); });
+
+  $$("#iCols button").forEach(function(b){ b.addEventListener("click", function(){
+    S.cols = +b.dataset.v; S.colW = []; for(var i=0;i<S.cols;i++) S.colW.push(Math.round(S.W/S.cols));
+    S.sel = "0-0"; save(); renderAll();
+  }); });
+  $$("#iTr button").forEach(function(b){ b.addEventListener("click", function(){
+    S.tr = +b.dataset.v; S.sel = "0-0"; save(); render();
+  }); });
+  $$("#iCellType button").forEach(function(b){ b.addEventListener("click", function(){
+    var p = S.sel.split("-"); setCellType(+p[0], +p[1], b.dataset.v); save(); render();
+  }); });
+
+  $("#goEdges").addEventListener("click", function(){ go("p2"); });
+  $("#reset").addEventListener("click", function(){
+    try{ localStorage.removeItem(LSKEY); }catch(e){}
+    location.reload();
+  });
+  $$("[data-addbead]").forEach(function(b){ b.addEventListener("click", function(){
+    var w = b.getAttribute("data-addbead");
+    (w==="F"?SYS.beadF:SYS.beadZ).push({a:0,b:0,art:"новый",g:16});
+    renderBeadTable(w); bindBeads(); save(); toast("Строка добавлена");
+  }); });
+  $$("[data-go]").forEach(function(b){ b.addEventListener("click", function(){ go(b.dataset.go); }); });
+  $("#theme").addEventListener("click", function(){
+    var cur = document.documentElement.getAttribute("data-theme");
+    var next = cur === "dark" ? "light" : "dark";
+    document.documentElement.setAttribute("data-theme", next);
+    toast(next === "dark" ? "Тёмная тема" : "Светлая тема");
+  });
+
+  drawPlanCut(); drawDepthCut();
+  renderAll();
+}
+boot();
+</script>
+</body>
+</html>
