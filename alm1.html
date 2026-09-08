@@ -288,7 +288,7 @@ svg .cal.lit{opacity:1}
             </div>
             <div class="field" id="trRow" hidden><label>Высота нижнего ряда, мм — от низа до оси импоста</label>
               <input type="number" id="iTrH" step="10"></div>
-            <div class="field"><label>Заполнение</label><select id="iFill"></select></div>
+            <div class="field"><label>Заполнение новых полей</label><select id="iFill"></select></div>
             <hr style="border:0;border-top:1px solid var(--line-2);margin:14px 0">
             <div class="field"><label>Выбранное поле</label>
               <div class="seg" id="iCellType">
@@ -298,7 +298,9 @@ svg .cal.lit{opacity:1}
               </div>
               <div class="hint" id="selHint">—</div>
             </div>
+            <div class="field"><label>Заполнение этого поля</label><select id="iCellFill"></select></div>
             <div class="btnrow">
+              <button class="btn ghost mini" id="fillAll">Это заполнение всем полям</button>
               <button class="btn ghost mini" id="goEdges">Показать кромки поля</button>
               <button class="btn ghost mini" id="reset">Сбросить всё</button>
             </div>
@@ -356,6 +358,15 @@ svg .cal.lit{opacity:1}
     </div>
 
     <div class="card cat">
+      <header><h3>Формулы заполнения</h3><span class="hint">свой набор пакетов фабрики</span></header>
+      <div class="body">
+        <div class="tablewrap"><table id="fillTbl"></table></div>
+        <div class="btnrow"><button class="btn ghost mini" id="addFill">Добавить формулу</button></div>
+        <div class="note info" style="margin-top:11px">Толщина пакета идёт в подбор штапика и в проверку пределов. Сумма толщин стёкол — только в вес: она равна стеклу без камер, для 4-10-4-10-4 это 12 мм.</div>
+      </div>
+    </div>
+
+    <div class="card cat">
       <header><h3>Штапики рамы и импоста</h3><span class="hint">подбор по толщине заполнения</span></header>
       <div class="body">
         <div class="tablewrap"><table id="beadF"></table></div>
@@ -398,6 +409,12 @@ svg .cal.lit{opacity:1}
 var $ = function(s,r){ return (r||document).querySelector(s); };
 var $$ = function(s,r){ return Array.prototype.slice.call((r||document).querySelectorAll(s)); };
 var esc = function(s){ return String(s).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;"); };
+var plural = function(n,one,few,many){
+  var a = Math.abs(n) % 100, b = a % 10;
+  if(a > 10 && a < 20) return many;
+  if(b > 1 && b < 5) return few;
+  return b === 1 ? one : many;
+};
 
 /* ============================================================
    ПАСПОРТ СИСТЕМЫ
@@ -434,7 +451,7 @@ var S = null;   /* состояние конструкции */
 
 function freshState(){
   return { W:1500, H:1600, cols:2, colW:[750,750], tr:0, trH:700,
-           fill:"f32b", cells:{}, sel:"0-0" };
+           fill:"f32b", cells:{}, fills:{}, sel:"0-0" };
 }
 
 /* ---------- ключи и типы полей ---------- */
@@ -442,6 +459,18 @@ function cellKey(c,r){ return c+"-"+r; }
 function cellType(c,r){ var v = S.cells[cellKey(c,r)]; return v || "fix"; }
 function setCellType(c,r,v){ S.cells[cellKey(c,r)] = v; }
 function rowsCount(){ return S.tr ? 2 : 1; }
+
+/* Заполнение — свойство поля, а не конструкции: в одном изделии
+   у глухой части и у створки бывают разные пакеты. S.fill — значение
+   по умолчанию для новых полей, S.fills — переопределения по полям. */
+function fillById(id){
+  for(var i=0;i<FILLS.length;i++){ if(FILLS[i].id === id) return FILLS[i]; }
+  return null;
+}
+function cellFill(c,r){
+  return fillById(S.fills[cellKey(c,r)]) || fillById(S.fill) || FILLS[0];
+}
+function setCellFill(c,r,id){ S.fills[cellKey(c,r)] = id; }
 
 /* ---------- сетка: базовые линии ---------- */
 /* Вертикальные: 0, оси импостов, W. Горизонтальные: 0 (низ), ось импоста, H. */
@@ -484,10 +513,10 @@ function edgeDeduction(nb, kind, t){
 
 /* ---------- полный расчёт ---------- */
 function calc(){
-  var xs = xBase(), ys = yBase(), fill = FILLS.filter(function(f){return f.id===S.fill;})[0];
-  var t = fill.t, cells = [], c, r;
+  var xs = xBase(), ys = yBase(), cells = [], c, r;
   for(c=0;c<S.cols;c++){
     for(r=0;r<rowsCount();r++){
+      var fill = cellFill(c,r), t = fill.t;
       var kindL = (c===0) ? "L" : "T";
       var kindR = (c===S.cols-1) ? "L" : "T";
       var kindB = (r===0) ? "L" : "T";
@@ -501,7 +530,7 @@ function calc(){
       var gw = ok ? spanW - eL.d - eR.d : 0;
       var gh = ok ? spanH - eB.d - eT.d : 0;
       var area = gw*gh/1e6;
-      cells.push({ c:c, r:r, key:cellKey(c,r), type:ty, ok:ok,
+      cells.push({ c:c, r:r, key:cellKey(c,r), type:ty, ok:ok, fill:fill, t:t,
         spanW:spanW, spanH:spanH, x0:xs[c], x1:xs[c+1], y0:ys[r], y1:ys[r+1],
         eL:eL, eR:eR, eB:eB, eT:eT, gw:gw, gh:gh, area:area,
         kg: area * fill.gl * 2.5, bead: ok ? eL.bead : null,
@@ -511,23 +540,22 @@ function calc(){
       });
     }
   }
-  return { xs:xs, ys:ys, fill:fill, cells:cells };
+  return { xs:xs, ys:ys, cells:cells };
 }
 
 /* ---------- проверки ---------- */
 function checksOf(R){
-  var out = [], L = SYS.lim, t = R.fill.t;
-  if(t < L.fillMin || t > L.fillMax)
-    out.push({l:"crit", t:"Заполнение "+t+" мм вне диапазона системы "+L.fillMin+"–"+L.fillMax+" мм. Это отказ, а не подстановка ближайшего."});
-  if(!pickBead(SYS.beadF,t)) out.push({l:"crit", t:"Под "+t+" мм нет штапика рамы в таблице системы."});
+  var out = [], L = SYS.lim;
 
-  /* геометрия профилей — не зависит от размеров окна */
+  /* геометрия профилей — не зависит ни от размеров окна, ни от заполнения */
   if(SYS.T.F/2 <= SYS.L.ovl)
     out.push({l:"crit", t:"Полуполка импоста "+(SYS.T.F/2)+" мм не больше наплава "+SYS.L.ovl+" мм: две створки по бокам импоста наложатся друг на друга."});
 
   R.cells.forEach(function(x){
-    var nm = "Поле "+(x.c+1)+(rowsCount()>1 ? (x.r===0?" низ":" верх") : "");
-    if(!x.ok){ out.push({l:"crit", t:nm+": штапик под "+t+" мм не найден."}); return; }
+    var nm = "Поле "+(x.c+1)+(rowsCount()>1 ? (x.r===0?" низ":" верх") : ""), t = x.t;
+    if(t < L.fillMin || t > L.fillMax)
+      out.push({l:"crit", t:nm+": заполнение "+t+" мм вне диапазона системы "+L.fillMin+"–"+L.fillMax+" мм. Это отказ, а не подстановка ближайшего."});
+    if(!x.ok){ out.push({l:"crit", t:nm+": под "+t+" мм нет штапика в таблице системы."}); return; }
     if(x.gw <= 0 || x.gh <= 0){ out.push({l:"crit", t:nm+": вычеты съели поле целиком ("+Math.round(x.gw)+"×"+Math.round(x.gh)+")."}); return; }
     [["левая",x.eL],["правая",x.eR],["нижняя",x.eB],["верхняя",x.eT]].forEach(function(p){
       var e = p[1], clamp = e.g - SYS.delta, gap = e.r - clamp;
@@ -592,11 +620,12 @@ function drawWindow(R){
 }
 
 function renderCells(R){
-  var h = '<thead><tr><th>Поле</th><th>Тип</th><th class="r">Заполнение</th><th class="r">Штапик</th><th class="r">Вес</th></tr></thead><tbody>';
+  var h = '<thead><tr><th>Поле</th><th>Тип</th><th>Формула</th><th class="r">Заполнение</th><th class="r">Штапик</th><th class="r">Вес</th></tr></thead><tbody>';
   R.cells.forEach(function(x){
     var nm = "Поле "+(x.c+1)+(rowsCount()>1 ? (x.r===0?" · низ":" · верх") : "");
     h += '<tr data-cell="'+x.key+'" class="'+(x.key===S.sel?"sel":"")+'" style="cursor:pointer">'+
       '<td>'+nm+'</td><td>'+TYPES[x.type].n+'</td>'+
+      '<td class="num">'+esc(x.fill.n)+'</td>'+
       '<td class="r num">'+(x.ok?Math.round(x.gw)+'×'+Math.round(x.gh):'—')+'</td>'+
       '<td class="r num">'+(x.bead?esc(x.bead.art):'нет')+'</td>'+
       '<td class="r num">'+(x.ok?x.kg.toFixed(0)+' кг':'—')+'</td></tr>';
@@ -630,33 +659,36 @@ function balanceCols(){
 /* Спецификация — то, что уходит на стеклопакетную линию.
    Одинаковые размеры сводятся в одну строку с количеством. */
 function renderSpec(R){
-  var groups = [], index = {}, bad = 0;
+  var groups = [], index = {}, bad = 0, thick = [];
   R.cells.forEach(function(x){
     if(!x.ok){ bad++; return; }
-    var w = Math.round(x.gw), h = Math.round(x.gh), k = w+"x"+h;
-    if(!index[k]){ index[k] = {w:w, h:h, n:0, tags:[], bead:x.bead.art, kg:x.kg, area:x.area}; groups.push(index[k]); }
+    /* в одну позицию сводится только то, что совпадает и размером, и формулой */
+    var w = Math.round(x.gw), h = Math.round(x.gh), k = w+"x"+h+"x"+x.fill.id;
+    if(!index[k]){ index[k] = {w:w, h:h, t:x.t, n:0, tags:[], fill:x.fill, bead:x.bead.art, kg:x.kg, area:x.area}; groups.push(index[k]); }
     var g = index[k]; g.n++;
     var tag = (x.type === "fix") ? "глухое" : "створка";
     if(g.tags.indexOf(tag) < 0) g.tags.push(tag);
+    if(thick.indexOf(x.t) < 0) thick.push(x.t);
   });
-  var t = R.fill.t;
   $("#specList").innerHTML = groups.length ? groups.map(function(g){
     return '<div class="specrow"><div class="mid">'+
-      '<div class="sz">'+g.w+' × '+g.h+' × '+t+'</div>'+
-      '<div class="sub">'+esc(R.fill.n.split("· ")[1] || R.fill.n)+' · штапик '+esc(g.bead)+
+      '<div class="sz">'+g.w+' × '+g.h+' × '+g.t+'</div>'+
+      '<div class="sub">'+esc(g.fill.n.split("· ")[1] || g.fill.n)+' · штапик '+esc(g.bead)+
       ' · '+esc(g.tags.join(" и "))+' · '+g.kg.toFixed(0)+' кг за штуку</div></div>'+
       '<div class="qty"><b>'+g.n+'</b><span>шт</span></div></div>';
   }).join("") : '<div class="specrow crit"><div class="mid"><div class="sz">—</div>'+
-      '<div class="sub">Размер не считается: под '+t+' мм нет штапика в таблице системы.</div></div></div>';
+      '<div class="sub">Ни одно поле не считается — см. проверки.</div></div></div>';
   if(bad && groups.length)
     $("#specList").innerHTML += '<div class="specrow crit"><div class="mid"><div class="sub">Ещё '+bad+
-      ' полей не посчитано — см. проверки.</div></div></div>';
+      ' '+plural(bad,"поле","поля","полей")+' не посчитано — см. проверки.</div></div></div>';
 
   var n = groups.reduce(function(a,g){return a+g.n;},0);
   var m2 = groups.reduce(function(a,g){return a+g.area*g.n;},0);
   var kg = groups.reduce(function(a,g){return a+g.kg*g.n;},0);
+  thick.sort(function(a,b){return a-b;});
   $("#specTot").innerHTML = '<span>Всего <b>'+n+' шт</b></span><span>Площадь <b>'+m2.toFixed(2)+
-    ' м²</b></span><span>Вес <b>'+kg.toFixed(0)+' кг</b></span><span>Толщина <b>'+t+' мм</b></span>';
+    ' м²</b></span><span>Вес <b>'+kg.toFixed(0)+' кг</b></span><span>Толщина <b>'+
+    (thick.length ? thick.join(" и ")+" мм" : "—")+'</b></span>';
   $("#specHint").textContent = "размер под заказ на линию";
 }
 
@@ -675,7 +707,9 @@ function render(){
     fact("Стекла", totalM2.toFixed(2)+" м²") +
     fact("Вес заполнения", totalKg.toFixed(0)+" кг") +
     fact("Штапик", sel.bead ? sel.bead.art : "нет");
-  $("#c1chip").textContent = SYS.n + " · " + R.fill.n;
+  var uniq = [];
+  R.cells.forEach(function(x){ if(uniq.indexOf(x.fill.n) < 0) uniq.push(x.fill.n); });
+  $("#c1chip").textContent = SYS.n + " · " + (uniq.length === 1 ? uniq[0] : uniq.length + " разных заполнения");
 
   var ch = checksOf(R);
   var crit = ch.filter(function(x){return x.l==="crit";}).length;
@@ -688,6 +722,7 @@ function render(){
   $("#selHint").textContent = "Поле "+(sel.c+1)+(rowsCount()>1?(sel.r===0?" · низ":" · верх"):"")+
     " · "+(sel.ok? Math.round(sel.gw)+"×"+Math.round(sel.gh)+" мм" : "не считается");
   $$("#iCellType button").forEach(function(b){ b.setAttribute("aria-pressed", String(b.dataset.v===sel.type)); });
+  $("#iCellFill").value = sel.fill.id;
   $$("#iCols button").forEach(function(b){ b.setAttribute("aria-pressed", String(+b.dataset.v===S.cols)); });
   $$("#iTr button").forEach(function(b){ b.setAttribute("aria-pressed", String(+b.dataset.v===S.tr)); });
   $("#trRow").hidden = !S.tr;
@@ -703,14 +738,14 @@ function renderEdges(R, x){
   var nm = "Поле "+(x.c+1)+(rowsCount()>1?(x.r===0?" · низ":" · верх"):"");
   $("#edgeTitle").textContent = nm + " · " + TYPES[x.type].n;
   if(!x.ok){
-    $("#edgeDerive").innerHTML = '<span class="bad">Штапик под '+R.fill.t+' мм не найден — расчёт кромок невозможен.</span>';
+    $("#edgeDerive").innerHTML = '<span class="bad">Штапик под '+x.t+' мм не найден — расчёт кромок невозможен.</span>';
     $("#edgeFacts").innerHTML = ""; $("#edgeWarn").innerHTML = ""; $("#coordTbl").innerHTML = ""; $("#kitTbl").innerHTML = "";
     return;
   }
   var pad = function(s,n){ s=String(s); while(s.length<n) s+=" "; return s; };
   var line = function(t,e){ return "  " + pad(t,9) + pad(e.words,22) + "вычет " + pad(e.d,4) + "(" + e.expr + ")"; };
   var d = "";
-  d += "  " + nm + " · " + TYPES[x.type].n + " · " + R.fill.n + "\n\n";
+  d += "  " + nm + " · " + TYPES[x.type].n + " · " + x.fill.n + "\n\n";
   d += line("слева",  x.eL) + "\n";
   d += line("справа", x.eR) + "\n";
   d += line("сверху", x.eT) + "\n";
@@ -773,7 +808,7 @@ function renderCoords(R, x){
 }
 
 function renderKit(R, x){
-  var per = 2*(x.gw + x.gh)/1000, t = R.fill.t;
+  var per = 2*(x.gw + x.gh)/1000, t = x.t;
   var rows = [
     ["Штапик "+x.bead.art, per.toFixed(2)+" м", "периметр заполнения, 4 отрезка"],
     ["Уплотнитель наружный", per.toFixed(2)+" м", "контур по периметру"],
@@ -889,6 +924,47 @@ function renderCalls(host, list){
     inp.addEventListener("blur",  function(){ lit(false); });
   });
 }
+/* Набор формул заполнения у каждой фабрики свой, поэтому он редактируется */
+function renderFillTable(){
+  var h = '<thead><tr><th>Название</th><th>Толщина пакета</th><th>Сумма стёкол</th><th></th></tr></thead><tbody>';
+  FILLS.forEach(function(f,i){
+    h += '<tr>'+
+      '<td><input type="text" class="w" data-f="'+i+'" data-k="n" value="'+esc(f.n)+'"></td>'+
+      '<td><input type="number" data-f="'+i+'" data-k="t" value="'+f.t+'"></td>'+
+      '<td><input type="number" data-f="'+i+'" data-k="gl" value="'+f.gl+'"></td>'+
+      '<td><button class="del" data-delf="'+i+'" aria-label="Удалить">×</button></td></tr>';
+  });
+  $("#fillTbl").innerHTML = h + '</tbody>';
+  $$("#fillTbl input[data-f]").forEach(function(inp){
+    inp.addEventListener("input", function(){
+      var i = +inp.getAttribute("data-f"), k = inp.getAttribute("data-k");
+      FILLS[i][k] = (k === "n") ? inp.value : (+inp.value || 0);
+      save(); fillSelects(); render();
+    });
+  });
+  $$("#fillTbl button[data-delf]").forEach(function(b){
+    b.addEventListener("click", function(){
+      if(FILLS.length < 2){ toast("Хотя бы одна формула нужна"); return; }
+      var id = FILLS[+b.getAttribute("data-delf")].id;
+      FILLS.splice(+b.getAttribute("data-delf"), 1);
+      /* поля, ссылавшиеся на удалённую формулу, возвращаются к значению по умолчанию */
+      Object.keys(S.fills).forEach(function(k){ if(S.fills[k] === id) delete S.fills[k]; });
+      if(S.fill === id) S.fill = FILLS[0].id;
+      renderFillTable(); fillSelects(); save(); render();
+    });
+  });
+}
+function fillSelects(){
+  var opts = function(cur){
+    return FILLS.map(function(f){
+      return '<option value="'+f.id+'"'+(f.id===cur?" selected":"")+'>'+esc(f.n)+'</option>';
+    }).join("");
+  };
+  var p = (S.sel||"0-0").split("-");
+  $("#iFill").innerHTML = opts(S.fill);
+  $("#iCellFill").innerHTML = opts(cellFill(+p[0], +p[1]).id);
+}
+
 function renderBeadTable(which){
   var list = which==="F" ? SYS.beadF : SYS.beadZ;
   var h = '<thead><tr><th>Заполнение от</th><th>до</th><th>Артикул штапика</th><th>Заход g</th><th></th></tr></thead><tbody>';
@@ -924,7 +1000,7 @@ function bindBeads(){
    ЭКРАН 4 — АРТИКУЛЫ: три формы карточки по ролям
    ============================================================ */
 function renderArt(){
-  var t = FILLS.filter(function(f){return f.id===S.fill;})[0].t;
+  var p = (S.sel||"0-0").split("-"), t = cellFill(+p[0], +p[1]).t;
   var bf = pickBead(SYS.beadF,t), bz = pickBead(SYS.beadZ,t);
   var cards = [
     { code:"L", nm:"Рама", fields:[["Полка f","L.f"],["Фальц","L.r"],["Наплав — посадка створки","L.ovl"]],
@@ -970,14 +1046,16 @@ function go(id){
 }
 var LSKEY = "winhub.aluglass.v1";
 function save(){
-  try{ localStorage.setItem(LSKEY, JSON.stringify({SYS:SYS, S:S})); }catch(e){}
+  try{ localStorage.setItem(LSKEY, JSON.stringify({SYS:SYS, S:S, FILLS:FILLS})); }catch(e){}
 }
 function load(){
   try{
     var raw = localStorage.getItem(LSKEY); if(!raw) return false;
     var d = JSON.parse(raw); if(!d || !d.SYS || !d.S) return false;
     Object.keys(d.SYS).forEach(function(k){ SYS[k] = d.SYS[k]; });
-    S = d.S; return true;
+    if(d.FILLS && d.FILLS.length) FILLS = d.FILLS;
+    S = d.S; if(!S.fills) S.fills = {};
+    return true;
   }catch(e){ return false; }
 }
 function toast(msg){
@@ -990,20 +1068,30 @@ function renderAll(){
   renderCalls("#depthCalls", DEPTH_CALLS);
   renderCalls("#limCalls", LIM_CALLS);
   renderBeadTable("F"); renderBeadTable("Z"); bindBeads();
-  renderArt();
+  renderFillTable(); renderArt();
 }
 
 function boot(){
   if(!load()) S = freshState();
-  $("#iFill").innerHTML = FILLS.map(function(f){
-    return '<option value="'+f.id+'"'+(f.id===S.fill?" selected":"")+'>'+esc(f.n)+'</option>';
-  }).join("");
+  fillSelects();
   $("#iW").value = S.W; $("#iH").value = S.H; $("#iTrH").value = S.trH;
 
   $("#iW").addEventListener("input", function(){ S.W = Math.max(200,+this.value||0); balanceCols(); save(); renderAll(); });
   $("#iH").addEventListener("input", function(){ S.H = Math.max(200,+this.value||0); if(S.trH>=S.H) S.trH = Math.round(S.H/2); save(); renderAll(); });
   $("#iTrH").addEventListener("input", function(){ S.trH = Math.min(S.H-100, Math.max(100,+this.value||0)); save(); render(); });
   $("#iFill").addEventListener("change", function(){ S.fill = this.value; save(); renderAll(); });
+  $("#iCellFill").addEventListener("change", function(){
+    var p = S.sel.split("-"); setCellFill(+p[0], +p[1], this.value); save(); render();
+  });
+  $("#fillAll").addEventListener("click", function(){
+    var p = S.sel.split("-"), id = cellFill(+p[0], +p[1]).id;
+    S.fill = id; S.fills = {};
+    save(); fillSelects(); render(); toast("Заполнение применено ко всем полям");
+  });
+  $("#addFill").addEventListener("click", function(){
+    FILLS.push({id:"f"+Date.now().toString(36), n:"новая формула", t:32, gl:8});
+    renderFillTable(); fillSelects(); save(); toast("Формула добавлена");
+  });
 
   $$("#iCols button").forEach(function(b){ b.addEventListener("click", function(){
     S.cols = +b.dataset.v; S.colW = []; for(var i=0;i<S.cols;i++) S.colW.push(Math.round(S.W/S.cols));
