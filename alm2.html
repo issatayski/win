@@ -1,0 +1,1452 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#3B79A9">
+<title>WinHub — алюминий</title>
+<style>*{margin:0;padding:0;box-sizing:border-box}</style>
+<style>
+/* Оболочка повторяет PVC Windows Studio: плоские цветные полосы,
+   серое полотно, крупные кнопки под палец. Тема одна, светлая —
+   как в приложении, к которому привыкли сборщики. */
+:root{
+  color-scheme:light;
+  --bar:#3B79A9; --bar-ink:#CBD9E4;
+  --dlg:#42A5F5; --yes:#AED581; --no:#42A5F5;
+  --canvas:#B3B3B3; --canvas-2:#A8A8A8;
+  --panel:#EFEFEF; --row:#FFFFFF; --row-2:#F5F5F5;
+  --ink:#1B1B1B; --ink-2:#555555; --ink-3:#8A8A8A;
+  --line:#CFCFCF;
+  --blue:#7BA7DC; --yellow:#FFE100; --pink:#E64A9B; --orange:#F0A33C;
+  --violet:#9C7FD4; --green:#8BC34A; --teal:#26A69A; --salmon:#EF9A9A; --red:#D9534F;
+  --price:#1565C0; --sum:#C62828;
+  --frame:#F2F2F2; --frame-2:#D8D8D8; --glass:#C3D9E8; --sash:#E8E8E8;
+  --handle:#4A90D9; --handle-x:#D9534F;
+}
+html,body{height:100%}
+body{background:var(--canvas); color:var(--ink);
+  font:400 15px/1.4 system-ui,-apple-system,"Segoe UI",Roboto,"Helvetica Neue",sans-serif;
+  overflow-x:hidden}
+
+/* ---------- верхняя полоса ---------- */
+.appbar{position:sticky; top:0; z-index:30; background:var(--bar); color:var(--bar-ink);
+  padding:calc(env(safe-area-inset-top) + 10px) 12px 10px; display:flex; align-items:center; gap:10px}
+.appbar .burger{width:34px; height:34px; border-radius:50%; background:rgba(255,255,255,.16);
+  border:0; color:#fff; cursor:pointer; display:flex; align-items:center; justify-content:center; flex:0 0 auto}
+.appbar .burger svg{width:19px; height:19px; stroke:currentColor; fill:none; stroke-width:2; stroke-linecap:round}
+.appbar h1{flex:1 1 auto; min-width:0; font-size:19px; font-weight:600; letter-spacing:.2px;
+  overflow:hidden; text-overflow:ellipsis; white-space:nowrap}
+.appbar .who{font-size:12px; color:#E7EEF4; opacity:.9; white-space:nowrap;
+  overflow:hidden; text-overflow:ellipsis; max-width:42vw}
+
+/* ---------- рабочая область ---------- */
+.stage{display:flex; flex-direction:column}
+.canvas{padding:6px 0}
+svg.win{display:block; width:100%; max-width:100%; height:auto; touch-action:manipulation}
+svg.win .hit{cursor:pointer}
+
+.dims{background:var(--panel); border-top:1px solid var(--line); padding:8px 10px;
+  display:flex; gap:8px; align-items:center; flex-wrap:wrap}
+.dims label{font-size:11px; color:var(--ink-3); text-transform:uppercase; letter-spacing:.04em}
+.dims input{width:78px; background:#fff; border:1px solid var(--line); border-radius:3px;
+  padding:7px 8px; font:600 15px system-ui,sans-serif; color:var(--ink); text-align:center}
+.dims input:focus{outline:2px solid var(--dlg); outline-offset:0}
+.dims .g{display:flex; gap:6px; align-items:center}
+
+/* ---------- нижняя таблица-итог ---------- */
+.sum{background:var(--panel); border-top:1px solid var(--line); overflow-x:auto}
+.sum table{border-collapse:collapse; min-width:100%; font-size:12.5px; white-space:nowrap}
+.sum th,.sum td{padding:5px 9px; text-align:right; border-bottom:1px solid #E3E3E3}
+.sum th:first-child,.sum td:first-child{text-align:left; position:sticky; left:0;
+  background:var(--panel); font-weight:600}
+.sum thead th{color:var(--ink-2); font-weight:600; background:#E4E4E4}
+.sum thead th:last-child{color:var(--sum)}
+.sum tr.pos td{background:#FAFAFA}
+.sum tr.all td{background:#EDEDED; font-weight:600}
+.sum td.acc{color:var(--price)}
+
+/* ---------- нижняя синяя полоса с позициями ---------- */
+.dock{position:sticky; bottom:0; z-index:25; background:var(--bar); display:flex; align-items:stretch;
+  padding-bottom:env(safe-area-inset-bottom); min-height:64px}
+.dock .plus{width:64px; flex:0 0 auto; background:rgba(255,255,255,.10); border:0; color:#fff;
+  font:300 34px/1 system-ui,sans-serif; cursor:pointer}
+.dock .strip{flex:1 1 auto; display:flex; gap:6px; overflow-x:auto; padding:7px 8px; align-items:center}
+.dock .thumb{flex:0 0 auto; width:48px; height:48px; border-radius:3px; background:#5C93BE;
+  border:2px solid transparent; cursor:pointer; padding:3px; position:relative}
+.dock .thumb[aria-pressed="true"]{border-color:#FFE100}
+.dock .thumb svg{width:100%; height:100%; display:block}
+.dock .thumb b{position:absolute; right:1px; bottom:0; font-size:9px; color:#fff; text-shadow:0 1px 2px #000}
+.dock .empty{color:#CBD9E4; font-size:13px; padding:0 6px; align-self:center}
+
+/* ---------- списки заказов ---------- */
+.list{padding:10px}
+.ord{display:flex; align-items:center; gap:10px; width:100%; background:#fff; border:1px solid var(--line);
+  border-radius:3px; padding:12px 13px; margin-bottom:8px; cursor:pointer; font:inherit; color:inherit; text-align:left}
+.ord .no{color:var(--price); font-weight:700; font-size:13px; flex:0 0 auto}
+.ord .mid{flex:1 1 auto; min-width:0}
+.ord .nm{font-weight:600; overflow:hidden; text-overflow:ellipsis; white-space:nowrap}
+.ord .meta{font-size:12px; color:var(--ink-3); margin-top:2px}
+.ord .cnt{font-size:12px; color:var(--ink-2); flex:0 0 auto}
+.empty-note{background:#fff; border:1px solid var(--line); border-radius:3px; padding:14px; color:var(--ink-2); font-size:14px}
+
+/* ---------- модальные окна и панели в их стиле ---------- */
+.scrim{position:fixed; inset:0; z-index:40; background:rgba(0,0,0,.45); display:none}
+.scrim.on{display:block}
+.modal{position:fixed; z-index:50; left:50%; top:50%; transform:translate(-50%,-50%);
+  width:min(92vw,520px); max-height:86vh; background:var(--canvas-2); display:none; flex-direction:column;
+  box-shadow:0 8px 30px rgba(0,0,0,.4)}
+.modal.on{display:flex}
+.modal .mh{background:var(--dlg); color:#fff; text-align:center; font-size:21px; padding:11px 10px; font-weight:400}
+.modal .mb{flex:1 1 auto; overflow-y:auto; padding:10px}
+.modal .mf{display:flex; flex:0 0 auto}
+.modal .mf button{flex:1 1 0; border:0; padding:16px 8px; font:700 17px system-ui,sans-serif;
+  color:#fff; cursor:pointer; letter-spacing:.5px}
+.modal .mf .no{background:var(--no)}
+.modal .mf .yes{background:var(--yes)}
+
+.tpls{display:grid; grid-template-columns:repeat(3,1fr); gap:9px}
+.tpl{background:#BFBFBF; border:2px solid transparent; padding:6px; cursor:pointer; font:inherit}
+.tpl[aria-pressed="true"]{border-color:var(--dlg); background:#CFCFCF}
+.tpl svg{display:block; width:100%; height:auto}
+.tpl span{display:block; font-size:10px; color:#3A3A3A; margin-top:4px; text-align:center; line-height:1.25}
+
+/* Выезжающая панель настроек — цветные заголовки секций, как у них */
+.panel{position:fixed; z-index:50; top:0; right:0; bottom:0; width:min(94vw,430px);
+  background:var(--panel); display:none; flex-direction:column; box-shadow:-6px 0 24px rgba(0,0,0,.35)}
+.panel.on{display:flex}
+.panel .ph{background:var(--green); color:#fff; text-align:center; font-size:19px;
+  padding:calc(env(safe-area-inset-top) + 10px) 10px 10px}
+.panel .pb{flex:1 1 auto; overflow-y:auto; -webkit-overflow-scrolling:touch}
+.panel .pf{flex:0 0 auto; background:var(--yes); color:#fff; border:0; width:100%;
+  padding:15px 10px calc(15px + env(safe-area-inset-bottom)); font:700 17px system-ui,sans-serif; cursor:pointer}
+.sec{color:#fff; text-align:center; font-size:16px; padding:8px 10px}
+.sec.b{background:var(--blue)} .sec.y{background:var(--yellow); color:#1B1B1B}
+.sec.p{background:var(--pink)} .sec.o{background:var(--orange)}
+.sec.v{background:var(--violet)} .sec.g{background:var(--green)}
+.sec.t{background:var(--teal)} .sec.s{background:var(--salmon); color:#5A1F1F}
+.sec.r{background:var(--red)}
+.opt{display:flex; align-items:center; gap:12px; width:100%; background:var(--row); border:0;
+  border-bottom:1px solid #E3E3E3; padding:13px 14px; font:400 16px system-ui,sans-serif;
+  color:var(--ink); cursor:pointer; text-align:left}
+.opt .mark{width:22px; height:22px; border:2px solid #2196F3; border-radius:50%; flex:0 0 auto; position:relative}
+.opt.chk .mark{border-radius:3px}
+.opt[aria-pressed="true"] .mark::after{content:""; position:absolute; inset:3px; background:#2196F3; border-radius:50%}
+.opt.chk[aria-pressed="true"] .mark::after{border-radius:1px}
+.opt .sub{display:block; font-size:12px; color:var(--ink-3); margin-top:2px}
+.fld{background:var(--row); border-bottom:1px solid #E3E3E3; padding:10px 14px; display:flex;
+  align-items:center; gap:10px; flex-wrap:wrap}
+.fld label{flex:1 1 130px; font-size:14px; color:var(--ink-2)}
+.fld input,.fld textarea{flex:0 0 120px; background:#fff; border:1px solid var(--line); border-radius:3px;
+  padding:8px 9px; font:600 15px system-ui,sans-serif; color:var(--ink); text-align:right}
+.fld input.wide,.fld textarea{flex:1 1 100%; text-align:left}
+.fld textarea{min-height:64px; resize:vertical; font-weight:400}
+.stepper{display:flex; align-items:center; gap:0; background:var(--row); border-bottom:1px solid #E3E3E3}
+.stepper button{width:76px; background:#DDD; border:0; font:400 26px/1 system-ui,sans-serif;
+  padding:12px 0; cursor:pointer; color:#333}
+.stepper span{flex:1 1 auto; text-align:center; font:600 20px system-ui,sans-serif}
+.ptbl{background:var(--row); overflow-x:auto}
+.ptbl table{border-collapse:collapse; width:100%; font-size:13px}
+.ptbl th,.ptbl td{padding:5px 7px; border-bottom:1px solid #EAEAEA; text-align:left; white-space:nowrap}
+.ptbl th{font-size:10.5px; text-transform:uppercase; color:var(--ink-3); letter-spacing:.05em}
+.ptbl input{width:74px; background:#FAFAFA; border:1px solid var(--line); border-radius:3px;
+  padding:6px 7px; font:600 13px system-ui,sans-serif; text-align:right}
+.ptbl input.w{width:120px; text-align:left; font-weight:400}
+.ptbl .del{background:none; border:0; color:var(--red); font:700 17px/1 system-ui,sans-serif; cursor:pointer; padding:4px 8px}
+.padd{background:var(--row); border-bottom:1px solid #E3E3E3; padding:9px 14px}
+.padd button{background:#E4E4E4; border:1px solid var(--line); border-radius:3px; padding:8px 12px;
+  font:600 13px system-ui,sans-serif; cursor:pointer; color:var(--ink-2)}
+.pnote{background:#FFF8E1; border-bottom:1px solid #E3E3E3; padding:10px 14px; font-size:12.5px; color:#6B5B00}
+
+/* меню-шторка слева */
+.drawer{position:fixed; z-index:50; top:0; left:0; bottom:0; width:min(80vw,300px);
+  background:#fff; display:none; flex-direction:column; box-shadow:6px 0 24px rgba(0,0,0,.35)}
+.drawer.on{display:flex}
+.drawer .dh{background:var(--bar); color:#fff; padding:calc(env(safe-area-inset-top) + 16px) 16px 16px}
+.drawer .dh b{display:block; font-size:18px}
+.drawer .dh span{font-size:12px; opacity:.85}
+.drawer button.mi{display:flex; align-items:center; gap:12px; width:100%; background:none; border:0;
+  border-bottom:1px solid #EEE; padding:14px 16px; font:400 16px system-ui,sans-serif; color:var(--ink);
+  cursor:pointer; text-align:left}
+.drawer button.mi[aria-current="true"]{background:#E8F1F8; color:var(--price); font-weight:600}
+.drawer .grp{font-size:11px; color:var(--ink-3); text-transform:uppercase; letter-spacing:.08em; padding:14px 16px 6px}
+
+/* результаты */
+.res{padding:10px}
+.rcard{background:#fff; border:1px solid var(--line); margin-bottom:10px}
+.rcard .rh{background:#E4E4E4; padding:8px 12px; font-size:13px; font-weight:600; color:var(--ink-2);
+  display:flex; justify-content:space-between; gap:8px; flex-wrap:wrap}
+.rcard .rb{padding:10px 12px}
+.gu{display:flex; align-items:center; gap:12px; border-bottom:1px solid #EEE; padding:11px 0; flex-wrap:wrap}
+.gu:last-child{border-bottom:0}
+.gu .sz{font:700 clamp(20px,5.6vw,27px)/1.05 ui-monospace,"SF Mono",Menlo,Consolas,monospace; letter-spacing:-.5px}
+.gu .mid{flex:1 1 170px; min-width:0}
+.gu .sub{font-size:12px; color:var(--ink-3); margin-top:4px}
+.gu .q{font:700 20px system-ui,sans-serif; white-space:nowrap}
+.gu.bad .sz{color:var(--sum)}
+.tot{display:flex; gap:14px; flex-wrap:wrap; padding:10px 12px; background:#F3F3F3;
+  border-top:1px solid var(--line); font-size:13px; color:var(--ink-2)}
+.tot b{color:var(--ink)}
+.chk{border:1px solid; border-radius:3px; padding:9px 11px; font-size:13px; margin-top:8px}
+.chk.crit{background:#FDECEA; border-color:#E0A6A0; color:#8E2B22}
+.chk.warn{background:#FFF6E0; border-color:#E3C77A; color:#6B5000}
+.chk.ok{background:#EAF5EA; border-color:#A9CFA9; color:#2E6B2E}
+.cutbar{display:flex; height:28px; border:1px solid var(--line); overflow:hidden; background:
+  repeating-linear-gradient(45deg,#E6E6E6,#E6E6E6 5px,transparent 5px,transparent 10px)}
+.cutbar div{border-right:1px solid #fff; background:var(--bar); color:#fff;
+  font:600 10px/28px ui-monospace,monospace; text-align:center; overflow:hidden; white-space:nowrap}
+.cutbar div.rest{background:transparent; color:var(--ink-3); border-right:0}
+.cuth{display:flex; justify-content:space-between; font-size:11.5px; color:var(--ink-3); margin:9px 0 4px}
+.dtbl{overflow-x:auto}
+.dtbl table{border-collapse:collapse; width:100%; font-size:12.5px; white-space:nowrap}
+.dtbl th,.dtbl td{padding:6px 8px; border-bottom:1px solid #EEE; text-align:left}
+.dtbl th{font-size:10.5px; text-transform:uppercase; color:var(--ink-3); letter-spacing:.05em}
+.dtbl td.r,.dtbl th.r{text-align:right}
+.dtbl td.num{font-family:ui-monospace,Menlo,Consolas,monospace}
+.dtbl tr.grp td{background:#F0F0F0; font-weight:600; color:var(--ink-2)}
+.derive{font:500 12px/1.7 ui-monospace,Menlo,Consolas,monospace; background:#F7F7F7;
+  border:1px solid #E4E4E4; padding:11px; overflow-x:auto; white-space:pre}
+.derive b{color:var(--price); font-weight:700}
+.derive .bad{color:var(--sum)} .derive .good{color:#2E6B2E}
+
+.toast{position:fixed; left:50%; transform:translateX(-50%); bottom:86px; z-index:60; background:#333;
+  color:#fff; padding:11px 16px; border-radius:3px; font-size:13.5px; opacity:0; pointer-events:none;
+  transition:opacity .18s; max-width:90vw; text-align:center}
+.toast.on{opacity:1}
+section[hidden]{display:none}
+</style>
+</head>
+<body>
+
+<div class="appbar">
+  <button class="burger" id="burger" aria-label="Меню"><svg viewBox="0 0 24 24"><path d="M4 7h16M4 12h16M4 17h16"/></svg></button>
+  <h1 id="ttl">WinHub Алюминий</h1>
+  <div class="who" id="who">—</div>
+</div>
+
+<!-- ===================== ЗАКАЗЫ ===================== -->
+<section id="s-orders">
+  <div class="list" id="ordList"></div>
+</section>
+
+<!-- ===================== ХОЛСТ ИЗДЕЛИЯ ===================== -->
+<section id="s-canvas" hidden>
+  <div class="stage">
+    <div class="canvas"><svg class="win" id="draw" viewBox="0 0 360 470" role="img" aria-label="Изделие"></svg></div>
+    <div class="dims" id="dims"></div>
+    <div class="sum" id="sumTbl"></div>
+  </div>
+</section>
+
+<!-- ===================== СТЕКЛОПАКЕТЫ ===================== -->
+<section id="s-glass" hidden>
+  <div class="res">
+    <div class="rcard">
+      <div class="rh"><span>Стеклопакеты заявки</span><span id="glassHint">—</span></div>
+      <div class="rb" id="glassList"></div>
+      <div class="tot" id="glassTot"></div>
+    </div>
+    <div class="rcard">
+      <div class="rh"><span>По изделиям и полям</span></div>
+      <div class="rb dtbl"><table id="glassByItem"></table></div>
+    </div>
+  </div>
+</section>
+
+<!-- ===================== РАСКРОЙ ===================== -->
+<section id="s-cut" hidden>
+  <div class="res">
+    <div class="rcard">
+      <div class="rh"><span>Раскрой профиля</span><span id="cutHint">—</span></div>
+      <div class="rb">
+        <div class="fld" style="border:0;padding:0 0 10px">
+          <label>Хлыст, мм</label><input type="number" id="cutStock" step="100">
+          <label>Пропил, мм</label><input type="number" id="cutKerf" step="1">
+        </div>
+        <div id="cutMaps"></div>
+      </div>
+    </div>
+    <div class="rcard">
+      <div class="rh"><span>Ведомость деталей</span></div>
+      <div class="rb dtbl"><table id="partTbl"></table></div>
+    </div>
+  </div>
+</section>
+
+<!-- ===================== КРОМКИ ПОЛЯ ===================== -->
+<section id="s-edge" hidden>
+  <div class="res">
+    <div class="rcard">
+      <div class="rh"><span id="edgeTitle">Поле</span><span>вывод результата</span></div>
+      <div class="rb"><div class="derive" id="edgeDerive"></div><div id="edgeWarn"></div></div>
+    </div>
+    <div class="rcard">
+      <div class="rh"><span>Комплектующие поля</span></div>
+      <div class="rb dtbl"><table id="kitTbl"></table></div>
+    </div>
+  </div>
+</section>
+
+<!-- ===================== ЗАКАЗЧИК ===================== -->
+<section id="s-client" hidden>
+  <div class="res">
+    <div class="rcard">
+      <div class="rh"><span>Данные заказчика</span><span>можно пропустить</span></div>
+      <div class="rb" style="padding:0">
+        <div class="fld"><label>Имя</label><input type="text" id="cName" class="wide"></div>
+        <div class="fld"><label>Телефон</label><input type="tel" id="cPhone" class="wide"></div>
+        <div class="fld"><label>Адрес объекта</label><input type="text" id="cAddr" class="wide"></div>
+        <div class="fld"><label>Заметка</label><textarea id="cNote"></textarea></div>
+      </div>
+    </div>
+    <button class="pf" id="cDone" style="background:var(--yes)">ок</button>
+  </div>
+</section>
+
+<div class="dock" id="dock">
+  <button class="plus" id="plus" aria-label="Добавить">+</button>
+  <div class="strip" id="strip"></div>
+</div>
+
+<!-- ===================== МОДАЛКА КОНФИГУРАЦИИ ===================== -->
+<div class="scrim" id="scrim"></div>
+<div class="modal" id="mTpl">
+  <div class="mh">конфигурация</div>
+  <div class="mb"><div class="tpls" id="tplGrid"></div></div>
+  <div class="mf"><button class="no" id="tplNo">НЕТ</button><button class="yes" id="tplYes">ДА</button></div>
+</div>
+
+<!-- ===================== ПАНЕЛЬ «НАСТРОЙКИ ОКНА» ===================== -->
+<div class="panel" id="pWin">
+  <div class="ph">настройки окна</div>
+  <div class="pb" id="pWinBody"></div>
+  <button class="pf" data-close="pWin">ок</button>
+</div>
+
+<!-- ===================== ПАНЕЛЬ «НАСТРОЙКИ АЛЮМИНИЯ» ===================== -->
+<div class="panel" id="pSys">
+  <div class="ph" style="background:var(--orange)">настройки алюминия</div>
+  <div class="pb" id="pSysBody"></div>
+  <button class="pf" data-close="pSys">ок</button>
+</div>
+
+<!-- ===================== МЕНЮ ===================== -->
+<div class="drawer" id="drawer">
+  <div class="dh"><b>WinHub</b><span id="drawerSub">алюминий</span></div>
+  <button class="mi" data-nav="s-orders">Заказы</button>
+  <button class="mi" data-nav="s-client">Заказчик</button>
+  <button class="mi" data-nav="s-canvas">Изделие</button>
+  <div class="grp">Расчёт</div>
+  <button class="mi" data-nav="s-glass">Стеклопакеты</button>
+  <button class="mi" data-nav="s-cut">Раскрой профиля</button>
+  <button class="mi" data-nav="s-edge">Кромки поля</button>
+  <div class="grp">Настройки</div>
+  <button class="mi" data-open="pWin">Настройки окна</button>
+  <button class="mi" data-open="pSys">Настройки алюминия</button>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+"use strict";
+var $ = function(s,r){ return (r||document).querySelector(s); };
+var $$ = function(s,r){ return Array.prototype.slice.call((r||document).querySelectorAll(s)); };
+var esc = function(s){ return String(s).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;"); };
+var plural = function(n,one,few,many){
+  var a=Math.abs(n)%100, b=a%10;
+  if(a>10&&a<20) return many;
+  if(b>1&&b<5) return few;
+  return b===1?one:many;
+};
+var uid = function(p){ return p + Math.random().toString(36).slice(2,8); };
+
+/* ============================================================
+   СПРАВОЧНИК АЛЮМИНИЯ. Числа — заглушки до каталожного листа.
+   ============================================================ */
+function mkSys(o){
+  return { id:o.id, n:o.n, depth:o.depth, delta:1,
+    L:{f:o.fL, r:o.rL, ovl:o.ovl}, T:{F:o.F, r:o.rL}, Z:{f:o.fZ, r:o.rZ},
+    lim:{fillMin:o.fmin, fillMax:o.fmax, clampMin:o.clamp, gapMin:3,
+         maxKg:o.kg, sashKg:o.skg, sashW:o.sw, sashH:o.sh},
+    beadF:o.beadF, beadZ:o.beadZ };
+}
+var SYSTEMS = [
+  mkSys({id:"w72", n:"Тёплая 72 — терморазрыв 34", depth:72, fL:34, fZ:38, F:72, ovl:10, rL:20, rZ:22,
+    fmin:24, fmax:48, clamp:14, kg:110, skg:100, sw:1100, sh:2400,
+    beadF:[{a:24,b:24,art:"ШТ-24-Р",g:15},{a:32,b:32,art:"ШТ-32-Р",g:16},{a:40,b:40,art:"ШТ-40-Р",g:16},{a:44,b:48,art:"ШТ-48-Р",g:17}],
+    beadZ:[{a:24,b:24,art:"ШТ-24-С",g:16},{a:32,b:32,art:"ШТ-32-С",g:16},{a:40,b:40,art:"ШТ-40-С",g:17},{a:44,b:48,art:"ШТ-48-С",g:18}]}),
+  mkSys({id:"w62", n:"Тёплая 62 — терморазрыв 24", depth:62, fL:31, fZ:35, F:62, ovl:9, rL:19, rZ:20,
+    fmin:24, fmax:40, clamp:14, kg:90, skg:80, sw:1000, sh:2300,
+    beadF:[{a:24,b:24,art:"ШТ-24-Р62",g:15},{a:32,b:32,art:"ШТ-32-Р62",g:15},{a:36,b:40,art:"ШТ-40-Р62",g:16}],
+    beadZ:[{a:24,b:24,art:"ШТ-24-С62",g:15},{a:32,b:32,art:"ШТ-32-С62",g:16},{a:36,b:40,art:"ШТ-40-С62",g:16}]}),
+  mkSys({id:"c48", n:"Холодная 48 — без терморазрыва", depth:48, fL:26, fZ:30, F:48, ovl:8, rL:15, rZ:16,
+    fmin:4, fmax:24, clamp:9, kg:70, skg:60, sw:900, sh:2100,
+    beadF:[{a:4,b:6,art:"ШТ-6-Р48",g:10},{a:20,b:24,art:"ШТ-24-Р48",g:12}],
+    beadZ:[{a:4,b:6,art:"ШТ-6-С48",g:10},{a:20,b:24,art:"ШТ-24-С48",g:13}]})
+];
+function sysById(id){
+  for(var i=0;i<SYSTEMS.length;i++){ if(SYSTEMS[i].id===id) return SYSTEMS[i]; }
+  return SYSTEMS[0];
+}
+var FILLS = [
+  {id:"f04",  n:"стекло 4",        t:4,  gl:4},
+  {id:"f24a", n:"24 · 4-16-4",     t:24, gl:8},
+  {id:"f32a", n:"32 · 4-24-4",     t:32, gl:8},
+  {id:"f32b", n:"32 · 4-10-4-10-4",t:32, gl:12},
+  {id:"f40a", n:"40 · 6-16-4-10-4",t:40, gl:14},
+  {id:"f44a", n:"44 · 4-16-4-16-4",t:44, gl:12},
+  {id:"f48a", n:"48 · 6-16-6-14-6",t:48, gl:18}
+];
+function fillById(id){
+  for(var i=0;i<FILLS.length;i++){ if(FILLS[i].id===id) return FILLS[i]; }
+  return null;
+}
+var TYPES = { fix:{n:"глухое", s:"глухое"}, turn:{n:"поворотная", s:"створка"}, tilt:{n:"поворотно-откидная", s:"створка"} };
+/* g — число полей в каждом ряду, сверху вниз */
+var TPLS = [
+  {id:"t1",n:"1 поле",g:[1]},          {id:"t2",n:"2 поля",g:[2]},          {id:"t3",n:"3 поля",g:[3]},
+  {id:"t4",n:"4 поля",g:[4]},          {id:"t11",n:"2 ряда",g:[1,1]},       {id:"t111",n:"3 ряда",g:[1,1,1]},
+  {id:"tf2",n:"фрамуга и 2",g:[1,2]},  {id:"tf3",n:"фрамуга и 3",g:[1,3]},  {id:"tf4",n:"фрамуга и 4",g:[1,4]},
+  {id:"t22",n:"2 ряда по 2",g:[2,2]},  {id:"t33",n:"2 ряда по 3",g:[3,3]},  {id:"t2n",n:"2 поля и низ",g:[2,1]},
+  {id:"t3n",n:"3 поля и низ",g:[3,1]}, {id:"t234",n:"фрамуга, 2 и 3",g:[1,2,3]}
+];
+
+/* ============================================================
+   МОДЕЛЬ ИЗДЕЛИЯ — дерево полей.
+   Узел: либо поле (sp = null), либо деление на части (sp = "col"|"row").
+   Так любое поле делится дальше, как ячейка в таблице.
+   ============================================================ */
+function leaf(fill){ return { sp:null, size:1, type:"fix", fill:fill || UI.defFill }; }
+function split(dir, kids){ return { sp:dir, size:1, kids:kids }; }
+function treeFromTpl(g){
+  var rows = g.map(function(n){
+    if(n === 1) return leaf();
+    var k = []; for(var i=0;i<n;i++) k.push(leaf());
+    return split("col", k);
+  });
+  if(rows.length === 1) return rows[0];
+  /* фрамуга: верхний ряд уже нижних — ему сразу даётся своя доля */
+  if(rows.length > 1 && g[0] < g[1]) rows[0].size = 0.32;
+  return split("row", rows);
+}
+function mkItem(tplId){
+  var t = null, i;
+  for(i=0;i<TPLS.length;i++){ if(TPLS[i].id===tplId) t = TPLS[i]; }
+  if(!t) t = TPLS[0];
+  return { id:uid("i"), tpl:t.id, sysId:UI.defSys, qty:1, W:1500, H:1500, root:treeFromTpl(t.g) };
+}
+
+/* Раскладка: раздаём прямоугольники по дереву. Последняя часть добирает остаток,
+   поэтому сумма всегда точно равна габариту. */
+function layout(node, x, y, w, h, out, dep){
+  node.x=x; node.y=y; node.w=w; node.h=h;
+  if(!node.sp){ out.leaves.push(node); return; }
+  var horiz = (node.sp === "col");
+  var total = node.kids.reduce(function(a,k){ return a + (k.size||1); }, 0);
+  var full = horiz ? w : h, acc = 0, i;
+  for(i=0;i<node.kids.length;i++){
+    var k = node.kids[i];
+    var s = (i === node.kids.length-1) ? (full - acc) : Math.round(full * (k.size||1) / total);
+    if(horiz) layout(k, x+acc, y, s, h, out, dep+1);
+    else      layout(k, x, y+acc, w, s, out, dep+1);
+    if(i < node.kids.length-1)
+      out.imposts.push({ node:node, i:i, dir:horiz?"v":"h",
+        x: horiz ? x+acc+s : x, y: horiz ? y : y+acc+s, len: horiz ? h : w });
+    acc += s;
+  }
+}
+function walk(node, cb, parent, idx){
+  cb(node, parent, idx);
+  if(node.kids) node.kids.forEach(function(k,i){ walk(k, cb, node, i); });
+}
+function leafByKey(root, key){
+  var found = null, n = 0;
+  walk(root, function(x){ if(!x.sp){ if(String(n) === String(key)) found = x; n++; } });
+  return found;
+}
+function keyOfLeaf(root, node){
+  var n = 0, key = null;
+  walk(root, function(x){ if(!x.sp){ if(x === node) key = String(n); n++; } });
+  return key;
+}
+/* путь от корня до узла — нужен, чтобы понять, какие размеры сейчас править */
+function pathTo(root, target){
+  var path = null;
+  (function rec(n, acc){
+    if(path) return;
+    if(n === target){ path = acc.concat([n]); return; }
+    if(n.kids) n.kids.forEach(function(k){ rec(k, acc.concat([n])); });
+  })(root, []);
+  return path || [root];
+}
+/* Цепочка размеров, которую видит и правит сборщик: ближайшее к выбранному
+   полю деление в нужную сторону. Ровно как размерная линия под окном. */
+function chain(it, node, dir){
+  var path = pathTo(it.root, node), i;
+  for(i = path.length - 1; i >= 0; i--)
+    if(path[i].sp === dir) return path[i].kids;
+  return null;
+}
+
+/* ============================================================
+   РАСЧЁТ. Вычет принадлежит кромке заполнения, а не окну.
+   ============================================================ */
+function pickBead(list, t){
+  for(var i=0;i<list.length;i++){ if(t >= list[i].a && t <= list[i].b) return list[i]; }
+  return null;
+}
+function edgeDeduction(sy, nb, kind, t){
+  var fnb = (nb === "T") ? sy.T.F/2 : sy.L.f, d = sy.delta;
+  if(kind === "fix"){
+    var bf = pickBead(sy.beadF, t); if(!bf) return null;
+    return { d: fnb - bf.g + d, g: bf.g, bead: bf, r:(nb==="T"?sy.T.r:sy.L.r), f:fnb,
+             expr: fnb+" − "+bf.g+" + "+d, words:(nb==="T"?"импост T":"рама L") };
+  }
+  var bz = pickBead(sy.beadZ, t); if(!bz) return null;
+  return { d:(fnb - sy.L.ovl) + sy.Z.f - bz.g + d, g:bz.g, bead:bz, r:sy.Z.r, f:fnb,
+           expr:"("+fnb+" − "+sy.L.ovl+") + "+sy.Z.f+" − "+bz.g+" + "+d,
+           words:"створка Z у "+(nb==="T"?"импоста T":"рамы L") };
+}
+function itemCalc(it){
+  var sy = sysById(it.sysId), out = {leaves:[], imposts:[]};
+  layout(it.root, 0, 0, it.W, it.H, out, 0);
+  var cells = [], parts = [], n = 0;
+  parts.push({role:"L", art:"Рама L · "+sy.n, L:it.W},{role:"L", art:"Рама L · "+sy.n, L:it.W},
+             {role:"L", art:"Рама L · "+sy.n, L:it.H},{role:"L", art:"Рама L · "+sy.n, L:it.H});
+  /* импост: его концы упираются либо в раму, либо в другой импост */
+  out.imposts.forEach(function(m){
+    var len;
+    if(m.dir === "v"){
+      var top = (m.y === 0) ? sy.L.f : sy.T.F/2, bot = (m.y + m.len >= it.H) ? sy.L.f : sy.T.F/2;
+      len = m.len - top - bot;
+    }else{
+      var lf = (m.x === 0) ? sy.L.f : sy.T.F/2, rt = (m.x + m.len >= it.W) ? sy.L.f : sy.T.F/2;
+      len = m.len - lf - rt;
+    }
+    m.cut = len;
+    parts.push({role:"T", art:"Импост T · "+sy.n, L:len});
+  });
+
+  out.leaves.forEach(function(nd){
+    var fill = fillById(nd.fill) || FILLS[0], t = fill.t;
+    var kindL = (nd.x === 0) ? "L" : "T";
+    var kindR = (nd.x + nd.w >= it.W) ? "L" : "T";
+    var kindT = (nd.y === 0) ? "L" : "T";
+    var kindB = (nd.y + nd.h >= it.H) ? "L" : "T";
+    var k = (nd.type === "fix") ? "fix" : "sash";
+    var eL = edgeDeduction(sy,kindL,k,t), eR = edgeDeduction(sy,kindR,k,t),
+        eT = edgeDeduction(sy,kindT,k,t), eB = edgeDeduction(sy,kindB,k,t);
+    var ok = !!(eL&&eR&&eT&&eB);
+    var gw = ok ? nd.w - eL.d - eR.d : 0, gh = ok ? nd.h - eT.d - eB.d : 0;
+    var area = gw*gh/1e6;
+    var faceL = kindL==="L"?sy.L.f:sy.T.F/2, faceR = kindR==="L"?sy.L.f:sy.T.F/2;
+    var faceT = kindT==="L"?sy.L.f:sy.T.F/2, faceB = kindB==="L"?sy.L.f:sy.T.F/2;
+    var sashW = (k==="sash") ? nd.w - (faceL - sy.L.ovl) - (faceR - sy.L.ovl) : 0;
+    var sashH = (k==="sash") ? nd.h - (faceT - sy.L.ovl) - (faceB - sy.L.ovl) : 0;
+    var c = { key:String(n++), nd:nd, sy:sy, type:nd.type, fill:fill, t:t, ok:ok,
+      x:nd.x, y:nd.y, w:nd.w, h:nd.h,
+      kindL:kindL, kindR:kindR, kindT:kindT, kindB:kindB,
+      faceL:faceL, faceR:faceR, faceT:faceT, faceB:faceB,
+      eL:eL, eR:eR, eT:eT, eB:eB, gw:gw, gh:gh, area:area,
+      kg: area * fill.gl * 2.5, bead: ok ? eL.bead : null, sashW:sashW, sashH:sashH };
+    cells.push(c);
+    if(ok){
+      if(k === "sash")
+        parts.push({role:"Z", art:"Створка Z · "+sy.n, L:sashW},{role:"Z", art:"Створка Z · "+sy.n, L:sashW},
+                   {role:"Z", art:"Створка Z · "+sy.n, L:sashH},{role:"Z", art:"Створка Z · "+sy.n, L:sashH});
+      parts.push({role:"bead", art:"Штапик "+c.bead.art, L:Math.round(gw)},{role:"bead", art:"Штапик "+c.bead.art, L:Math.round(gw)},
+                 {role:"bead", art:"Штапик "+c.bead.art, L:Math.round(gh)},{role:"bead", art:"Штапик "+c.bead.art, L:Math.round(gh)});
+      parts.push({role:"seal", art:"Уплотнитель", L:Math.round(4*(gw+gh))});
+    }
+  });
+  return { it:it, sy:sy, cells:cells, imposts:out.imposts, parts:parts };
+}
+function checksOf(R){
+  var out = [], sy = R.sy, L = sy.lim;
+  if(sy.T.F/2 <= sy.L.ovl)
+    out.push({l:"crit", t:"Полуполка импоста "+(sy.T.F/2)+" не больше наплава "+sy.L.ovl+": две створки по бокам импоста наложатся."});
+  R.cells.forEach(function(x, i){
+    var nm = "Поле "+(i+1), t = x.t;
+    if(t < L.fillMin || t > L.fillMax)
+      out.push({l:"crit", t:nm+": заполнение "+t+" мм вне диапазона системы "+L.fillMin+"–"+L.fillMax+" мм."});
+    if(!x.ok){ out.push({l:"crit", t:nm+": под "+t+" мм нет штапика в таблице системы."}); return; }
+    if(x.gw <= 0 || x.gh <= 0){ out.push({l:"crit", t:nm+": вычеты съели поле целиком."}); return; }
+    [["левая",x.eL],["правая",x.eR],["нижняя",x.eB],["верхняя",x.eT]].forEach(function(p){
+      var e = p[1], clamp = e.g - sy.delta, gap = e.r - clamp;
+      if(clamp < L.clampMin) out.push({l:"crit", t:nm+", "+p[0]+" кромка: защемление "+clamp+" мм меньше "+L.clampMin+"."});
+      if(gap < L.gapMin) out.push({l:"crit", t:nm+", "+p[0]+" кромка: зазор до дна фальца "+gap+" мм меньше "+L.gapMin+"."});
+    });
+    if(x.kg > L.maxKg) out.push({l:"crit", t:nm+": вес "+x.kg.toFixed(0)+" кг выше предела системы "+L.maxKg+" кг."});
+    if(x.type !== "fix"){
+      if(x.kg > L.sashKg) out.push({l:"warn", t:nm+": вес створки "+x.kg.toFixed(0)+" кг выше предела фурнитуры "+L.sashKg+" кг."});
+      if(x.sashW > L.sashW || x.sashH > L.sashH)
+        out.push({l:"warn", t:nm+": створка "+Math.round(x.sashW)+"×"+Math.round(x.sashH)+" вне размерной группы."});
+    }
+  });
+  return out;
+}
+
+/* ============================================================
+   ДАННЫЕ
+   ============================================================ */
+var DB = { orders:[], seq:1 };
+var UI = { order:null, item:null, cell:"0", screen:"s-orders",
+           defFill:"f32b", defSys:"w72", cutStock:6000, cutKerf:5, who:"" };
+function order(){
+  for(var i=0;i<DB.orders.length;i++){ if(DB.orders[i].id===UI.order) return DB.orders[i]; }
+  return null;
+}
+function item(){
+  var o = order(); if(!o) return null;
+  for(var i=0;i<o.items.length;i++){ if(o.items[i].id===UI.item) return o.items[i]; }
+  return o.items[0] || null;
+}
+function newOrder(){
+  var o = { id:uid("o"), no:DB.seq++, created:Date.now(),
+            client:{name:"", phone:"", addr:"", note:""}, items:[] };
+  DB.orders.unshift(o); UI.order = o.id; UI.item = null;
+  return o;
+}
+function selCell(){
+  var it = item(); if(!it) return null;
+  var R = itemCalc(it), c = null;
+  R.cells.forEach(function(x){ if(x.key === UI.cell) c = x; });
+  return c || R.cells[0];
+}
+
+/* ============================================================
+   ЧЕРТЁЖ С РУЧКАМИ — как в PVC Windows Studio
+   ============================================================ */
+var VB = { w:360, h:424, l:64, r:26, t:18, b:66 };
+function drawWin(){
+  var it = item();
+  if(!it){ $("#draw").innerHTML = ""; return; }
+  var R = itemCalc(it);
+  var k = Math.min((VB.w - VB.l - VB.r)/it.W, (VB.h - VB.t - VB.b)/it.H);
+  var ox = VB.l + (VB.w - VB.l - VB.r - it.W*k)/2, oy = VB.t;
+  var X = function(v){ return ox + v*k; }, Y = function(v){ return oy + v*k; };
+  var s = [];
+  /* коробка */
+  s.push('<rect x="'+X(0)+'" y="'+Y(0)+'" width="'+(it.W*k)+'" height="'+(it.H*k)+
+    '" fill="var(--frame)" stroke="#9A9A9A" stroke-width="1"/>');
+  s.push('<rect x="'+(X(0)+2)+'" y="'+(Y(0)+2)+'" width="'+(it.W*k-4)+'" height="'+(it.H*k-4)+
+    '" fill="none" stroke="var(--frame-2)" stroke-width="1"/>');
+
+  R.cells.forEach(function(c){
+    var ax=c.x+c.faceL, bx=c.x+c.w-c.faceR, ay=c.y+c.faceT, by=c.y+c.h-c.faceB, sy=R.sy;
+    if(c.type !== "fix"){
+      var sx=ax-sy.L.ovl, sX=bx+sy.L.ovl, sy0=ay-sy.L.ovl, sY=by+sy.L.ovl;
+      s.push('<rect x="'+X(sx)+'" y="'+Y(sy0)+'" width="'+Math.max(0,(sX-sx)*k)+'" height="'+Math.max(0,(sY-sy0)*k)+
+        '" fill="var(--sash)" stroke="#9A9A9A"/>');
+      ax=sx+sy.Z.f; bx=sX-sy.Z.f; ay=sy0+sy.Z.f; by=sY-sy.Z.f;
+    }
+    s.push('<rect class="hit" data-cell="'+c.key+'" x="'+X(ax)+'" y="'+Y(ay)+'" width="'+Math.max(0,(bx-ax)*k)+
+      '" height="'+Math.max(0,(by-ay)*k)+'" fill="var(--glass)" stroke="'+(c.key===UI.cell?"#1565C0":"#9AB4C6")+
+      '" stroke-width="'+(c.key===UI.cell?2:1)+'"/>');
+    /* ручки поля: = уравнять · | разделить по вертикали · — по горизонтали */
+    var cw=(bx-ax)*k, ch=(by-ay)*k, cx=(X(ax)+X(bx))/2, cy=(Y(ay)+Y(by))/2;
+    if(cw > 44 && ch > 44){
+      s.push(handle(X(bx)-15, Y(ay)+15, "eq", c.key, "="));
+      s.push(handle(X(ax)+15, Y(by)-15, "sv", c.key, "|"));
+      s.push(handle(X(bx)-15, Y(by)-15, "sh", c.key, "—"));
+      s.push(handle(cx, cy, "set", c.key, "+"));
+    }else if(cw > 26 && ch > 26){
+      s.push(handle(cx, cy, "set", c.key, "+"));
+    }
+  });
+  /* красные ✕ на импостах — удалить деление */
+  R.imposts.forEach(function(m, i){
+    var hx = m.dir==="v" ? X(m.x) : X(m.x + m.len/2);
+    var hy = m.dir==="v" ? Y(m.y + m.len/2) : Y(m.y);
+    s.push(handle(hx, hy, "del", i, "✕", true));
+  });
+  /* размерные линии: сперва цепочка вокруг выбранного поля, затем габарит */
+  var sel = null;
+  R.cells.forEach(function(c){ if(c.key === UI.cell) sel = c; });
+  var cols = sel ? chain(it, sel.nd, "col") : null;
+  var rows = sel ? chain(it, sel.nd, "row") : null;
+  var dy1 = Y(it.H) + 20, dy2 = Y(it.H) + 40;
+  if(cols && cols.length > 1){
+    cols.forEach(function(kid, i){ s.push(dimLine(X(kid.x), dy1, X(kid.x+kid.w), dy1, Math.round(kid.w), "K", i)); });
+    s.push(dimLine(X(0), dy2, X(it.W), dy2, it.W, "W", null));
+  }else{
+    s.push(dimLine(X(0), dy1, X(it.W), dy1, it.W, "W", null));
+  }
+  if(rows && rows.length > 1){
+    rows.forEach(function(kid, i){ s.push(dimLineV(X(0)-22, Y(kid.y), Y(kid.y+kid.h), Math.round(kid.h), "R", i)); });
+    s.push(dimLineV(X(0)-40, Y(0), Y(it.H), it.H, "H"));
+  }else{
+    s.push(dimLineV(X(0)-22, Y(0), Y(it.H), it.H, "H"));
+  }
+  $("#draw").innerHTML = s.join("");
+  bindDraw();
+}
+function handle(x, y, act, id, glyph, red){
+  return '<g class="hit" data-act="'+act+'" data-id="'+id+'">'+
+    '<circle cx="'+x+'" cy="'+y+'" r="13" fill="'+(red?"var(--handle-x)":"var(--handle)")+'" fill-opacity="'+(red?.85:.72)+'"/>'+
+    '<text x="'+x+'" y="'+(y+ (glyph==="—"?4:5))+'" text-anchor="middle" font-size="'+(glyph==="✕"?13:15)+
+    '" fill="#fff" font-weight="700" font-family="system-ui,sans-serif">'+glyph+'</text></g>';
+}
+function dimLine(x1,y,x2,y2,val,kind,idx){
+  var mid = (x1+x2)/2;
+  return '<g><line x1="'+x1+'" y1="'+y+'" x2="'+x2+'" y2="'+y+'" stroke="#555" stroke-width="1"/>'+
+    '<circle cx="'+x1+'" cy="'+y+'" r="2.4" fill="#333"/><circle cx="'+x2+'" cy="'+y+'" r="2.4" fill="#333"/>'+
+    '<rect class="hit" data-dim="'+kind+'" data-idx="'+(idx===null?"":idx)+'" x="'+(mid-22)+'" y="'+(y-9)+
+    '" width="44" height="18" rx="9" fill="#fff" stroke="#BBB"/>'+
+    '<text x="'+mid+'" y="'+(y+4.5)+'" text-anchor="middle" font-size="11.5" fill="#222" font-weight="600">'+val+'</text></g>';
+}
+function dimLineV(x,y1,y2,val,kind,idx){
+  var mid = (y1+y2)/2;
+  return '<g><line x1="'+x+'" y1="'+y1+'" x2="'+x+'" y2="'+y2+'" stroke="#555" stroke-width="1"/>'+
+    '<circle cx="'+x+'" cy="'+y1+'" r="2.4" fill="#333"/><circle cx="'+x+'" cy="'+y2+'" r="2.4" fill="#333"/>'+
+    '<rect class="hit" data-dim="'+kind+'" data-idx="'+(idx===undefined?"":idx)+'" x="'+(x-20)+'" y="'+(mid-9)+'" width="40" height="18" rx="9" fill="#fff" stroke="#BBB"/>'+
+    '<text x="'+x+'" y="'+(mid+4.5)+'" text-anchor="middle" font-size="11.5" fill="#222" font-weight="600">'+val+'</text></g>';
+}
+function bindDraw(){
+  $$("#draw [data-cell]").forEach(function(el){
+    el.addEventListener("click", function(){ UI.cell = el.getAttribute("data-cell"); save(); paintCanvas(); });
+  });
+  $$("#draw [data-act]").forEach(function(el){
+    el.addEventListener("click", function(ev){
+      ev.stopPropagation();
+      doAct(el.getAttribute("data-act"), el.getAttribute("data-id"));
+    });
+  });
+  $$("#draw [data-dim]").forEach(function(el){
+    el.addEventListener("click", function(ev){
+      ev.stopPropagation();
+      var kind = el.getAttribute("data-dim"), idx = el.getAttribute("data-idx");
+      var target = $('#dims input[data-dim="'+kind+'"]'+(idx ? '[data-idx="'+idx+'"]' : (kind==="K"?'[data-idx="0"]':'')));
+      if(target){ target.focus(); target.select(); }
+    });
+  });
+}
+function doAct(act, id){
+  var it = item(); if(!it) return;
+  if(act === "del"){
+    var R = itemCalc(it), m = R.imposts[+id];
+    if(!m) return;
+    var kids = m.node.kids;
+    /* убираем границу: соседняя часть вливается в левую (верхнюю) */
+    kids[m.i].size = (kids[m.i].size||1) + (kids[m.i+1].size||1);
+    kids.splice(m.i+1, 1);
+    if(kids.length === 1) collapse(it, m.node);
+    UI.cell = "0"; save(); paintCanvas(); return;
+  }
+  var nd = leafByKey(it.root, id);
+  if(!nd) return;
+  if(act === "set"){ UI.cell = id; save(); openPanel("pWin"); return; }
+  if(act === "eq"){
+    var par = parentOf(it.root, nd);
+    if(par){ par.kids.forEach(function(k){ k.size = 1; }); save(); paintCanvas(); }
+    else toast("Поле одно — уравнивать нечего");
+    return;
+  }
+  if(act === "sv" || act === "sh"){
+    var dir = (act === "sv") ? "col" : "row";
+    var a = { sp:null, size:1, type:nd.type, fill:nd.fill };
+    var b = { sp:null, size:1, type:"fix", fill:nd.fill };
+    nd.sp = dir; nd.kids = [a,b];
+    delete nd.type; delete nd.fill;
+    save(); paintCanvas();
+  }
+}
+function parentOf(root, node){
+  var p = null;
+  walk(root, function(x){ if(x.kids && x.kids.indexOf(node) >= 0) p = x; });
+  return p;
+}
+function collapse(it, node){
+  var only = node.kids[0], par = parentOf(it.root, node);
+  var keep = node.size;
+  Object.keys(node).forEach(function(k){ delete node[k]; });
+  Object.keys(only).forEach(function(k){ node[k] = only[k]; });
+  node.size = keep;
+}
+
+/* ---------- строка размеров под чертежом ---------- */
+function renderDims(){
+  var it = item(); if(!it){ $("#dims").innerHTML = ""; return; }
+  var c = selCell();
+  var cols = c ? chain(it, c.nd, "col") : null;
+  var rows = c ? chain(it, c.nd, "row") : null;
+  var h = '<div class="g"><label>Ш</label><input type="number" step="10" data-dim="W" value="'+it.W+'"></div>'+
+          '<div class="g"><label>В</label><input type="number" step="10" data-dim="H" value="'+it.H+'"></div>';
+  if(cols && cols.length > 1) cols.forEach(function(kid, i){
+    h += '<div class="g"><label>'+(i+1)+'</label><input type="number" step="10" data-dim="K" data-idx="'+i+'" value="'+Math.round(kid.w)+'"></div>';
+  });
+  if(rows && rows.length > 1) rows.forEach(function(kid, i){
+    h += '<div class="g"><label>ряд '+(i+1)+'</label><input type="number" step="10" data-dim="R" data-idx="'+i+'" value="'+Math.round(kid.h)+'"></div>';
+  });
+  h += '<div class="g"><label>шт</label><input type="number" step="1" min="1" data-dim="Q" value="'+it.qty+'"></div>';
+  if(c) h += '<div class="g" style="flex:1 1 100%;color:var(--ink-2);font-size:12.5px">поле '+(+c.key+1)+
+    ' · '+TYPES[c.type].n+' · стеклопакет <b>'+(c.ok? Math.round(c.gw)+" × "+Math.round(c.gh)+" × "+c.t : "не считается")+'</b></div>';
+  $("#dims").innerHTML = h;
+  $$("#dims input").forEach(function(inp){
+    inp.addEventListener("input", function(){
+      var it2 = item(), c2 = selCell(), kind = inp.getAttribute("data-dim"), v = +inp.value || 0;
+      if(kind === "W"){ it2.W = Math.max(200, v); }
+      else if(kind === "H"){ it2.H = Math.max(200, v); }
+      else if(kind === "Q"){ it2.qty = Math.max(1, v|0); }
+      else{
+        var dir = (kind === "K") ? "col" : "row";
+        var kids = c2 ? chain(it2, c2.nd, dir) : null;
+        if(!kids) return;
+        var i = +inp.getAttribute("data-idx"), kid = kids[i];
+        var parent = parentOf(it2.root, kid);
+        var full = (kind === "K") ? parent.w : parent.h;
+        var want = Math.max(50, v), rest = full - want;
+        if(rest < 50 * (kids.length - 1)) return;
+        /* эта часть фиксируется, остальные делят остаток в прежней пропорции */
+        var others = kids.filter(function(x){ return x !== kid; });
+        var oldOthers = others.reduce(function(a,x){ return a + ((kind==="K")?x.w:x.h); }, 0) || 1;
+        kid.size = want;
+        others.forEach(function(x){
+          var was = (kind==="K") ? x.w : x.h;
+          x.size = Math.max(50, Math.round(rest * was / oldOthers));
+        });
+      }
+      save(); paintCanvas(true);
+    });
+  });
+}
+
+/* ---------- нижняя таблица-итог ---------- */
+function renderSum(){
+  var o = order();
+  if(!o || !o.items.length){ $("#sumTbl").innerHTML = ""; return; }
+  var cur = item(), Rc = cur ? itemCalc(cur) : null;
+  var m = function(R, role){
+    if(!R) return 0;
+    return R.parts.reduce(function(a,p){ return a + (p.role===role ? p.L : 0); }, 0) / 1000;
+  };
+  var glassN = function(R){ return R ? R.cells.filter(function(c){return c.ok;}).length : 0; };
+  var areaOf = function(R){ return R ? R.cells.reduce(function(a,c){return a+c.area;},0) : 0; };
+  var sashN = function(R){ return R ? R.cells.filter(function(c){return c.type!=="fix";}).length : 0; };
+
+  var all = { ar:0, L:0, T:0, bead:0, seal:0, sash:0, g:0 };
+  o.items.forEach(function(it){
+    var R = itemCalc(it), q = it.qty;
+    all.ar += areaOf(R)*q; all.L += m(R,"L")*q; all.T += m(R,"T")*q;
+    all.bead += m(R,"bead")*q; all.seal += m(R,"seal")*q;
+    all.sash += sashN(R)*q; all.g += glassN(R)*q;
+  });
+  var f2 = function(v){ return v.toFixed(2); };
+  var h = '<table><thead><tr><th>позиция</th><th>площадь</th><th>рамы</th><th>импосты</th>'+
+          '<th>штапики</th><th>уплотн.</th><th>створки</th><th>пакеты</th></tr></thead><tbody>'+
+    '<tr class="pos"><td>окно</td><td>'+f2(areaOf(Rc))+'</td><td>'+f2(m(Rc,"L"))+'</td><td>'+f2(m(Rc,"T"))+
+      '</td><td>'+f2(m(Rc,"bead"))+'</td><td>'+f2(m(Rc,"seal"))+'</td><td>'+sashN(Rc)+'</td>'+
+      '<td class="acc">'+glassN(Rc)+'</td></tr>'+
+    '<tr class="all"><td>все окна</td><td>'+f2(all.ar)+'</td><td>'+f2(all.L)+'</td><td>'+f2(all.T)+
+      '</td><td>'+f2(all.bead)+'</td><td>'+f2(all.seal)+'</td><td>'+all.sash+'</td>'+
+      '<td class="acc">'+all.g+'</td></tr></tbody></table>';
+  $("#sumTbl").innerHTML = h;
+}
+
+/* ---------- полоса позиций внизу ---------- */
+function thumbSvg(it){
+  var out = {leaves:[], imposts:[]};
+  layout(it.root, 0, 0, it.W, it.H, out, 0);
+  var k = Math.min(40/it.W, 40/it.H), ox=(44-it.W*k)/2, oy=(44-it.H*k)/2, s=[];
+  s.push('<rect x="'+ox+'" y="'+oy+'" width="'+(it.W*k)+'" height="'+(it.H*k)+'" fill="#F2F2F2" stroke="#7C7C7C" stroke-width=".7"/>');
+  out.leaves.forEach(function(n){
+    s.push('<rect x="'+(ox+n.x*k+1.4)+'" y="'+(oy+n.y*k+1.4)+'" width="'+Math.max(0,n.w*k-2.8)+
+      '" height="'+Math.max(0,n.h*k-2.8)+'" fill="'+(n.type==="fix"?"#C3D9E8":"#9FC4DC")+'" stroke="#7C7C7C" stroke-width=".7"/>');
+  });
+  return '<svg viewBox="0 0 44 44">'+s.join("")+'</svg>';
+}
+function renderStrip(){
+  var o = order();
+  if(!o){ $("#strip").innerHTML = '<span class="empty">Создайте заказ кнопкой «+»</span>'; return; }
+  if(!o.items.length){ $("#strip").innerHTML = '<span class="empty">Нажмите «+» и выберите конфигурацию</span>'; return; }
+  $("#strip").innerHTML = o.items.map(function(it){
+    return '<button class="thumb" data-item="'+it.id+'" aria-pressed="'+(it.id===UI.item)+'">'+
+      thumbSvg(it)+'<b>'+it.qty+'</b></button>';
+  }).join("");
+  $$("#strip [data-item]").forEach(function(b){
+    b.addEventListener("click", function(){
+      UI.item = b.getAttribute("data-item"); UI.cell = "0"; save(); paintCanvas();
+    });
+  });
+}
+function paintCanvas(keepDims){
+  drawWin();
+  if(!keepDims) renderDims();
+  renderSum(); renderStrip();
+  var it = item();
+  $("#ttl").textContent = it ? (it.W + " × " + it.H) : "WinHub Алюминий";
+  var o = order();
+  $("#who").textContent = o ? ((o.client.name || "заявка №"+o.no) + (it ? " : " + sysById(it.sysId).n.split(" —")[0] : "")) : "";
+}
+
+/* ============================================================
+   ЗАКАЗЫ
+   ============================================================ */
+function renderOrders(){
+  $("#ordList").innerHTML = DB.orders.length ? DB.orders.map(function(o){
+    return '<button class="ord" data-ord="'+o.id+'"><span class="no">№'+o.no+'</span>'+
+      '<span class="mid"><span class="nm">'+esc(o.client.name || "без имени")+'</span>'+
+      '<span class="meta">'+esc(o.client.phone || "телефон не указан")+' · '+
+      new Date(o.created).toLocaleDateString("ru-RU")+'</span></span>'+
+      '<span class="cnt">'+o.items.length+' '+plural(o.items.length,"окно","окна","окон")+'</span></button>';
+  }).join("") : '<div class="empty-note">Заказов пока нет. Нажмите «+» внизу, чтобы создать.</div>';
+  $$("#ordList [data-ord]").forEach(function(b){
+    b.addEventListener("click", function(){
+      UI.order = b.getAttribute("data-ord");
+      var o = order(); UI.item = o.items.length ? o.items[0].id : null; UI.cell = "0";
+      save(); loadClient();
+      if(o.items.length) nav("s-canvas"); else openTpl();
+    });
+  });
+}
+
+/* ============================================================
+   МОДАЛКА КОНФИГУРАЦИИ
+   ============================================================ */
+var tplPick = null;
+function tplSvg(g){
+  var W=84,H=74,pad=4,s=[],ri,ci;
+  s.push('<rect x="1" y="1" width="'+(W-2)+'" height="'+(H-2)+'" fill="#F2F2F2" stroke="#8A8A8A"/>');
+  var ih=(H-2*pad)/g.length;
+  for(ri=0;ri<g.length;ri++){
+    var iw=(W-2*pad)/g[ri];
+    for(ci=0;ci<g[ri];ci++)
+      s.push('<rect x="'+(pad+ci*iw+1.5)+'" y="'+(pad+ri*ih+1.5)+'" width="'+(iw-3)+'" height="'+(ih-3)+
+        '" fill="#C7DCEA" stroke="#8A8A8A" stroke-width=".8"/>');
+  }
+  return '<svg viewBox="0 0 '+W+' '+H+'" aria-hidden="true">'+s.join("")+'</svg>';
+}
+function openTpl(){
+  tplPick = null;
+  $("#tplGrid").innerHTML = TPLS.map(function(t){
+    return '<button class="tpl" data-tpl="'+t.id+'" aria-pressed="false">'+tplSvg(t.g)+'<span>'+esc(t.n)+'</span></button>';
+  }).join("");
+  $$("#tplGrid [data-tpl]").forEach(function(b){
+    b.addEventListener("click", function(){
+      tplPick = b.getAttribute("data-tpl");
+      $$("#tplGrid [data-tpl]").forEach(function(x){ x.setAttribute("aria-pressed", String(x===b)); });
+    });
+  });
+  $("#mTpl").classList.add("on"); $("#scrim").classList.add("on");
+}
+function closeTpl(){ $("#mTpl").classList.remove("on"); $("#scrim").classList.remove("on"); }
+
+/* ============================================================
+   ПАНЕЛЬ «НАСТРОЙКИ ОКНА»
+   ============================================================ */
+function sec(cls, title){ return '<div class="sec '+cls+'">'+esc(title)+'</div>'; }
+function opt(label, on, act, val, chk, sub){
+  return '<button class="opt'+(chk?" chk":"")+'" aria-pressed="'+(!!on)+'" data-act="'+act+'" data-val="'+esc(val)+'">'+
+    '<span class="mark"></span><span>'+esc(label)+(sub?'<span class="sub">'+esc(sub)+'</span>':'')+'</span></button>';
+}
+function renderWinPanel(){
+  var it = item(), c = selCell();
+  if(!it){ $("#pWinBody").innerHTML = '<div class="pnote">Сначала добавьте окно кнопкой «+».</div>'; return; }
+  var h = "";
+  h += sec("b","количество");
+  h += '<div class="stepper"><button data-act="qty" data-val="-1">−</button><span>'+it.qty+
+       '</span><button data-act="qty" data-val="1">+</button></div>';
+  h += sec("b","размеры окна");
+  h += '<div class="fld"><label>ширина, мм</label><input type="number" step="10" data-act="W" value="'+it.W+'"></div>'+
+       '<div class="fld"><label>высота, мм</label><input type="number" step="10" data-act="H" value="'+it.H+'"></div>';
+  h += sec("o","оконная система");
+  SYSTEMS.forEach(function(s){
+    h += opt(s.n, s.id === it.sysId, "sys", s.id, false,
+      "заполнение "+s.lim.fillMin+"–"+s.lim.fillMax+" мм · створка до "+s.lim.sashW+"×"+s.lim.sashH);
+  });
+  h += sec("b","тип поля" + (c ? " · поле "+(+c.key+1) : ""));
+  ["fix","turn","tilt"].forEach(function(t){
+    h += opt(TYPES[t].n, c && c.type === t, "type", t);
+  });
+  h += sec("b","тип стеклопакета");
+  FILLS.forEach(function(f){ h += opt(f.n, c && c.fill === f.id, "fill", f.id, false, f.t+" мм"); });
+  h += '<div class="padd"><button data-act="fillall">поставить всем полям окна</button></div>';
+  h += sec("g","что дальше");
+  h += '<div class="padd"><button data-act="nav" data-val="s-glass">стеклопакеты</button> '+
+       '<button data-act="nav" data-val="s-cut">раскрой</button> '+
+       '<button data-act="nav" data-val="s-edge">кромки поля</button></div>';
+  h += sec("r","удалить");
+  h += '<div class="padd"><button data-act="delitem" style="color:var(--red);border-color:var(--red)">удалить это окно</button></div>';
+  $("#pWinBody").innerHTML = h;
+  bindPanel("#pWinBody");
+}
+function bindPanel(host){
+  $$(host+" [data-act]").forEach(function(el){
+    var act = el.getAttribute("data-act");
+    if(el.tagName === "INPUT"){
+      el.addEventListener("input", function(){ panelAct(act, el.value, el); });
+    }else{
+      el.addEventListener("click", function(){ panelAct(act, el.getAttribute("data-val"), el); });
+    }
+  });
+}
+function panelAct(act, val, el){
+  var it = item(), c = selCell();
+  if(act === "qty"){ it.qty = Math.max(1, it.qty + (+val)); save(); renderWinPanel(); paintCanvas(); return; }
+  if(act === "W"){ it.W = Math.max(200, +val||0); save(); paintCanvas(); return; }
+  if(act === "H"){ it.H = Math.max(200, +val||0); save(); paintCanvas(); return; }
+  if(act === "sys"){
+    it.sysId = val; UI.defSys = val;
+    save(); renderWinPanel(); paintCanvas(); return;
+  }
+  if(act === "type"){ if(c){ c.nd.type = val; } save(); renderWinPanel(); paintCanvas(); return; }
+  if(act === "fill"){ if(c){ c.nd.fill = val; UI.defFill = val; } save(); renderWinPanel(); paintCanvas(); return; }
+  if(act === "fillall"){
+    var id = c ? c.fill.id : UI.defFill;
+    walk(it.root, function(n){ if(!n.sp) n.fill = id; });
+    save(); renderWinPanel(); paintCanvas(); toast("Заполнение поставлено всем полям"); return;
+  }
+  if(act === "nav"){ closePanels(); nav(val); return; }
+  if(act === "delitem"){
+    var o = order(), i = o.items.indexOf(it);
+    if(i >= 0) o.items.splice(i,1);
+    UI.item = o.items.length ? o.items[0].id : null; UI.cell = "0";
+    save(); closePanels();
+    if(o.items.length) paintCanvas(); else nav("s-orders");
+    return;
+  }
+}
+
+/* ============================================================
+   ПАНЕЛЬ «НАСТРОЙКИ АЛЮМИНИЯ» — наши переменные в их форме
+   ============================================================ */
+var PSYS = null;   /* какую систему правим */
+function renderSysPanel(){
+  var s = PSYS || sysById(UI.defSys); PSYS = s;
+  var h = "";
+  h += '<div class="pnote">Числа — заглушки правдоподобного порядка. Их место — каталожный лист системы. Расчёт от подстановки настоящих значений не меняется.</div>';
+  h += sec("o","какую систему настраиваем");
+  SYSTEMS.forEach(function(x){ h += opt(x.n, x.id === s.id, "psys", x.id, false, "глубина "+x.depth+" мм"); });
+
+  h += sec("b","полки профилей — что закрывает поле");
+  h += fld("рама L, полка f", "L.f", s.L.f, "мм от наружной грани");
+  h += fld("импост T, полка F", "T.F", s.T.F, "целиком; в вычет идёт половина");
+  h += fld("створка Z, полка f", "Z.f", s.Z.f, "мм от наружной грани створки");
+  h += fld("наплав створки", "L.ovl", s.L.ovl, "заход створки на соседа");
+  h += fld("производственный минус δ", "delta", s.delta, "чтобы заполнение не заклинило");
+
+  h += sec("v","фальцы — глубина под заполнение");
+  h += fld("фальц рамы и импоста", "L.r", s.L.r, "от грани полки до дна паза");
+  h += fld("фальц створки", "Z.r", s.Z.r, "у створки паз обычно глубже");
+
+  h += sec("t","штапики рамы и импоста");
+  h += beadTable(s, "F");
+  h += sec("t","штапики створки");
+  h += beadTable(s, "Z");
+
+  h += sec("p","пределы — правила отказа");
+  h += fld("заполнение от", "lim.fillMin", s.lim.fillMin, "мм");
+  h += fld("заполнение до", "lim.fillMax", s.lim.fillMax, "мм");
+  h += fld("защемление не менее", "lim.clampMin", s.lim.clampMin, "мм");
+  h += fld("зазор до дна фальца не менее", "lim.gapMin", s.lim.gapMin, "мм");
+  h += fld("вес поля не более", "lim.maxKg", s.lim.maxKg, "кг");
+  h += fld("вес створки не более", "lim.sashKg", s.lim.sashKg, "кг, предел фурнитуры");
+  h += fld("створка, макс. ширина", "lim.sashW", s.lim.sashW, "мм");
+  h += fld("створка, макс. высота", "lim.sashH", s.lim.sashH, "мм");
+
+  h += sec("g","формулы заполнения");
+  h += fillTable();
+
+  h += sec("y","что из этого получается");
+  h += '<div class="ptbl">'+deriveTable(s)+'</div>';
+
+  h += sec("b","хлыст и пропил");
+  h += '<div class="fld"><label>хлыст, мм</label><input type="number" step="100" data-act="stock" value="'+UI.cutStock+'"></div>'+
+       '<div class="fld"><label>пропил, мм</label><input type="number" step="1" data-act="kerf" value="'+UI.cutKerf+'"></div>';
+
+  $("#pSysBody").innerHTML = h;
+  bindSysPanel();
+}
+function fld(label, path, val, sub){
+  return '<div class="fld"><label>'+esc(label)+(sub?'<span style="display:block;font-size:11px;color:var(--ink-3)">'+esc(sub)+'</span>':'')+
+    '</label><input type="number" step="1" data-path="'+path+'" value="'+val+'"></div>';
+}
+function beadTable(s, which){
+  var list = which==="F" ? s.beadF : s.beadZ;
+  var h = '<div class="ptbl"><table><thead><tr><th>от</th><th>до</th><th>артикул</th><th>заход g</th><th></th></tr></thead><tbody>';
+  list.forEach(function(b,i){
+    h += '<tr>'+
+      '<td><input type="number" data-b="'+which+'" data-i="'+i+'" data-k="a" value="'+b.a+'"></td>'+
+      '<td><input type="number" data-b="'+which+'" data-i="'+i+'" data-k="b" value="'+b.b+'"></td>'+
+      '<td><input type="text" class="w" data-b="'+which+'" data-i="'+i+'" data-k="art" value="'+esc(b.art)+'"></td>'+
+      '<td><input type="number" data-b="'+which+'" data-i="'+i+'" data-k="g" value="'+b.g+'"></td>'+
+      '<td><button class="del" data-delb="'+which+'" data-i="'+i+'">×</button></td></tr>';
+  });
+  h += '</tbody></table></div><div class="padd"><button data-addb="'+which+'">добавить строку</button></div>';
+  return h;
+}
+function fillTable(){
+  var h = '<div class="ptbl"><table><thead><tr><th>название</th><th>толщина</th><th>сумма стёкол</th><th></th></tr></thead><tbody>';
+  FILLS.forEach(function(f,i){
+    h += '<tr>'+
+      '<td><input type="text" class="w" data-f="'+i+'" data-k="n" value="'+esc(f.n)+'"></td>'+
+      '<td><input type="number" data-f="'+i+'" data-k="t" value="'+f.t+'"></td>'+
+      '<td><input type="number" data-f="'+i+'" data-k="gl" value="'+f.gl+'"></td>'+
+      '<td><button class="del" data-delf="'+i+'">×</button></td></tr>';
+  });
+  h += '</tbody></table></div><div class="padd"><button data-addf="1">добавить формулу</button></div>';
+  return h;
+}
+/* Показывает, во что превращаются введённые числа: вычет по каждой кромке */
+function deriveTable(s){
+  var c = selCell(), t = c ? c.t : 32;
+  var bf = pickBead(s.beadF, t), bz = pickBead(s.beadZ, t);
+  var r = function(nm, e){ return '<tr><td>'+esc(nm)+'</td><td class="w">'+(e?e.expr+' = <b>'+e.d+'</b>':'нет штапика')+'</td></tr>'; };
+  var h = '<table><thead><tr><th>кромка при заполнении '+t+' мм</th><th>вычет, мм</th></tr></thead><tbody>';
+  h += r("глухое у рамы L", bf ? {expr:s.L.f+" − "+bf.g+" + "+s.delta, d:s.L.f-bf.g+s.delta} : null);
+  h += r("глухое у импоста T", bf ? {expr:(s.T.F/2)+" − "+bf.g+" + "+s.delta, d:s.T.F/2-bf.g+s.delta} : null);
+  h += r("створка Z у рамы L", bz ? {expr:"("+s.L.f+" − "+s.L.ovl+") + "+s.Z.f+" − "+bz.g+" + "+s.delta,
+        d:(s.L.f-s.L.ovl)+s.Z.f-bz.g+s.delta} : null);
+  h += r("створка Z у импоста T", bz ? {expr:"("+(s.T.F/2)+" − "+s.L.ovl+") + "+s.Z.f+" − "+bz.g+" + "+s.delta,
+        d:(s.T.F/2-s.L.ovl)+s.Z.f-bz.g+s.delta} : null);
+  return h + '</tbody></table>';
+}
+function bindSysPanel(){
+  var s = PSYS;
+  $$('#pSysBody [data-act="psys"]').forEach(function(b){
+    b.addEventListener("click", function(){ PSYS = sysById(b.getAttribute("data-val")); renderSysPanel(); });
+  });
+  $$("#pSysBody input[data-path]").forEach(function(inp){
+    inp.addEventListener("input", function(){
+      var v = +inp.value; if(isNaN(v)) return;
+      var a = inp.getAttribute("data-path").split("."), o = s, i;
+      for(i=0;i<a.length-1;i++) o = o[a[i]];
+      o[a[a.length-1]] = v;
+      save(); paintCanvas(); refreshDerive();
+    });
+  });
+  $$("#pSysBody input[data-b]").forEach(function(inp){
+    inp.addEventListener("input", function(){
+      var w = inp.getAttribute("data-b"), i = +inp.getAttribute("data-i"), k = inp.getAttribute("data-k");
+      var list = w==="F"?s.beadF:s.beadZ;
+      list[i][k] = (k==="art") ? inp.value : (+inp.value||0);
+      save(); paintCanvas(); refreshDerive();
+    });
+  });
+  $$("#pSysBody [data-delb]").forEach(function(b){
+    b.addEventListener("click", function(){
+      var w = b.getAttribute("data-delb");
+      (w==="F"?s.beadF:s.beadZ).splice(+b.getAttribute("data-i"),1);
+      save(); renderSysPanel(); paintCanvas();
+    });
+  });
+  $$("#pSysBody [data-addb]").forEach(function(b){
+    b.addEventListener("click", function(){
+      var w = b.getAttribute("data-addb");
+      (w==="F"?s.beadF:s.beadZ).push({a:0,b:0,art:"новый",g:16});
+      save(); renderSysPanel();
+    });
+  });
+  $$("#pSysBody input[data-f]").forEach(function(inp){
+    inp.addEventListener("input", function(){
+      var i = +inp.getAttribute("data-f"), k = inp.getAttribute("data-k");
+      FILLS[i][k] = (k==="n") ? inp.value : (+inp.value||0);
+      save(); paintCanvas(); refreshDerive();
+    });
+  });
+  $$("#pSysBody [data-delf]").forEach(function(b){
+    b.addEventListener("click", function(){
+      if(FILLS.length < 2){ toast("Хотя бы одна формула нужна"); return; }
+      var id = FILLS[+b.getAttribute("data-delf")].id;
+      FILLS.splice(+b.getAttribute("data-delf"),1);
+      DB.orders.forEach(function(o){ o.items.forEach(function(it){
+        walk(it.root, function(n){ if(!n.sp && n.fill === id) n.fill = FILLS[0].id; });
+      }); });
+      if(UI.defFill === id) UI.defFill = FILLS[0].id;
+      save(); renderSysPanel(); paintCanvas();
+    });
+  });
+  $$("#pSysBody [data-addf]").forEach(function(b){
+    b.addEventListener("click", function(){
+      FILLS.push({id:uid("f"), n:"новая формула", t:32, gl:8});
+      save(); renderSysPanel();
+    });
+  });
+  $$('#pSysBody [data-act="stock"], #pSysBody [data-act="kerf"]').forEach(function(inp){
+    inp.addEventListener("input", function(){
+      if(inp.getAttribute("data-act") === "stock") UI.cutStock = Math.max(1000, +inp.value||6000);
+      else UI.cutKerf = Math.max(0, +inp.value||0);
+      save();
+    });
+  });
+}
+function refreshDerive(){
+  var host = $$("#pSysBody .ptbl");
+  if(host.length) host[host.length-1].innerHTML = deriveTable(PSYS);
+}
+
+/* ============================================================
+   РЕЗУЛЬТАТЫ: стеклопакеты, раскрой, кромки
+   ============================================================ */
+function orderCalc(){
+  var o = order(); if(!o) return [];
+  return o.items.map(function(it){ return itemCalc(it); });
+}
+function renderGlass(){
+  var Rs = orderCalc(), groups = [], index = {}, bad = 0, thick = [];
+  Rs.forEach(function(R){
+    R.cells.forEach(function(x){
+      if(!x.ok){ bad += R.it.qty; return; }
+      var w = Math.round(x.gw), h = Math.round(x.gh), k = w+"x"+h+"x"+x.fill.id;
+      if(!index[k]){ index[k] = {w:w,h:h,t:x.t,n:0,tags:[],fill:x.fill,area:x.area}; groups.push(index[k]); }
+      var g = index[k]; g.n += R.it.qty;
+      var tag = TYPES[x.type].s;
+      if(g.tags.indexOf(tag) < 0) g.tags.push(tag);
+      if(thick.indexOf(x.t) < 0) thick.push(x.t);
+    });
+  });
+  groups.sort(function(a,b){ return b.w*b.h - a.w*a.h; });
+  $("#glassList").innerHTML = groups.length ? groups.map(function(g){
+    return '<div class="gu"><div class="mid"><div class="sz">'+g.w+' × '+g.h+' × '+g.t+'</div>'+
+      '<div class="sub">'+esc(g.fill.n)+' · '+esc(g.tags.join(" и "))+'</div></div>'+
+      '<div class="q">'+g.n+' шт</div></div>';
+  }).join("") : '<div class="gu bad"><div class="mid"><div class="sz">—</div>'+
+      '<div class="sub">Считать нечего: в заказе нет окон или ни одно поле не проходит проверки.</div></div></div>';
+  if(bad && groups.length)
+    $("#glassList").innerHTML += '<div class="gu bad"><div class="mid"><div class="sub">Ещё '+bad+' '+
+      plural(bad,"поле","поля","полей")+' не посчитано — см. проверки ниже.</div></div></div>';
+
+  var n = groups.reduce(function(a,g){return a+g.n;},0);
+  var m2 = groups.reduce(function(a,g){return a+g.area*g.n;},0);
+  thick.sort(function(a,b){return a-b;});
+  $("#glassTot").innerHTML = '<span>всего <b>'+n+' '+plural(n,"пакет","пакета","пакетов")+
+    '</b></span><span>площадь <b>'+m2.toFixed(2)+' м²</b></span><span>толщина <b>'+
+    (thick.length ? thick.join(" и ")+" мм" : "—")+'</b></span>';
+  var o = order();
+  $("#glassHint").textContent = o ? ("заказ №"+o.no) : "—";
+
+  var h = '<thead><tr><th>окно</th><th class="r">шт</th><th>поле</th><th class="r">пакет</th><th>формула</th></tr></thead><tbody>';
+  var chk = [];
+  Rs.forEach(function(R, i){
+    h += '<tr class="grp"><td colspan="5">Окно '+(i+1)+' · '+R.it.W+' × '+R.it.H+' · '+R.it.qty+' шт · '+esc(R.sy.n)+'</td></tr>';
+    R.cells.forEach(function(x, j){
+      h += '<tr><td>поле '+(j+1)+'</td><td class="r num">'+R.it.qty+'</td><td>'+TYPES[x.type].n+
+        '</td><td class="r num">'+(x.ok? Math.round(x.gw)+'×'+Math.round(x.gh)+'×'+x.t : '—')+
+        '</td><td class="num">'+esc(x.fill.n)+'</td></tr>';
+    });
+    checksOf(R).forEach(function(c){ chk.push({l:c.l, t:"Окно "+(i+1)+" · "+c.t}); });
+  });
+  $("#glassByItem").innerHTML = h + '</tbody>';
+  var host = $("#glassByItem").parentNode;
+  $$(".chk", host.parentNode).forEach(function(e){ e.remove(); });
+  host.insertAdjacentHTML("afterend", chk.length
+    ? chk.map(function(c){ return '<div class="chk '+c.l+'" style="margin:0 12px 8px">'+esc(c.t)+'</div>'; }).join("")
+    : '<div class="chk ok" style="margin:0 12px 8px">Проверки пройдены: заполнение в диапазоне, защемление и зазор в норме, вес в пределе.</div>');
+}
+function nest(lengths, stock, kerf){
+  var bars = [], i, j, put;
+  lengths = lengths.slice().sort(function(a,b){ return b-a; });
+  for(i=0;i<lengths.length;i++){
+    var L = lengths[i]; put = false;
+    if(L > stock){ bars.push({cuts:[L], rest:0}); continue; }
+    for(j=0;j<bars.length;j++){
+      var need = L + (bars[j].cuts.length ? kerf : 0);
+      if(bars[j].rest >= need){ bars[j].cuts.push(L); bars[j].rest -= need; put = true; break; }
+    }
+    if(!put) bars.push({cuts:[L], rest:stock - L});
+  }
+  return bars;
+}
+function renderCut(){
+  var Rs = orderCalc(), stock = UI.cutStock, kerf = UI.cutKerf;
+  $("#cutStock").value = stock; $("#cutKerf").value = kerf;
+  var byArt = {}, arts = [];
+  Rs.forEach(function(R){
+    for(var q=0;q<R.it.qty;q++){
+      R.parts.forEach(function(p){
+        if(p.role === "seal") return;             /* уплотнитель не пилят, он в погонаже */
+        if(!p.L || p.L <= 0) return;
+        if(!byArt[p.art]){ byArt[p.art] = {art:p.art, role:p.role, L:[]}; arts.push(byArt[p.art]); }
+        byArt[p.art].L.push(Math.round(p.L));
+      });
+    }
+  });
+  var rank = {L:1, T:2, Z:3, bead:4};
+  arts.sort(function(a,b){ return (rank[a.role]||9) - (rank[b.role]||9); });
+  if(!arts.length){
+    $("#cutMaps").innerHTML = '<div class="chk warn">В заказе нет посчитанных окон — раскраивать нечего.</div>';
+    $("#partTbl").innerHTML = ""; $("#cutHint").textContent = "—"; return;
+  }
+  var totalBars = 0, totalUse = 0;
+  $("#cutMaps").innerHTML = arts.map(function(a){
+    var bars = nest(a.L, stock, kerf);
+    var used = a.L.reduce(function(s,x){return s+x;},0);
+    totalBars += bars.length; totalUse += used;
+    var maps = bars.map(function(b, bi){
+      var segs = b.cuts.map(function(c){
+        return '<div style="width:'+(c/stock*100).toFixed(3)+'%">'+(c/stock > .07 ? c : "")+'</div>';
+      }).join("");
+      var rest = Math.max(0, b.rest);
+      if(rest > 0) segs += '<div class="rest" style="width:'+(rest/stock*100).toFixed(3)+'%">'+
+        (rest/stock > .09 ? "остаток "+Math.round(rest) : "")+'</div>';
+      return '<div class="cuth"><span>хлыст '+(bi+1)+'</span><span>'+b.cuts.length+' '+
+        plural(b.cuts.length,"деталь","детали","деталей")+' · остаток '+Math.round(rest)+' мм</span></div>'+
+        '<div class="cutbar">'+segs+'</div>';
+    }).join("");
+    var waste = bars.length ? (1 - used/(bars.length*stock))*100 : 0;
+    return '<div style="margin-bottom:14px"><div style="font-weight:600;font-size:13.5px">'+esc(a.art)+'</div>'+
+      '<div style="font-size:11.5px;color:var(--ink-3);margin-top:2px">'+a.L.length+' '+
+      plural(a.L.length,"деталь","детали","деталей")+' · '+bars.length+' '+
+      plural(bars.length,"хлыст","хлыста","хлыстов")+' · отход '+waste.toFixed(1)+'%</div>'+maps+'</div>';
+  }).join("");
+  var w = totalBars ? (1 - totalUse/(totalBars*stock))*100 : 0;
+  $("#cutHint").textContent = totalBars+" "+plural(totalBars,"хлыст","хлыста","хлыстов")+" · отход "+w.toFixed(1)+"%";
+
+  var h = '<thead><tr><th>артикул</th><th class="r">деталей</th><th class="r">погонаж</th><th class="r">длины</th></tr></thead><tbody>';
+  arts.forEach(function(a){
+    var cnt = {}, uniq = [];
+    a.L.forEach(function(x){ if(!cnt[x]){ cnt[x]=0; uniq.push(x); } cnt[x]++; });
+    uniq.sort(function(x,y){return y-x;});
+    var used = a.L.reduce(function(s,x){return s+x;},0);
+    h += '<tr><td>'+esc(a.art)+'</td><td class="r num">'+a.L.length+'</td><td class="r num">'+
+      (used/1000).toFixed(2)+' м</td><td class="r num">'+
+      uniq.slice(0,6).map(function(x){ return x+'×'+cnt[x]; }).join(", ")+(uniq.length>6?" …":"")+'</td></tr>';
+  });
+  $("#partTbl").innerHTML = h + '</tbody>';
+}
+function renderEdge(){
+  var c = selCell(), it = item();
+  if(!c || !it){ $("#edgeDerive").textContent = "Поле не выбрано."; $("#kitTbl").innerHTML=""; return; }
+  var sy = sysById(it.sysId);
+  $("#edgeTitle").textContent = "Поле " + (+c.key + 1) + " · " + TYPES[c.type].n;
+  if(!c.ok){
+    $("#edgeDerive").innerHTML = '<span class="bad">Штапик под '+c.t+' мм не найден — расчёт кромок невозможен.</span>';
+    $("#kitTbl").innerHTML = ""; $("#edgeWarn").innerHTML = ""; return;
+  }
+  var pad = function(s,n){ s=String(s); while(s.length<n) s+=" "; return s; };
+  var line = function(t,e){ return "  "+pad(t,9)+pad(e.words,22)+"вычет "+pad(e.d,4)+"("+e.expr+")"; };
+  var d = "  поле "+(+c.key+1)+" · "+TYPES[c.type].n+" · "+c.fill.n+"\n\n";
+  d += line("слева",c.eL)+"\n"+line("справа",c.eR)+"\n"+line("сверху",c.eT)+"\n"+line("снизу",c.eB)+"\n\n";
+  d += "  <b>Ш = "+c.w+" − "+c.eL.d+" − "+c.eR.d+" = "+Math.round(c.gw)+"</b>\n";
+  d += "  <b>В = "+c.h+" − "+c.eT.d+" − "+c.eB.d+" = "+Math.round(c.gh)+"</b>\n\n";
+  var clamp = c.eL.g - sy.delta, gap = c.eL.r - clamp;
+  var mk = function(ok){ return ok ? '<span class="good">✓</span>' : '<span class="bad">✗</span>'; };
+  d += "  штапик "+c.bead.art+" · защемление "+clamp+" мм "+mk(clamp>=sy.lim.clampMin)+
+       " · зазор "+gap+" мм "+mk(gap>=sy.lim.gapMin)+
+       " · вес "+c.kg.toFixed(0)+" кг "+mk(c.kg<=sy.lim.maxKg);
+  $("#edgeDerive").innerHTML = d;
+  var asym = (c.eL.d !== c.eR.d) || (c.eT.d !== c.eB.d);
+  $("#edgeWarn").innerHTML = asym
+    ? '<div class="chk warn">Вычеты противоположных кромок различаются — соседи разные. Формула «минус два раза по столько-то» дала бы другой размер.</div>' : '';
+  var per = 2*(c.gw + c.gh)/1000;
+  var kit = [
+    ["штапик "+c.bead.art, per.toFixed(2)+" м", "периметр заполнения, 4 отрезка"],
+    ["уплотнитель наружный", per.toFixed(2)+" м", "контур по периметру"],
+    ["уплотнитель внутренний", per.toFixed(2)+" м", "контур по периметру"],
+    ["подкладки опорные", "2 шт", "на нижнюю кромку, отступ 50–80 мм от углов, ширина "+(c.t+2)+" мм"],
+    ["подкладки дистанционные", "2 шт", "по боковым кромкам, держат зазор"],
+    ["угловые соединители", (c.type==="fix"?"—":"4 шт"), (c.type==="fix"?"поле без собственной рамки":"углы створки")],
+    ["комплект фурнитуры", (c.type==="fix"?"—":"1 компл"), TYPES[c.type].n]
+  ];
+  var kh = '<thead><tr><th>комплектующее</th><th class="r">кол-во</th><th>база расчёта</th></tr></thead><tbody>';
+  kit.forEach(function(r){ kh += '<tr><td>'+esc(r[0])+'</td><td class="r num">'+esc(r[1])+'</td><td>'+esc(r[2])+'</td></tr>'; });
+  $("#kitTbl").innerHTML = kh + '</tbody>';
+}
+
+/* ============================================================
+   НАВИГАЦИЯ И ХРАНЕНИЕ
+   ============================================================ */
+var TITLES = { "s-orders":"Заказы", "s-canvas":"Изделие", "s-glass":"Стеклопакеты",
+               "s-cut":"Раскрой профиля", "s-edge":"Кромки поля", "s-client":"Заказчик" };
+function nav(id){
+  if(id !== "s-orders" && !order()){ toast("Сначала создайте заказ"); id = "s-orders"; }
+  UI.screen = id;
+  $$("section").forEach(function(s){ s.hidden = (s.id !== id); });
+  $$("[data-nav]").forEach(function(b){ b.setAttribute("aria-current", String(b.getAttribute("data-nav")===id)); });
+  $("#dock").style.display = (id === "s-orders" || id === "s-canvas") ? "flex" : "none";
+  var o = order();
+  if(id === "s-canvas"){ paintCanvas(); }
+  else{
+    $("#ttl").textContent = TITLES[id];
+    $("#who").textContent = o ? (o.client.name || "заявка №"+o.no) : "";
+  }
+  if(id === "s-orders") renderOrders();
+  if(id === "s-glass") renderGlass();
+  if(id === "s-cut") renderCut();
+  if(id === "s-edge") renderEdge();
+  if(id === "s-client") loadClient();
+  closeDrawer(); closePanels();
+  window.scrollTo(0,0); save();
+}
+function openPanel(id){
+  if(id === "pWin") renderWinPanel();
+  if(id === "pSys"){ PSYS = item() ? sysById(item().sysId) : sysById(UI.defSys); renderSysPanel(); }
+  $("#"+id).classList.add("on"); $("#scrim").classList.add("on"); closeDrawer();
+}
+function closePanels(){
+  $("#pWin").classList.remove("on"); $("#pSys").classList.remove("on");
+  $("#mTpl").classList.remove("on"); $("#scrim").classList.remove("on");
+}
+function openDrawer(){ $("#drawer").classList.add("on"); $("#scrim").classList.add("on"); }
+function closeDrawer(){ $("#drawer").classList.remove("on"); }
+function loadClient(){
+  var o = order(); if(!o) return;
+  $("#cName").value = o.client.name; $("#cPhone").value = o.client.phone;
+  $("#cAddr").value = o.client.addr; $("#cNote").value = o.client.note;
+}
+function saveClient(){
+  var o = order(); if(!o) return;
+  o.client.name = $("#cName").value; o.client.phone = $("#cPhone").value;
+  o.client.addr = $("#cAddr").value; o.client.note = $("#cNote").value;
+  save();
+}
+var LSKEY = "winhub.alm2.v1";
+function save(){
+  try{ localStorage.setItem(LSKEY, JSON.stringify({SYSTEMS:SYSTEMS, FILLS:FILLS, DB:DB, UI:UI})); }catch(e){}
+}
+function load(){
+  try{
+    var raw = localStorage.getItem(LSKEY); if(!raw) return false;
+    var d = JSON.parse(raw); if(!d || !d.DB) return false;
+    if(d.SYSTEMS && d.SYSTEMS.length) SYSTEMS = d.SYSTEMS;
+    if(d.FILLS && d.FILLS.length) FILLS = d.FILLS;
+    DB = d.DB;
+    Object.keys(d.UI||{}).forEach(function(k){ UI[k] = d.UI[k]; });
+    return true;
+  }catch(e){ return false; }
+}
+function toast(m){
+  var t = $("#toast"); t.textContent = m; t.classList.add("on");
+  setTimeout(function(){ t.classList.remove("on"); }, 1900);
+}
+
+function boot(){
+  load();
+  $("#burger").addEventListener("click", function(){
+    $("#drawer").classList.contains("on") ? (closeDrawer(), $("#scrim").classList.remove("on")) : openDrawer();
+  });
+  $("#scrim").addEventListener("click", function(){ closeDrawer(); closePanels(); });
+  $$("[data-nav]").forEach(function(b){ b.addEventListener("click", function(){ nav(b.getAttribute("data-nav")); }); });
+  $$("[data-open]").forEach(function(b){ b.addEventListener("click", function(){ openPanel(b.getAttribute("data-open")); }); });
+  $$("[data-close]").forEach(function(b){ b.addEventListener("click", function(){ closePanels(); paintCanvas(); }); });
+
+  $("#plus").addEventListener("click", function(){
+    if(UI.screen === "s-orders" || !order()){
+      newOrder(); save(); loadClient(); nav("s-client"); return;
+    }
+    openTpl();
+  });
+  $("#tplNo").addEventListener("click", closeTpl);
+  $("#tplYes").addEventListener("click", function(){
+    if(!tplPick){ toast("Выберите конфигурацию"); return; }
+    var o = order(); if(!o) o = newOrder();
+    var it = mkItem(tplPick);
+    o.items.push(it); UI.item = it.id; UI.cell = "0";
+    save(); closeTpl(); nav("s-canvas");
+  });
+  ["#cName","#cPhone","#cAddr","#cNote"].forEach(function(s){ $(s).addEventListener("input", saveClient); });
+  $("#cDone").addEventListener("click", function(){
+    saveClient();
+    var o = order();
+    if(o && !o.items.length){ nav("s-canvas"); openTpl(); }
+    else nav("s-canvas");
+  });
+  $("#cutStock").addEventListener("input", function(){ UI.cutStock = Math.max(1000, +this.value||6000); save(); renderCut(); });
+  $("#cutKerf").addEventListener("input", function(){ UI.cutKerf = Math.max(0, +this.value||0); save(); renderCut(); });
+
+  nav(order() ? (UI.screen || "s-canvas") : "s-orders");
+}
+boot();
+</script>
+</body>
+</html>
