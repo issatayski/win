@@ -664,7 +664,7 @@ function renderSpec(R){
     if(!x.ok){ bad++; return; }
     /* в одну позицию сводится только то, что совпадает и размером, и формулой */
     var w = Math.round(x.gw), h = Math.round(x.gh), k = w+"x"+h+"x"+x.fill.id;
-    if(!index[k]){ index[k] = {w:w, h:h, t:x.t, n:0, tags:[], fill:x.fill, bead:x.bead.art, kg:x.kg, area:x.area}; groups.push(index[k]); }
+    if(!index[k]){ index[k] = {w:w, h:h, t:x.t, n:0, tags:[], fill:x.fill, area:x.area}; groups.push(index[k]); }
     var g = index[k]; g.n++;
     var tag = (x.type === "fix") ? "глухое" : "створка";
     if(g.tags.indexOf(tag) < 0) g.tags.push(tag);
@@ -673,8 +673,7 @@ function renderSpec(R){
   $("#specList").innerHTML = groups.length ? groups.map(function(g){
     return '<div class="specrow"><div class="mid">'+
       '<div class="sz">'+g.w+' × '+g.h+' × '+g.t+'</div>'+
-      '<div class="sub">'+esc(g.fill.n.split("· ")[1] || g.fill.n)+' · штапик '+esc(g.bead)+
-      ' · '+esc(g.tags.join(" и "))+' · '+g.kg.toFixed(0)+' кг за штуку</div></div>'+
+      '<div class="sub">'+esc(g.fill.n.split("· ")[1] || g.fill.n)+' · '+esc(g.tags.join(" и "))+'</div></div>'+
       '<div class="qty"><b>'+g.n+'</b><span>шт</span></div></div>';
   }).join("") : '<div class="specrow crit"><div class="mid"><div class="sz">—</div>'+
       '<div class="sub">Ни одно поле не считается — см. проверки.</div></div></div>';
@@ -684,10 +683,9 @@ function renderSpec(R){
 
   var n = groups.reduce(function(a,g){return a+g.n;},0);
   var m2 = groups.reduce(function(a,g){return a+g.area*g.n;},0);
-  var kg = groups.reduce(function(a,g){return a+g.kg*g.n;},0);
   thick.sort(function(a,b){return a-b;});
-  $("#specTot").innerHTML = '<span>Всего <b>'+n+' шт</b></span><span>Площадь <b>'+m2.toFixed(2)+
-    ' м²</b></span><span>Вес <b>'+kg.toFixed(0)+' кг</b></span><span>Толщина <b>'+
+  $("#specTot").innerHTML = '<span>Всего <b>'+n+' '+plural(n,"пакет","пакета","пакетов")+
+    '</b></span><span>Площадь <b>'+m2.toFixed(2)+' м²</b></span><span>Толщина <b>'+
     (thick.length ? thick.join(" и ")+" мм" : "—")+'</b></span>';
   $("#specHint").textContent = "размер под заказ на линию";
 }
@@ -705,8 +703,7 @@ function render(){
   $("#facts").innerHTML =
     fact("Полей", R.cells.length) +
     fact("Стекла", totalM2.toFixed(2)+" м²") +
-    fact("Вес заполнения", totalKg.toFixed(0)+" кг") +
-    fact("Штапик", sel.bead ? sel.bead.art : "нет");
+    fact("Вес заполнения", totalKg.toFixed(0)+" кг");
   var uniq = [];
   R.cells.forEach(function(x){ if(uniq.indexOf(x.fill.n) < 0) uniq.push(x.fill.n); });
   $("#c1chip").textContent = SYS.n + " · " + (uniq.length === 1 ? uniq[0] : uniq.length + " разных заполнения");
