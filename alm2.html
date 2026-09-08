@@ -28,8 +28,6 @@ body{background:var(--canvas); color:var(--ink);
 .appbar{position:sticky; top:0; z-index:30; background:var(--bar); color:#fff;
   padding:calc(env(safe-area-inset-top) + 11px) 12px 11px; display:flex; align-items:center; gap:12px;
   border-bottom:2px solid var(--acc)}
-.appbar .burger{background:none; border:0; color:#fff; cursor:pointer; padding:2px; flex:0 0 auto; display:flex}
-.appbar .burger svg{width:22px; height:22px; stroke:currentColor; fill:none; stroke-width:1.9; stroke-linecap:round}
 .appbar h1{flex:1 1 auto; min-width:0; font-size:17px; font-weight:600; letter-spacing:.2px;
   overflow:hidden; text-overflow:ellipsis; white-space:nowrap}
 .appbar .who{font-size:11.5px; color:var(--bar-ink); white-space:nowrap; overflow:hidden;
@@ -58,8 +56,9 @@ svg.win .hit{cursor:pointer}
 .sum tr.all td{background:var(--row-2); font-weight:700}
 .sum td.acc{color:var(--acc-ink); font-weight:700}
 
-.dock{position:sticky; bottom:0; z-index:25; background:var(--bar); display:flex; align-items:stretch;
-  padding-bottom:env(safe-area-inset-bottom); min-height:62px; border-top:2px solid var(--acc)}
+.dock{position:sticky; z-index:25; bottom:calc(56px + env(safe-area-inset-bottom));
+  background:var(--bar-2); display:flex; align-items:stretch; min-height:60px;
+  border-top:1px solid rgba(255,255,255,.08)}
 .dock .plus{width:62px; flex:0 0 auto; background:var(--acc); border:0; color:#fff;
   font:300 32px/1 system-ui,sans-serif; cursor:pointer}
 .dock .strip{flex:1 1 auto; display:flex; gap:6px; overflow-x:auto; padding:7px 8px; align-items:center}
@@ -153,20 +152,28 @@ svg.win .hit{cursor:pointer}
 .pnote{background:var(--warn-soft); border-bottom:1px solid var(--line-2); padding:10px 14px;
   font-size:12.5px; color:var(--warn)}
 
-.drawer{position:fixed; z-index:50; top:0; left:0; bottom:0; width:min(80vw,290px);
-  background:var(--row); display:none; flex-direction:column; box-shadow:8px 0 30px rgba(0,0,0,.3)}
-.drawer.on{display:flex}
-.drawer .dh{background:var(--bar); color:#fff; padding:calc(env(safe-area-inset-top) + 18px) 16px 18px;
-  border-bottom:2px solid var(--acc)}
-.drawer .dh b{display:block; font-size:18px; letter-spacing:.5px}
-.drawer .dh span{font-size:12px; color:var(--bar-ink)}
-.drawer button.mi{display:flex; align-items:center; width:100%; background:none; border:0;
-  border-bottom:1px solid var(--line-2); padding:14px 16px; font:400 15px system-ui,sans-serif;
+/* нижнее меню: четыре раздела и «Ещё» со шторкой */
+.nav{position:fixed; left:0; right:0; bottom:0; z-index:35; display:flex; background:var(--bar);
+  border-top:2px solid var(--acc); padding-bottom:env(safe-area-inset-bottom)}
+.nav button{flex:1 1 0; min-width:0; background:none; border:0; cursor:pointer; color:var(--bar-ink);
+  display:flex; flex-direction:column; align-items:center; gap:3px; padding:8px 2px 7px;
+  font:600 9.5px/1 system-ui,sans-serif; border-top:2px solid transparent; margin-top:-2px}
+.nav button[aria-current="true"]{color:#fff; border-top-color:var(--acc-2)}
+.nav svg{width:19px; height:19px; stroke:currentColor; fill:none; stroke-width:1.7;
+  stroke-linecap:round; stroke-linejoin:round}
+.nav span{max-width:100%; overflow:hidden; text-overflow:ellipsis; white-space:nowrap}
+
+.sheet{position:fixed; left:0; right:0; z-index:45; bottom:calc(56px + env(safe-area-inset-bottom));
+  background:var(--row); border-top:2px solid var(--acc); box-shadow:0 -8px 30px rgba(0,0,0,.28);
+  display:none}
+.sheet.on{display:block}
+.sheet .cap{font:700 10px/1 system-ui,sans-serif; color:var(--ink-3); text-transform:uppercase;
+  letter-spacing:.11em; padding:13px 16px 7px}
+.sheet button.mi{display:flex; align-items:center; width:100%; background:none; border:0;
+  border-top:1px solid var(--line-2); padding:14px 16px; font:400 15px system-ui,sans-serif;
   color:var(--ink); cursor:pointer; text-align:left; border-left:3px solid transparent}
-.drawer button.mi[aria-current="true"]{background:var(--acc-soft); color:var(--acc-ink);
+.sheet button.mi[aria-current="true"]{background:var(--acc-soft); color:var(--acc-ink);
   font-weight:600; border-left-color:var(--acc)}
-.drawer .grp{font:700 10px/1 system-ui,sans-serif; color:var(--ink-3); text-transform:uppercase;
-  letter-spacing:.11em; padding:15px 16px 6px}
 
 .res{padding:10px}
 .rcard{background:var(--row); border:1px solid var(--line); border-radius:4px; margin-bottom:10px; overflow:hidden}
@@ -211,12 +218,12 @@ svg.win .hit{cursor:pointer}
   transition:opacity .18s; max-width:90vw; text-align:center}
 .toast.on{opacity:1}
 section[hidden]{display:none}
+body{padding-bottom:calc(56px + env(safe-area-inset-bottom))}
 </style>
 </head>
 <body>
 
 <div class="appbar">
-  <button class="burger" id="burger" aria-label="Меню"><svg viewBox="0 0 24 24"><path d="M4 7h16M4 12h16M4 17h16"/></svg></button>
   <h1 id="ttl">WinHub Алюминий</h1>
   <div class="who" id="who">—</div>
 </div>
@@ -338,19 +345,21 @@ section[hidden]{display:none}
   <div class="pf"><button class="btn pri" data-close="pSys">Готово</button></div>
 </div>
 
-<div class="drawer" id="drawer">
-  <div class="dh"><b>WinHub</b><span>алюминиевые конструкции</span></div>
-  <button class="mi" data-nav="s-orders">Заказы</button>
+<div class="sheet" id="sheet">
+  <div class="cap">Ещё</div>
   <button class="mi" data-nav="s-client">Заказчик</button>
-  <button class="mi" data-nav="s-canvas">Окно</button>
-  <div class="grp">Расчёт</div>
-  <button class="mi" data-nav="s-glass">Стеклопакеты</button>
-  <button class="mi" data-nav="s-cut">Раскрой профиля</button>
   <button class="mi" data-nav="s-edge">Кромки поля</button>
-  <div class="grp">Настройки</div>
   <button class="mi" data-open="pWin">Параметры окна</button>
   <button class="mi" data-open="pSys">Настройки алюминия</button>
 </div>
+
+<nav class="nav" aria-label="Разделы">
+  <button data-nav="s-orders"><svg viewBox="0 0 24 24"><path d="M5 4h11l3 3v13a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1V5a1 1 0 0 1 1-1z"/><path d="M8 12h8M8 16h5"/></svg><span>Заказы</span></button>
+  <button data-nav="s-canvas"><svg viewBox="0 0 24 24"><rect x="3.5" y="3.5" width="17" height="17" rx="1.5"/><path d="M12 3.5v17"/></svg><span>Окно</span></button>
+  <button data-nav="s-glass"><svg viewBox="0 0 24 24"><rect x="3.5" y="5" width="17" height="14" rx="1.5"/><path d="M3.5 12h17"/></svg><span>Пакеты</span></button>
+  <button data-nav="s-cut"><svg viewBox="0 0 24 24"><path d="M3 8h18v8H3z"/><path d="M8 8v8M14 8v8"/></svg><span>Раскрой</span></button>
+  <button id="moreBtn"><svg viewBox="0 0 24 24"><circle cx="5" cy="12" r="1.6"/><circle cx="12" cy="12" r="1.6"/><circle cx="19" cy="12" r="1.6"/></svg><span>Ещё</span></button>
+</nav>
 
 <div class="toast" id="toast"></div>
 
@@ -1453,16 +1462,16 @@ function nav(id){
   if(id === "s-cut") renderCut();
   if(id === "s-edge") renderEdge();
   if(id === "s-client") loadClient();
-  closeDrawer(); closeModals();
+  closeSheet(); closeModals();
   window.scrollTo(0,0); save();
 }
 function openPanel(id){
   if(id === "pWin") renderWinPanel();
   if(id === "pSys"){ PSYS = item() ? sysById(item().sysId) : sysById(UI.defSys); renderSysPanel(); }
-  $("#"+id).classList.add("on"); $("#scrim").classList.add("on"); closeDrawer();
+  $("#"+id).classList.add("on"); $("#scrim").classList.add("on"); closeSheet();
 }
-function openDrawer(){ $("#drawer").classList.add("on"); $("#scrim").classList.add("on"); }
-function closeDrawer(){ $("#drawer").classList.remove("on"); }
+function openSheet(){ $("#sheet").classList.add("on"); $("#scrim").classList.add("on"); }
+function closeSheet(){ $("#sheet").classList.remove("on"); }
 function loadClient(){
   var o = order(); if(!o) return;
   $("#cName").value = o.client.name; $("#cPhone").value = o.client.phone;
@@ -1496,11 +1505,11 @@ function toast(m){
 
 function boot(){
   load();
-  $("#burger").addEventListener("click", function(){
-    if($("#drawer").classList.contains("on")){ closeDrawer(); $("#scrim").classList.remove("on"); }
-    else openDrawer();
+  $("#moreBtn").addEventListener("click", function(){
+    if($("#sheet").classList.contains("on")){ closeSheet(); $("#scrim").classList.remove("on"); }
+    else openSheet();
   });
-  $("#scrim").addEventListener("click", function(){ closeDrawer(); closeModals(); });
+  $("#scrim").addEventListener("click", function(){ closeSheet(); closeModals(); });
   $$("[data-nav]").forEach(function(b){ b.addEventListener("click", function(){ nav(b.getAttribute("data-nav")); }); });
   $$("[data-open]").forEach(function(b){ b.addEventListener("click", function(){ openPanel(b.getAttribute("data-open")); }); });
   $$("[data-close]").forEach(function(b){ b.addEventListener("click", function(){ closeModals(); paintCanvas(); }); });
