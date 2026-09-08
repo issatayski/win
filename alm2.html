@@ -80,9 +80,15 @@ svg.win .hit{cursor:pointer}
   padding:12px 13px; margin-bottom:8px; cursor:pointer; font:inherit; color:inherit; text-align:left}
 .ord .no{color:var(--acc-ink); font-weight:700; font-size:13px; flex:0 0 auto}
 .ord .mid{flex:1 1 auto; min-width:0}
-.ord .nm{font-weight:600; overflow:hidden; text-overflow:ellipsis; white-space:nowrap}
-.ord .meta{font-size:12px; color:var(--ink-3); margin-top:2px}
+.ord .nm{display:block; font-weight:600; overflow:hidden; text-overflow:ellipsis; white-space:nowrap}
+.ord .meta{display:block; font-size:12px; color:var(--ink-3); margin-top:2px}
 .ord .cnt{font-size:12px; color:var(--ink-2); flex:0 0 auto}
+.ordrow{display:flex; align-items:stretch; gap:0; margin-bottom:8px}
+.ordrow .ord{margin-bottom:0; border-right:0; border-radius:4px 0 0 4px}
+.ordrow .x{flex:0 0 auto; width:46px; background:var(--row); border:1px solid var(--line);
+  border-left:1px solid var(--line-2); border-radius:0 4px 4px 0; color:var(--del);
+  font:400 20px/1 system-ui,sans-serif; cursor:pointer}
+.ordrow .x:active{background:var(--del-soft)}
 .empty-note{background:var(--row); border:1px solid var(--line); border-radius:4px;
   padding:14px; color:var(--ink-2); font-size:14px}
 
@@ -308,7 +314,13 @@ body{padding-bottom:calc(56px + env(safe-area-inset-bottom))}
         <div class="fld"><label>Заметка</label><textarea id="cNote"></textarea></div>
       </div>
     </div>
-    <div style="display:flex;gap:9px;justify-content:flex-end"><button class="btn pri" id="cDone">Дальше</button></div>
+    <div style="display:flex;gap:9px;flex-wrap:wrap;justify-content:space-between">
+      <div style="display:flex;gap:9px;flex-wrap:wrap">
+        <button class="btn alt" id="cClear">Очистить данные</button>
+        <button class="btn dan" id="cDelOrder">Удалить заказ</button>
+      </div>
+      <button class="btn pri" id="cDone">Дальше</button>
+    </div>
   </div>
 </section>
 
@@ -367,6 +379,12 @@ body{padding-bottom:calc(56px + env(safe-area-inset-bottom))}
   <button data-nav="s-cut"><svg viewBox="0 0 24 24"><path d="M3 8h18v8H3z"/><path d="M8 8v8M14 8v8"/></svg><span>Раскрой</span></button>
   <button id="moreBtn"><svg viewBox="0 0 24 24"><circle cx="5" cy="12" r="1.6"/><circle cx="12" cy="12" r="1.6"/><circle cx="19" cy="12" r="1.6"/></svg><span>Ещё</span></button>
 </nav>
+
+<div class="modal" id="mAsk">
+  <div class="mh" id="askH">Подтверждение</div>
+  <div class="mb"><div id="askT" style="font-size:15px;color:var(--ink-2)"></div></div>
+  <div class="mf"><button class="btn alt" id="askNo">Отмена</button><button class="btn dan" id="askYes">Удалить</button></div>
+</div>
 
 <div class="toast" id="toast"></div>
 
@@ -970,11 +988,12 @@ function paintCanvas(keepDims){
    ============================================================ */
 function renderOrders(){
   $("#ordList").innerHTML = DB.orders.length ? DB.orders.map(function(o){
-    return '<button class="ord" data-ord="'+o.id+'"><span class="no">№'+o.no+'</span>'+
+    return '<div class="ordrow"><button class="ord" data-ord="'+o.id+'"><span class="no">№'+o.no+'</span>'+
       '<span class="mid"><span class="nm">'+esc(o.client.name || "без имени")+'</span>'+
       '<span class="meta">'+esc(o.client.phone || "телефон не указан")+' · '+
       new Date(o.created).toLocaleDateString("ru-RU")+'</span></span>'+
-      '<span class="cnt">'+o.items.length+' '+plural(o.items.length,"окно","окна","окон")+'</span></button>';
+      '<span class="cnt">'+o.items.length+' '+plural(o.items.length,"окно","окна","окон")+'</span></button>'+
+      '<button class="x" data-delord="'+o.id+'" aria-label="Удалить заказ">✕</button></div>';
   }).join("") : '<div class="empty-note">Заказов пока нет. Нажмите «+» внизу, чтобы создать.</div>';
   $$("#ordList [data-ord]").forEach(function(b){
     b.addEventListener("click", function(){
@@ -984,6 +1003,29 @@ function renderOrders(){
       if(!o.items.length) openTpl();
     });
   });
+  $$("#ordList [data-delord]").forEach(function(b){
+    b.addEventListener("click", function(){ askDeleteOrder(b.getAttribute("data-delord")); });
+  });
+}
+/* Удаление заказа: вместе с ним уходят его окна и данные заказчика */
+function askDeleteOrder(id){
+  var o = null, i;
+  for(i=0;i<DB.orders.length;i++){ if(DB.orders[i].id===id) o = DB.orders[i]; }
+  if(!o) return;
+  ask("Удалить заказ №"+o.no+"?",
+      "Вместе с заказом удалятся " + o.items.length + " " +
+      plural(o.items.length,"окно","окна","окон") + " и данные заказчика" +
+      (o.client.name ? " «"+o.client.name+"»" : "") + ". Отменить будет нельзя.",
+      function(){
+        for(var j=0;j<DB.orders.length;j++){ if(DB.orders[j].id===id){ DB.orders.splice(j,1); break; } }
+        if(UI.order === id){
+          UI.order = DB.orders.length ? DB.orders[0].id : null;
+          var cur = order();
+          UI.item = (cur && cur.items.length) ? cur.items[0].id : null;
+          UI.cell = "0";
+        }
+        save(); loadClient(); nav("s-orders"); toast("Заказ удалён");
+      });
 }
 
 /* ============================================================
@@ -1003,7 +1045,16 @@ function openTpl(){
   });
   $("#mTpl").classList.add("on"); $("#scrim").classList.add("on");
 }
+/* Подтверждение необратимого действия */
+var askAction = null;
+function ask(title, text, onYes){
+  askAction = onYes;
+  $("#askH").textContent = title;
+  $("#askT").textContent = text;
+  $("#mAsk").classList.add("on"); $("#scrim").classList.add("on");
+}
 function closeModals(){
+  $("#mAsk").classList.remove("on");
   $("#mTpl").classList.remove("on"); $("#mCell").classList.remove("on");
   $("#pWin").classList.remove("on"); $("#pSys").classList.remove("on");
   $("#scrim").classList.remove("on");
@@ -1543,6 +1594,21 @@ function boot(){
   $("#cellYes").addEventListener("click", function(){ cellSnapshot = null; closeModals(); paintCanvas(); });
 
   ["#cName","#cPhone","#cAddr","#cNote"].forEach(function(s){ $(s).addEventListener("input", saveClient); });
+  $("#cClear").addEventListener("click", function(){
+    var o = order(); if(!o) return;
+    ask("Очистить данные заказчика?", "Имя, телефон, адрес и заметка будут стёрты. Окна заказа останутся.", function(){
+      o.client = {name:"", phone:"", addr:"", note:""};
+      save(); loadClient(); closeModals(); toast("Данные заказчика очищены");
+    });
+  });
+  $("#cDelOrder").addEventListener("click", function(){
+    var o = order(); if(o) askDeleteOrder(o.id);
+  });
+  $("#askNo").addEventListener("click", function(){ askAction = null; closeModals(); });
+  $("#askYes").addEventListener("click", function(){
+    var fn = askAction; askAction = null; closeModals();
+    if(fn) fn();
+  });
   $("#cDone").addEventListener("click", function(){
     saveClient();
     var o = order();
