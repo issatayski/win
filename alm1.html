@@ -191,6 +191,23 @@ svg .cal.lit{opacity:1}
   color:var(--ground); padding:11px 16px; border-radius:99px; font:600 13px "Golos Text",sans-serif;
   opacity:0; pointer-events:none; transition:opacity .18s; max-width:90vw; text-align:center}
 .toast.on{opacity:1}
+
+/* Спецификация: главный ответ модуля, поэтому крупно и первым на экране */
+.spec{display:grid; gap:9px}
+.specrow{display:flex; align-items:center; gap:14px; background:var(--surface-2);
+  border:1px solid var(--line-2); border-radius:11px; padding:13px 15px; flex-wrap:wrap}
+.specrow.crit{background:var(--crit-soft); border-color:var(--crit)}
+.specrow .mid{flex:1 1 190px; min-width:0}
+.specrow .sz{font:700 clamp(21px,5.4vw,28px)/1.1 "IBM Plex Mono",monospace;
+  letter-spacing:-.02em; color:var(--ink); overflow-wrap:anywhere}
+.specrow .sub{font-size:12px; color:var(--ink-3); margin-top:5px}
+.specrow .qty{flex:0 0 auto; text-align:right}
+.specrow .qty b{display:block; font:800 21px/1 "Golos Text",sans-serif}
+.specrow .qty span{font-size:11px; color:var(--ink-3)}
+.spectot{display:flex; gap:16px; flex-wrap:wrap; margin-top:11px; padding-top:11px;
+  border-top:1px solid var(--line-2); font-size:13px; color:var(--ink-2)}
+.spectot b{font-weight:700}
+
 @media(min-width:900px){
   .rail{display:flex}
   .tabbar{display:none}
@@ -219,6 +236,14 @@ svg .cal.lit{opacity:1}
 
   <!-- ===================== 1. КОНСТРУКЦИЯ ===================== -->
   <section id="p1" class="wrap">
+    <div class="card">
+      <header><h2>Стеклопакеты</h2><span class="hint" id="specHint">—</span></header>
+      <div class="body">
+        <div class="spec" id="specList"></div>
+        <div class="spectot" id="specTot"></div>
+      </div>
+    </div>
+
     <div class="grid g32">
       <div>
         <div class="card">
@@ -602,10 +627,43 @@ function balanceCols(){
   S.colW[S.cols-1] = S.W - acc;
 }
 
+/* Спецификация — то, что уходит на стеклопакетную линию.
+   Одинаковые размеры сводятся в одну строку с количеством. */
+function renderSpec(R){
+  var groups = [], index = {}, bad = 0;
+  R.cells.forEach(function(x){
+    if(!x.ok){ bad++; return; }
+    var w = Math.round(x.gw), h = Math.round(x.gh), k = w+"x"+h;
+    if(!index[k]){ index[k] = {w:w, h:h, n:0, tags:[], bead:x.bead.art, kg:x.kg, area:x.area}; groups.push(index[k]); }
+    var g = index[k]; g.n++;
+    var tag = (x.type === "fix") ? "глухое" : "створка";
+    if(g.tags.indexOf(tag) < 0) g.tags.push(tag);
+  });
+  var t = R.fill.t;
+  $("#specList").innerHTML = groups.length ? groups.map(function(g){
+    return '<div class="specrow"><div class="mid">'+
+      '<div class="sz">'+g.w+' × '+g.h+' × '+t+'</div>'+
+      '<div class="sub">'+esc(R.fill.n.split("· ")[1] || R.fill.n)+' · штапик '+esc(g.bead)+
+      ' · '+esc(g.tags.join(" и "))+' · '+g.kg.toFixed(0)+' кг за штуку</div></div>'+
+      '<div class="qty"><b>'+g.n+'</b><span>шт</span></div></div>';
+  }).join("") : '<div class="specrow crit"><div class="mid"><div class="sz">—</div>'+
+      '<div class="sub">Размер не считается: под '+t+' мм нет штапика в таблице системы.</div></div></div>';
+  if(bad && groups.length)
+    $("#specList").innerHTML += '<div class="specrow crit"><div class="mid"><div class="sub">Ещё '+bad+
+      ' полей не посчитано — см. проверки.</div></div></div>';
+
+  var n = groups.reduce(function(a,g){return a+g.n;},0);
+  var m2 = groups.reduce(function(a,g){return a+g.area*g.n;},0);
+  var kg = groups.reduce(function(a,g){return a+g.kg*g.n;},0);
+  $("#specTot").innerHTML = '<span>Всего <b>'+n+' шт</b></span><span>Площадь <b>'+m2.toFixed(2)+
+    ' м²</b></span><span>Вес <b>'+kg.toFixed(0)+' кг</b></span><span>Толщина <b>'+t+' мм</b></span>';
+  $("#specHint").textContent = "размер под заказ на линию";
+}
+
 function render(){
   balanceCols();
   var R = calc();
-  drawWindow(R); renderCells(R);
+  drawWindow(R); renderCells(R); renderSpec(R);
 
   var sel = R.cells.filter(function(x){return x.key===S.sel;})[0] || R.cells[0];
   S.sel = sel.key;
