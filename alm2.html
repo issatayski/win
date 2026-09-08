@@ -25,7 +25,8 @@ body{background:var(--canvas); color:var(--ink);
   font:400 15px/1.4 system-ui,-apple-system,"Segoe UI",Roboto,"Helvetica Neue",sans-serif;
   overflow-x:hidden}
 
-.appbar{position:sticky; top:0; z-index:30; background:var(--bar); color:#fff;
+.head{position:sticky; top:0; z-index:30}
+.appbar{background:var(--bar); color:#fff;
   padding:calc(env(safe-area-inset-top) + 11px) 12px 11px; display:flex; align-items:center; gap:12px;
   border-bottom:2px solid var(--acc)}
 .appbar h1{flex:1 1 auto; min-width:0; font-size:17px; font-weight:600; letter-spacing:.2px;
@@ -34,22 +35,26 @@ body{background:var(--canvas); color:var(--ink);
   text-overflow:ellipsis; max-width:44vw; text-align:right}
 
 .canvas{padding:8px 0 2px}
-svg.win{display:block; width:100%; height:auto; touch-action:manipulation}
+svg.win{display:block; width:100%; height:auto; max-height:46vh; touch-action:manipulation}
 svg.win .hit{cursor:pointer}
 
-.dims{background:var(--panel); border-top:1px solid var(--line); padding:9px 10px;
-  display:flex; gap:8px; align-items:center; flex-wrap:wrap}
+.dims{position:sticky; z-index:24; bottom:calc(116px + env(safe-area-inset-bottom));
+  background:var(--panel); border-top:1px solid var(--line); padding:7px 9px;
+  display:flex; gap:7px; align-items:center; flex-wrap:wrap;
+  box-shadow:0 -3px 10px -6px rgba(0,0,0,.3)}
 .dims .g{display:flex; gap:5px; align-items:center}
 .dims label{font-size:10.5px; color:var(--ink-3); text-transform:uppercase; letter-spacing:.06em}
-.dims input{width:76px; background:var(--row); border:1px solid var(--line); border-radius:4px;
-  padding:7px 8px; font:600 15px system-ui,sans-serif; color:var(--ink); text-align:center}
+.dims input{width:66px; background:var(--row); border:1px solid var(--line); border-radius:4px;
+  padding:6px 7px; font:600 14px system-ui,sans-serif; color:var(--ink); text-align:center}
 .dims input:focus{outline:2px solid var(--acc); outline-offset:0}
-.dims .cap{flex:1 1 100%; font-size:12.5px; color:var(--ink-2); padding-top:2px}
+.dims .cap{flex:1 1 100%; font-size:12px; color:var(--ink-2); padding-top:1px}
 .dims .cap b{color:var(--acc-ink)}
 
-.sum{background:var(--panel); border-top:1px solid var(--line); overflow-x:auto}
-.sum table{border-collapse:collapse; min-width:100%; font-size:12.5px; white-space:nowrap}
-.sum th,.sum td{padding:6px 10px; text-align:right; border-bottom:1px solid var(--line-2)}
+.sum{background:var(--panel); border-bottom:1px solid var(--line); overflow-x:auto;
+  box-shadow:0 3px 10px -6px rgba(0,0,0,.35)}
+.sum[hidden]{display:none}
+.sum table{border-collapse:collapse; min-width:100%; font-size:12px; white-space:nowrap}
+.sum th,.sum td{padding:4px 9px; text-align:right; border-bottom:1px solid var(--line-2)}
 .sum th:first-child,.sum td:first-child{text-align:left; position:sticky; left:0; background:var(--panel)}
 .sum thead th{color:var(--ink-3); font-weight:600; font-size:10.5px; text-transform:uppercase;
   letter-spacing:.05em; background:var(--line-2)}
@@ -223,19 +228,21 @@ body{padding-bottom:calc(56px + env(safe-area-inset-bottom))}
 </head>
 <body>
 
-<div class="appbar">
-  <h1 id="ttl">WinHub Алюминий</h1>
-  <div class="who" id="who">—</div>
-</div>
+<header class="head">
+  <div class="appbar">
+    <h1 id="ttl">WinHub Алюминий</h1>
+    <div class="who" id="who">—</div>
+  </div>
+  <div class="sum" id="sumTbl" hidden></div>
+</header>
 
 <section id="s-orders">
   <div class="list" id="ordList"></div>
 </section>
 
 <section id="s-canvas" hidden>
-  <div class="canvas"><svg class="win" id="draw" viewBox="0 0 360 424" role="img" aria-label="Изделие"></svg></div>
+  <div class="canvas"><svg class="win" id="draw" viewBox="0 0 360 392" role="img" aria-label="Изделие"></svg></div>
   <div class="dims" id="dims"></div>
-  <div class="sum" id="sumTbl"></div>
 </section>
 
 <section id="s-glass" hidden>
@@ -684,7 +691,7 @@ function tplSvg(g){
 /* ============================================================
    ЧЕРТЁЖ
    ============================================================ */
-var VB = { w:360, h:424, l:64, r:26, t:18, b:66 };
+var VB = { w:360, h:392, l:64, r:26, t:14, b:60 };
 function drawWin(){
   var it = item();
   if(!it){ $("#draw").innerHTML = ""; return; }
@@ -898,6 +905,7 @@ function renderDims(){
 /* ---------- нижняя таблица ---------- */
 function renderSum(){
   var o = order();
+  $("#sumTbl").hidden = !(o && o.items.length && UI.screen === "s-canvas");
   if(!o || !o.items.length){ $("#sumTbl").innerHTML = ""; return; }
   var cur = item(), Rc = cur ? itemCalc(cur) : null;
   var m = function(R, role){ return R ? R.parts.reduce(function(a,p){ return a + (p.role===role?p.L:0); },0)/1000 : 0; };
@@ -1451,6 +1459,7 @@ function nav(id){
   $$("section").forEach(function(s){ s.hidden = (s.id !== id); });
   $$("[data-nav]").forEach(function(b){ b.setAttribute("aria-current", String(b.getAttribute("data-nav")===id)); });
   $("#dock").style.display = (id === "s-orders" || id === "s-canvas") ? "flex" : "none";
+  $("#sumTbl").hidden = (id !== "s-canvas");
   var o = order();
   if(id === "s-canvas") paintCanvas();
   else{
