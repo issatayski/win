@@ -50,6 +50,31 @@ svg.win .hit{cursor:pointer}
 .dims .cap{flex:1 1 100%; font-size:12px; color:var(--ink-2); padding-top:1px}
 .dims .cap b{color:var(--acc-ink)}
 
+.dimpop{position:fixed; z-index:46; left:50%; bottom:calc(72px + env(safe-area-inset-bottom));
+  transform:translateX(-50%); background:var(--panel); border:1px solid var(--line); border-radius:8px;
+  box-shadow:0 8px 26px rgba(0,0,0,.32); padding:10px; display:none; align-items:center; gap:8px}
+.dimpop.on{display:flex}
+.dimpop label{font-size:10.5px; color:var(--ink-3); text-transform:uppercase; letter-spacing:.06em}
+.dimpop input{width:100px; background:var(--row); border:1px solid var(--line); border-radius:4px;
+  padding:8px 9px; font:700 18px system-ui,sans-serif; color:var(--ink); text-align:center}
+.dimpop input:focus{outline:2px solid var(--acc); outline-offset:0}
+.dimpop button{border:0; background:var(--acc); color:#fff; border-radius:4px; font:700 13px system-ui,sans-serif;
+  cursor:pointer; padding:8px 12px}
+
+.fillpop{position:fixed; z-index:46; left:50%; bottom:calc(72px + env(safe-area-inset-bottom));
+  transform:translateX(-50%); background:var(--panel); border:1px solid var(--line); border-radius:8px;
+  box-shadow:0 8px 26px rgba(0,0,0,.32); padding:8px; display:none; flex-direction:column; gap:3px;
+  max-height:56vh; overflow-y:auto; min-width:230px}
+.fillpop.on{display:flex}
+.fillpop button{background:var(--row); border:1px solid var(--line); border-radius:4px; padding:9px 11px;
+  font:600 13.5px system-ui,sans-serif; color:var(--ink); cursor:pointer; text-align:left}
+.fillpop button[aria-pressed="true"]{border-color:var(--acc); background:var(--acc-soft); color:var(--acc-ink)}
+
+.fab{position:fixed; z-index:26; right:14px; bottom:calc(186px + env(safe-area-inset-bottom));
+  width:48px; height:48px; border-radius:50%; background:var(--acc); border:0; color:#fff; cursor:pointer;
+  display:none; align-items:center; justify-content:center; box-shadow:0 5px 16px rgba(0,0,0,.32)}
+.fab svg{width:23px; height:23px; stroke:#fff; fill:none; stroke-width:1.8; stroke-linecap:round; stroke-linejoin:round}
+
 .sum{background:var(--panel); border-bottom:1px solid var(--line); overflow-x:auto;
   box-shadow:0 3px 10px -6px rgba(0,0,0,.35)}
 .sum[hidden]{display:none}
@@ -66,12 +91,16 @@ svg.win .hit{cursor:pointer}
   border-top:1px solid rgba(255,255,255,.08)}
 .dock .plus{width:62px; flex:0 0 auto; background:var(--acc); border:0; color:#fff;
   font:300 32px/1 system-ui,sans-serif; cursor:pointer}
-.dock .strip{flex:1 1 auto; display:flex; gap:6px; overflow-x:auto; padding:7px 8px; align-items:center}
-.dock .thumb{flex:0 0 auto; width:46px; height:46px; border-radius:4px; background:var(--bar-2);
-  border:2px solid transparent; cursor:pointer; padding:3px; position:relative}
+.dock .strip{flex:1 1 auto; display:flex; gap:10px; overflow-x:auto; padding:9px 10px 7px; align-items:center}
+.dock .twrap{flex:0 0 auto; position:relative}
+.dock .thumb{width:46px; height:46px; border-radius:4px; background:var(--bar-2);
+  border:2px solid transparent; cursor:pointer; padding:3px; display:block}
 .dock .thumb[aria-pressed="true"]{border-color:var(--acc-2)}
 .dock .thumb svg{width:100%; height:100%; display:block}
 .dock .thumb b{position:absolute; right:2px; bottom:0; font-size:9px; color:#fff}
+.dock .twrap .del{position:absolute; left:-6px; top:-6px; width:17px; height:17px; border-radius:50%;
+  background:var(--del); border:1.5px solid var(--bar-2); color:#fff; font:700 10px/14px system-ui,sans-serif;
+  text-align:center; cursor:pointer; padding:0; z-index:2}
 .dock .empty{color:var(--bar-ink); font-size:12.5px; padding:0 8px; align-self:center}
 
 .list{padding:10px}
@@ -186,7 +215,7 @@ svg.win .hit{cursor:pointer}
 .sheet button.mi[aria-current="true"]{background:var(--acc-soft); color:var(--acc-ink);
   font-weight:600; border-left-color:var(--acc)}
 
-.res{padding:10px}
+.res{padding:10px 10px 28px}
 .rcard{background:var(--row); border:1px solid var(--line); border-radius:4px; margin-bottom:10px; overflow:hidden}
 .rcard .rh{background:var(--line-2); padding:9px 12px; font-size:12px; font-weight:700; color:var(--ink-2);
   text-transform:uppercase; letter-spacing:.06em; display:flex; justify-content:space-between; gap:8px; flex-wrap:wrap}
@@ -202,6 +231,7 @@ svg.win .hit{cursor:pointer}
 .tot{display:flex; gap:14px; flex-wrap:wrap; padding:10px 12px; background:var(--row-2);
   border-top:1px solid var(--line-2); font-size:13px; color:var(--ink-2)}
 .tot b{color:var(--ink)}
+.tot .thickpick{cursor:pointer; border-bottom:1px dashed var(--acc-ink); padding-bottom:1px}
 .chk{border:1px solid; border-radius:4px; padding:9px 11px; font-size:13px; margin:0 0 8px}
 .chk.crit{background:var(--del-soft); border-color:#D9AEA8; color:#7E2A20}
 .chk.warn{background:var(--warn-soft); border-color:#DCC58A; color:var(--warn)}
@@ -229,7 +259,7 @@ svg.win .hit{cursor:pointer}
   transition:opacity .18s; max-width:90vw; text-align:center}
 .toast.on{opacity:1}
 section[hidden]{display:none}
-body{padding-bottom:calc(56px + env(safe-area-inset-bottom))}
+body{padding-bottom:calc(64px + env(safe-area-inset-bottom))}
 </style>
 </head>
 <body>
@@ -250,6 +280,17 @@ body{padding-bottom:calc(56px + env(safe-area-inset-bottom))}
   <div class="canvas"><svg class="win" id="draw" viewBox="0 0 360 392" role="img" aria-label="Изделие"></svg></div>
   <div class="dims" id="dims"></div>
 </section>
+
+<button class="fab" id="fabWin" aria-label="Комплектующие окна">
+  <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3.2"/><path d="M12 2.5v3M12 18.5v3M2.5 12h3M18.5 12h3M5.3 5.3l2.1 2.1M16.6 16.6l2.1 2.1M5.3 18.7l2.1-2.1M16.6 7.4l2.1-2.1"/></svg>
+</button>
+
+<div class="dimpop" id="dimPop">
+  <label id="dimPopLabel">Размер</label>
+  <input type="number" inputmode="numeric" id="dimPopInput">
+  <button id="dimPopOk">✓</button>
+</div>
+<div class="fillpop" id="fillPop"></div>
 
 <section id="s-glass" hidden>
   <div class="res">
@@ -368,7 +409,6 @@ body{padding-bottom:calc(56px + env(safe-area-inset-bottom))}
   <div class="cap">Ещё</div>
   <button class="mi" data-nav="s-client">Заказчик</button>
   <button class="mi" data-nav="s-edge">Кромки поля</button>
-  <button class="mi" data-open="pWin">Параметры окна</button>
   <button class="mi" data-open="pSys">Настройки алюминия</button>
 </div>
 
@@ -810,10 +850,7 @@ function bindDraw(){
   $$("#draw [data-dim]").forEach(function(el){
     el.addEventListener("click", function(ev){
       ev.stopPropagation();
-      var kind = el.getAttribute("data-dim"), idx = el.getAttribute("data-idx");
-      var q = '#dims input[data-dim="'+kind+'"]' + (idx ? '[data-idx="'+idx+'"]' : "");
-      var target = $(q) || $('#dims input[data-dim="'+kind+'"]');
-      if(target){ target.focus(); target.select(); }
+      openDimPop(el.getAttribute("data-dim"), el.getAttribute("data-idx"));
     });
   });
 }
@@ -873,51 +910,91 @@ function applySplit(nd, c, r){
   delete nd.type; delete nd.fill; delete nd.panel; delete nd.mesh;
 }
 
-/* ---------- строка размеров ---------- */
+/* ---------- строка размеров ----------
+   Постоянного ряда полей больше нет: количество остаётся под рукой,
+   а размер меняют тапом по цифре на самом чертеже — там же, где её видно. */
 function renderDims(){
   var it = item(); if(!it){ $("#dims").innerHTML = ""; return; }
   var c = selCell();
-  var cols = c ? chain(it, c.nd, "col") : null;
-  var rows = c ? chain(it, c.nd, "row") : null;
-  var h = '<div class="g"><label>Ш</label><input type="number" step="10" data-dim="W" value="'+it.W+'"></div>'+
-          '<div class="g"><label>В</label><input type="number" step="10" data-dim="H" value="'+it.H+'"></div>';
-  if(cols && cols.length > 1) cols.forEach(function(kid, i){
-    h += '<div class="g"><label>'+(i+1)+'</label><input type="number" step="10" data-dim="K" data-idx="'+i+'" value="'+Math.round(kid.w)+'"></div>';
-  });
-  if(rows && rows.length > 1) rows.forEach(function(kid, i){
-    h += '<div class="g"><label>ряд '+(i+1)+'</label><input type="number" step="10" data-dim="R" data-idx="'+i+'" value="'+Math.round(kid.h)+'"></div>';
-  });
-  h += '<div class="g"><label>шт</label><input type="number" step="1" min="1" data-dim="Q" value="'+it.qty+'"></div>';
+  var h = '<div class="g"><label>шт</label><input type="number" step="1" min="1" data-dim="Q" value="'+it.qty+'"></div>';
   if(c) h += '<div class="cap">поле '+(+c.key+1)+' · '+esc(openById(c.type).n)+
     (c.panel ? ' · сэндвич-панель' : '')+' · <b>'+
     (c.ok ? (c.panel?"панель ":"стеклопакет ")+Math.round(c.gw)+" × "+Math.round(c.gh)+" × "+c.t : "не считается")+'</b></div>';
   $("#dims").innerHTML = h;
-  $$("#dims input").forEach(function(inp){
-    inp.addEventListener("input", function(){
-      var it2 = item(), c2 = selCell(), kind = inp.getAttribute("data-dim"), v = +inp.value || 0;
-      if(kind === "W"){ it2.W = Math.max(200, v); }
-      else if(kind === "H"){ it2.H = Math.max(200, v); }
-      else if(kind === "Q"){ it2.qty = Math.max(1, v|0); }
-      else{
-        var dir = (kind === "K") ? "col" : "row";
-        var kids = c2 ? chain(it2, c2.nd, dir) : null;
-        if(!kids) return;
-        var i = +inp.getAttribute("data-idx"), kid = kids[i];
-        var parent = parentOf(it2.root, kid);
-        var full = (kind === "K") ? parent.w : parent.h;
-        var want = Math.max(50, v), rest = full - want;
-        if(rest < 50 * (kids.length - 1)) return;
-        var others = kids.filter(function(x){ return x !== kid; });
-        var oldOthers = others.reduce(function(a,x){ return a + ((kind==="K")?x.w:x.h); }, 0) || 1;
-        kid.size = want;
-        others.forEach(function(x){
-          var was = (kind==="K") ? x.w : x.h;
-          x.size = Math.max(50, Math.round(rest * was / oldOthers));
-        });
-      }
-      save(); paintCanvas(true);
+  var qi = $('#dims input[data-dim="Q"]');
+  if(qi) qi.addEventListener("input", function(){
+    var it2 = item(); if(!it2) return;
+    it2.qty = Math.max(1, qi.value|0); save(); paintCanvas(true);
+  });
+}
+
+/* ---------- поповер размера: тап по цифре на чертеже открывает поле ввода рядом ---------- */
+var dimPopCtx = null;
+function openDimPop(kind, idx){
+  var it = item(), c = selCell(), val, label;
+  if(kind === "W"){ val = it.W; label = "ширина, мм"; }
+  else if(kind === "H"){ val = it.H; label = "высота, мм"; }
+  else if(kind === "K"){
+    var cols = c ? chain(it, c.nd, "col") : null;
+    if(!cols) return;
+    val = Math.round(cols[+idx].w); label = "ширина "+(+idx+1)+", мм";
+  }else{
+    var rows = c ? chain(it, c.nd, "row") : null;
+    if(!rows) return;
+    val = Math.round(rows[+idx].h); label = "высота ряда "+(+idx+1)+", мм";
+  }
+  dimPopCtx = { kind:kind, idx:idx };
+  $("#dimPopLabel").textContent = label;
+  var inp = $("#dimPopInput");
+  inp.value = val;
+  $("#dimPop").classList.add("on");
+  $("#fillPop").classList.remove("on");
+  inp.focus(); inp.select();
+}
+function closeDimPop(){ $("#dimPop").classList.remove("on"); dimPopCtx = null; }
+function applyDimPop(v){
+  if(!dimPopCtx) return;
+  var it2 = item(), c2 = selCell(), kind = dimPopCtx.kind, idx = dimPopCtx.idx;
+  if(kind === "W"){ it2.W = Math.max(200, v); }
+  else if(kind === "H"){ it2.H = Math.max(200, v); }
+  else{
+    var dir = (kind === "K") ? "col" : "row";
+    var kids = c2 ? chain(it2, c2.nd, dir) : null;
+    if(!kids) return;
+    var i = +idx, kid = kids[i];
+    var parent = parentOf(it2.root, kid);
+    var full = (kind === "K") ? parent.w : parent.h;
+    var want = Math.max(50, v), rest = full - want;
+    if(rest < 50 * (kids.length - 1)) return;
+    var others = kids.filter(function(x){ return x !== kid; });
+    var oldOthers = others.reduce(function(a,x){ return a + ((kind==="K")?x.w:x.h); }, 0) || 1;
+    kid.size = want;
+    others.forEach(function(x){
+      var was = (kind==="K") ? x.w : x.h;
+      x.size = Math.max(50, Math.round(rest * was / oldOthers));
+    });
+  }
+  save(); paintCanvas(true);
+}
+
+/* ---------- поповер толщины стеклопакета в разделе «Пакеты» ---------- */
+function openFillPop(){
+  $("#fillPop").innerHTML = FILLS.map(function(f){
+    return '<button data-fillpick="'+f.id+'" aria-pressed="'+(f.id===UI.defFill)+'">'+esc(f.n)+'</button>';
+  }).join("");
+  $$("#fillPop [data-fillpick]").forEach(function(b){
+    b.addEventListener("click", function(){
+      setOrderFill(b.getAttribute("data-fillpick"));
+      $("#fillPop").classList.remove("on");
     });
   });
+  $("#dimPop").classList.remove("on");
+  $("#fillPop").classList.add("on");
+}
+function setOrderFill(fid){
+  var o = order(); if(!o) return;
+  o.items.forEach(function(it){ walk(it.root, function(n){ if(!n.sp) n.fill = fid; }); });
+  UI.defFill = fid; save(); renderGlass(); toast("Толщина стеклопакета изменена");
 }
 
 /* ---------- нижняя таблица ---------- */
@@ -967,11 +1044,36 @@ function renderStrip(){
   if(!o){ $("#strip").innerHTML = '<span class="empty">Создайте заказ кнопкой «+»</span>'; return; }
   if(!o.items.length){ $("#strip").innerHTML = '<span class="empty">Нажмите «+» и выберите конфигурацию</span>'; return; }
   $("#strip").innerHTML = o.items.map(function(it){
-    return '<button class="thumb" data-item="'+it.id+'" aria-pressed="'+(it.id===UI.item)+'">'+
-      thumbSvg(it)+'<b>'+it.qty+'</b></button>';
+    return '<div class="twrap"><button class="thumb" data-item="'+it.id+'" aria-pressed="'+(it.id===UI.item)+'">'+
+      thumbSvg(it)+'<b>'+it.qty+'</b></button>'+
+      '<button class="del" data-delitem="'+it.id+'" aria-label="Удалить окно">✕</button></div>';
   }).join("");
   $$("#strip [data-item]").forEach(function(b){
-    b.addEventListener("click", function(){ UI.item = b.getAttribute("data-item"); UI.cell = "0"; save(); paintCanvas(); });
+    b.addEventListener("click", function(){
+      UI.item = b.getAttribute("data-item"); UI.cell = "0"; save();
+      if(UI.screen !== "s-canvas") nav("s-canvas"); else paintCanvas();
+    });
+  });
+  $$("#strip [data-delitem]").forEach(function(b){
+    b.addEventListener("click", function(ev){ ev.stopPropagation(); askDeleteItem(b.getAttribute("data-delitem")); });
+  });
+}
+/* Удаление окна из ленты позиций, минуя панель параметров */
+function askDeleteItem(id){
+  var o = order(); if(!o) return;
+  var it = null, i;
+  for(i=0;i<o.items.length;i++){ if(o.items[i].id===id) it = o.items[i]; }
+  if(!it) return;
+  ask("Удалить окно "+it.W+" × "+it.H+"?", "Отменить будет нельзя.", function(){
+    var idx = o.items.indexOf(it);
+    if(idx >= 0) o.items.splice(idx, 1);
+    if(UI.item === id){
+      UI.item = o.items.length ? o.items[0].id : null; UI.cell = "0";
+    }
+    save();
+    if(UI.screen === "s-canvas"){ if(o.items.length) paintCanvas(); else nav("s-orders"); }
+    else renderStrip();
+    toast("Окно удалено");
   });
 }
 function paintCanvas(keepDims){
@@ -979,6 +1081,7 @@ function paintCanvas(keepDims){
   if(!keepDims) renderDims();
   renderSum(); renderStrip();
   var it = item(), o = order();
+  $("#fabWin").style.display = (UI.screen === "s-canvas" && it) ? "flex" : "none";
   $("#ttl").textContent = it ? (it.W + " × " + it.H) : "WinHub Алюминий";
   $("#who").textContent = o ? ((o.client.name || "заказ №"+o.no) + (it ? " · " + sysById(it.sysId).n.split(" —")[0] : "")) : "";
 }
@@ -1368,8 +1471,9 @@ function renderGlass(){
   var m2 = gr.reduce(function(a,g){return a+g.area*g.n;},0);
   thick.sort(function(a,b){return a-b;});
   $("#glassTot").innerHTML = '<span>всего <b>'+n+' '+plural(n,"пакет","пакета","пакетов")+
-    '</b></span><span>площадь <b>'+m2.toFixed(2)+' м²</b></span><span>толщина <b>'+
+    '</b></span><span>площадь <b>'+m2.toFixed(2)+' м²</b></span><span class="thickpick" id="thickPick" role="button">толщина <b>'+
     (thick.length ? thick.join(" и ")+" мм" : "—")+'</b></span>';
+  var tp = $("#thickPick"); if(tp) tp.addEventListener("click", openFillPop);
   var o = order();
   $("#glassHint").textContent = o ? ("заказ №"+o.no) : "—";
 
@@ -1510,6 +1614,7 @@ function nav(id){
   $$("section").forEach(function(s){ s.hidden = (s.id !== id); });
   $$("[data-nav]").forEach(function(b){ b.setAttribute("aria-current", String(b.getAttribute("data-nav")===id)); });
   $("#dock").style.display = (id === "s-orders" || id === "s-canvas") ? "flex" : "none";
+  $("#fabWin").style.display = (id === "s-canvas" && item()) ? "flex" : "none";
   $("#sumTbl").hidden = (id !== "s-canvas");
   var o = order();
   if(id === "s-canvas") paintCanvas();
@@ -1522,7 +1627,7 @@ function nav(id){
   if(id === "s-cut") renderCut();
   if(id === "s-edge") renderEdge();
   if(id === "s-client") loadClient();
-  closeSheet(); closeModals();
+  closeSheet(); closeModals(); closeDimPop(); $("#fillPop").classList.remove("on");
   window.scrollTo(0,0); save();
 }
 function openPanel(id){
@@ -1617,6 +1722,19 @@ function boot(){
   });
   $("#cutStock").addEventListener("input", function(){ UI.cutStock = Math.max(1000, +this.value||6000); save(); renderCut(); });
   $("#cutKerf").addEventListener("input", function(){ UI.cutKerf = Math.max(0, +this.value||0); save(); renderCut(); });
+
+  $("#fabWin").addEventListener("click", function(){ openPanel("pWin"); });
+  $("#dimPopInput").addEventListener("input", function(){ applyDimPop(+this.value || 0); });
+  $("#dimPopInput").addEventListener("keydown", function(e){ if(e.key === "Enter") closeDimPop(); });
+  $("#dimPopOk").addEventListener("click", closeDimPop);
+  document.addEventListener("click", function(ev){
+    if($("#dimPop").classList.contains("on") &&
+       !(ev.target.closest && (ev.target.closest("#dimPop") || ev.target.closest("[data-dim]"))))
+      closeDimPop();
+    if($("#fillPop").classList.contains("on") &&
+       !(ev.target.closest && (ev.target.closest("#fillPop") || ev.target.closest("#thickPick"))))
+      $("#fillPop").classList.remove("on");
+  });
 
   nav(order() ? (UI.screen || "s-canvas") : "s-orders");
 }
