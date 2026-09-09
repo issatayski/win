@@ -855,8 +855,8 @@ function handleGlyph(type, x0, y0, x1, y1){
   var midX=(x0+x1)/2, midY=(y0+y1)/2, len=16, w=4.5, r='<rect x="{x}" y="{y}" width="{w}" height="{h}" rx="1.6" '+
     'fill="#3A4750" stroke="#20282E" stroke-width=".6"/>';
   var mk = function(x,y,w2,h2){ return r.replace("{x}",x).replace("{y}",y).replace("{w}",w2).replace("{h}",h2); };
-  if(type==="turnL"||type==="ttL") return mk(x1-10, midY-w/2, len, w);
-  if(type==="turnR"||type==="ttR") return mk(x0-6, midY-w/2, len, w);
+  if(type==="turnL"||type==="ttL") return mk(x0-6, midY-w/2, len, w);
+  if(type==="turnR"||type==="ttR") return mk(x1-10, midY-w/2, len, w);
   if(type==="tilt")  return mk(midX-w/2, y0-10, w, len);
   if(type==="top")   return mk(midX-w/2, y1-6, w, len);
   return "";
