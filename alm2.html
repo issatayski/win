@@ -482,6 +482,32 @@ function fillById(id){
   for(var i=0;i<FILLS.length;i++){ if(FILLS[i].id===id) return FILLS[i]; }
   return null;
 }
+/* Цвет профиля — декоративная накладка/окраска, на расчёт не влияет */
+var COLORS = [
+  {id:"none",     n:"не учитывать", sw:null},
+  {id:"birch",    n:"береза",       sw:"#F6D9B4"},
+  {id:"beech",    n:"бук",          sw:"#D9AE86"},
+  {id:"cherry",   n:"вишня",        sw:"#C1683A"},
+  {id:"hickory",  n:"гикори",       sw:"#B08A5E"},
+  {id:"oak",      n:"дуб",          sw:"#D9A356"},
+  {id:"yellow",   n:"жёлтый",       sw:"#F2D64B"},
+  {id:"green",    n:"зелёный",      sw:"#A9C97E"},
+  {id:"maple",    n:"клен",         sw:"#F5DFA0"},
+  {id:"redwood",  n:"красное д.",   sw:"#9B5A2B"},
+  {id:"red",      n:"красный",      sw:"#D4685F"},
+  {id:"alder",    n:"ольха",        sw:"#F0C8A0"},
+  {id:"walnut",   n:"орех",         sw:"#C89A70"},
+  {id:"blue",     n:"синий",        sw:"#5B8FB0"},
+  {id:"pine",     n:"сосна",        sw:"#F1E4B0"},
+  {id:"poplar",   n:"тополь",       sw:"#D9CC94"},
+  {id:"blackwood",n:"черное д.",    sw:"#5C3B3B"},
+  {id:"black",    n:"чёрный",       sw:"#5C5C5C"},
+  {id:"ash",      n:"ясень",        sw:"#E8B98A"}
+];
+function colorById(id){
+  for(var i=0;i<COLORS.length;i++){ if(COLORS[i].id===id) return COLORS[i]; }
+  return COLORS[0];
+}
 /* Открывание: расчёт различает глухое и створку; сторона петель на размер
    не влияет, но идёт в чертёж и в комплект фурнитуры. */
 var OPEN = [
@@ -533,7 +559,7 @@ function mkItem(tplId){
   var t = null, i;
   for(i=0;i<TPLS.length;i++){ if(TPLS[i].id===tplId) t = TPLS[i]; }
   if(!t) t = TPLS[0];
-  return { id:uid("i"), tpl:t.id, sysId:UI.defSys, qty:1, W:1500, H:1500, root:treeFromTpl(t.g) };
+  return { id:uid("i"), tpl:t.id, sysId:UI.defSys, color:UI.defColor, qty:1, W:1500, H:1500, root:treeFromTpl(t.g) };
 }
 function layout(node, x, y, w, h, out){
   node.x=x; node.y=y; node.w=w; node.h=h;
@@ -681,7 +707,7 @@ function checksOf(R){
    ============================================================ */
 var DB = { orders:[], seq:1 };
 var UI = { order:null, item:null, cell:"0", screen:"s-orders",
-           defFill:"f32b", defSys:"w72", cutStock:6000, cutKerf:5 };
+           defFill:"f32b", defSys:"w72", defColor:"none", cutStock:6000, cutKerf:5 };
 function order(){
   for(var i=0;i<DB.orders.length;i++){ if(DB.orders[i].id===UI.order) return DB.orders[i]; }
   return null;
@@ -758,20 +784,33 @@ function drawWin(){
   var ox = VB.l + (VB.w - VB.l - VB.r - it.W*k)/2, oy = VB.t;
   var X = function(v){ return ox + v*k; }, Y = function(v){ return oy + v*k; };
   var s = [];
+  var profCol = (it.color && colorById(it.color) && colorById(it.color).sw) || "var(--frame)";
+  s.push('<defs>'+
+    '<pattern id="meshPat" width="5" height="5" patternUnits="userSpaceOnUse" patternTransform="rotate(45)">'+
+      '<line x1="0" y1="0" x2="0" y2="5" stroke="#55606A" stroke-width="1" stroke-opacity=".55"/></pattern>'+
+    '<pattern id="panelPat" width="9" height="9" patternUnits="userSpaceOnUse">'+
+      '<line x1="0" y1="4.5" x2="9" y2="4.5" stroke="#948A78" stroke-width="1" stroke-opacity=".6"/></pattern>'+
+    '</defs>');
   s.push('<rect x="'+X(0)+'" y="'+Y(0)+'" width="'+(it.W*k)+'" height="'+(it.H*k)+
-    '" fill="var(--frame)" stroke="#8D979C"/>');
+    '" fill="'+profCol+'" stroke="#8D979C"/>');
   R.cells.forEach(function(c){
     var ax=c.x+c.faceL, bx=c.x+c.w-c.faceR, ay=c.y+c.faceT, by=c.y+c.h-c.faceB, sy=R.sy;
+    var hx0,hy0,hx1,hy1;
     if(isSash(c.type)){
       var sx=ax-sy.L.ovl, sX=bx+sy.L.ovl, sy0=ay-sy.L.ovl, sY=by+sy.L.ovl;
-      s.push('<rect x="'+X(sx)+'" y="'+Y(sy0)+'" width="'+Math.max(0,(sX-sx)*k)+'" height="'+Math.max(0,(sY-sy0)*k)+
-        '" fill="var(--sash)" stroke="#8D979C"/>');
+      hx0=X(sx); hy0=Y(sy0); hx1=X(sX); hy1=Y(sY);
+      s.push('<rect x="'+hx0+'" y="'+hy0+'" width="'+Math.max(0,hx1-hx0)+'" height="'+Math.max(0,hy1-hy0)+
+        '" fill="'+profCol+'" fill-opacity=".9" stroke="#8D979C"/>');
       ax=sx+sy.Z.f; bx=sX-sy.Z.f; ay=sy0+sy.Z.f; by=sY-sy.Z.f;
     }
     var gx=X(ax), gy=Y(ay), gw=Math.max(0,(bx-ax)*k), gh=Math.max(0,(by-ay)*k);
     s.push('<rect class="hit" data-cell="'+c.key+'" x="'+gx+'" y="'+gy+'" width="'+gw+'" height="'+gh+
       '" fill="'+(c.panel?"var(--panelfill)":"var(--glass)")+'" stroke="'+(c.key===UI.cell?"var(--acc)":"#9AAAB2")+
       '" stroke-width="'+(c.key===UI.cell?2.2:1)+'"/>');
+    if(c.panel) s.push('<rect x="'+gx+'" y="'+gy+'" width="'+gw+'" height="'+gh+
+      '" fill="url(#panelPat)" pointer-events="none"/>');
+    if(c.mesh) s.push('<rect x="'+gx+'" y="'+gy+'" width="'+gw+'" height="'+gh+
+      '" fill="url(#meshPat)" fill-opacity=".6" stroke="#6E7C83" stroke-width=".7" pointer-events="none"/>');
     if(isSash(c.type) && gw > 26 && gh > 26){
       var m = Math.min(gw,gh)*0.14, x0=gx+m, y0=gy+m, x1=gx+gw-m, y1=gy+gh-m;
       var cxx=(x0+x1)/2, cyy=(y0+y1)/2;
@@ -781,6 +820,8 @@ function drawWin(){
       if(c.type==="tilt"||c.type==="ttL"||c.type==="ttR") s.push(L2(x0,y1,cxx,y0)+L2(x1,y1,cxx,y0));
       if(c.type==="top") s.push(L2(x0,y0,cxx,y1)+L2(x1,y0,cxx,y1));
     }
+    /* ручка фурнитуры — у поворотных и откидных полей, со стороны, противоположной петлям */
+    if(isSash(c.type)) s.push(handleGlyph(c.type, hx0, hy0, hx1, hy1));
     /* ручки-фишки по краям поля: уравнять, делить вдоль, делить поперёк */
     if(gw > 52 && gh > 52){
       s.push(chip(gx+gw-13, gy+13, "eq", c.key, "="));
@@ -808,6 +849,17 @@ function drawWin(){
   }else s.push(dimV(X(0)-22, Y(0), Y(it.H), it.H, "H"));
   $("#draw").innerHTML = s.join("");
   bindDraw();
+}
+/* Ручка фурнитуры: сторона зависит от того, где на створке петли */
+function handleGlyph(type, x0, y0, x1, y1){
+  var midX=(x0+x1)/2, midY=(y0+y1)/2, len=16, w=4.5, r='<rect x="{x}" y="{y}" width="{w}" height="{h}" rx="1.6" '+
+    'fill="#3A4750" stroke="#20282E" stroke-width=".6"/>';
+  var mk = function(x,y,w2,h2){ return r.replace("{x}",x).replace("{y}",y).replace("{w}",w2).replace("{h}",h2); };
+  if(type==="turnL"||type==="ttL") return mk(x1-10, midY-w/2, len, w);
+  if(type==="turnR"||type==="ttR") return mk(x0-6, midY-w/2, len, w);
+  if(type==="tilt")  return mk(midX-w/2, y0-10, w, len);
+  if(type==="top")   return mk(midX-w/2, y1-6, w, len);
+  return "";
 }
 function chip(x, y, act, id, glyph, del){
   var c = del ? "var(--del)" : "var(--acc)";
@@ -1232,6 +1284,13 @@ function opt(label, on, act, val, sub){
   return '<button class="opt" aria-pressed="'+(!!on)+'" data-act="'+act+'" data-val="'+esc(val)+'">'+
     '<span class="mark"></span><span>'+esc(label)+(sub?'<span class="sub">'+esc(sub)+'</span>':'')+'</span></button>';
 }
+function colorOpt(c, on){
+  var sw = c.sw
+    ? '<span style="width:22px;height:22px;border-radius:3px;flex:0 0 auto;border:1px solid var(--line);background:'+c.sw+'"></span>'
+    : '<span style="width:22px;height:22px;flex:0 0 auto"></span>';
+  return '<button class="opt" aria-pressed="'+(!!on)+'" data-act="color" data-val="'+esc(c.id)+'">'+
+    sw+'<span class="mark"></span><span>'+esc(c.n)+'</span></button>';
+}
 function renderWinPanel(){
   var it = item();
   if(!it){ $("#pWinBody").innerHTML = '<div class="pnote">Сначала добавьте окно кнопкой «+».</div>'; return; }
@@ -1246,6 +1305,10 @@ function renderWinPanel(){
     h += opt(s.n, s.id === it.sysId, "sys", s.id,
       "заполнение "+s.lim.fillMin+"–"+s.lim.fillMax+" мм · створка до "+s.lim.sashW+"×"+s.lim.sashH);
   });
+  h += sec("цвет профиля");
+  h += '<div style="max-height:280px;overflow-y:auto">'+COLORS.map(function(c){
+    return colorOpt(c, c.id === (it.color||"none"));
+  }).join("")+'</div>';
   h += sec("заполнение всех полей");
   h += '<div class="padd">'+FILLS.map(function(f){
     return '<button class="btn alt" data-act="fillall" data-val="'+f.id+'">'+esc(f.n)+'</button>';
@@ -1269,6 +1332,7 @@ function panelAct(act, val){
   if(act === "W"){ it.W = Math.max(200, +val||0); save(); paintCanvas(); return; }
   if(act === "H"){ it.H = Math.max(200, +val||0); save(); paintCanvas(); return; }
   if(act === "sys"){ it.sysId = val; UI.defSys = val; save(); renderWinPanel(); paintCanvas(); return; }
+  if(act === "color"){ it.color = val; UI.defColor = val; save(); renderWinPanel(); paintCanvas(); return; }
   if(act === "fillall"){
     walk(it.root, function(n){ if(!n.sp) n.fill = val; });
     UI.defFill = val; save(); paintCanvas(); toast("Заполнение поставлено всем полям"); return;
